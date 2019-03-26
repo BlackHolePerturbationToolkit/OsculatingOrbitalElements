@@ -21,9 +21,12 @@ MessageName[OsculatingOrbitalElementsEvolutionSchwarzschild, "usage"] =
 MessageName[IntegrationLimit, "usage"] = 
 "IntegrationLimit is an option for OsculatingOrbitalElementEvolutionSchwarzschild which specifies the value of \[Chi] up to which the functions for p, e, \[Xi], t, and \[Phi] will be evlauated."
 
-MessageName[AccuracyGoal, "usage"] = "accuarcy is an option for OsculatingOrbitalElementEvolutionSchwarzschild which specifies the AccuarcyGoal of NDSolve"
+MessageName[AccuracyGoal, "usage"] = "AccuracyGoal is an option for OsculatingOrbitalElementEvolutionSchwarzschild which specifies the AccuarcyGoal of NDSolve"
 
-MessageName[PrecisionGoal, "usage"]= "'precision' is an option for OsculatingOrbitalElementEvolutionSchwarzschild which specifies the PrecisionGoal of NDSolve"
+MessageName[PrecisionGoal, "usage"]= "PrecisionGoal is an option for OsculatingOrbitalElementEvolutionSchwarzschild which specifies the PrecisionGoal of NDSolve"
+
+MessageName[FastGSF, "usage"]= "FastGSF[\[Eta],p,e,\[Xi]] returns Fr and F\[Phi] in terms of p, e, and \[Xi] for a mass ratio \[Eta]. 
+This function is accurate to first order for p < 12 and e< 0.2"
 
 
 (* ::Subsection:: *)
