@@ -1,1 +1,6 @@
 # OsculatingOrbitalElements
+
+
+#### Authors
+
+Philip Lynch
