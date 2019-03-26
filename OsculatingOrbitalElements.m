@@ -151,7 +151,7 @@ FastGSF[\[Eta]_,p_,e_,v_, M_:1]:= Module[{FrCons, FrDiss,F\[Phi]Cons,F\[Phi]Diss
 
 (*Make sue the files are stored in the same ddirectory as the notebook*)
 (*Might make this editable in futre for greater ease of use*)
-SetDirectory[NotebookDirectory[]];
+SetDirectory[FileNameJoin[{$UserBaseDirectory,"Applications", "OsculatingOrbitalElements", "DataFiles"}]];
 
 (*Loading the files*)
 dataA=Import["a_n_jk","Table"];
