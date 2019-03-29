@@ -4,7 +4,7 @@ OsculatingOrbitalElements
 The OsculatingOrbitalElements package calculates the inpsiral of a 'small' 
 compact object orbiting a Schwarzschild Black Hole when provided a function 
 for its gravitational slef-acceleration using the Method of Osculating Orbital 
-Elements (also known as Method of Osculating Geodeiscs).
+Elements (also known as the Method of Osculating Geodeiscs).
 
 The package comes with a function for the Gravitaional Self Acceleration
 'FastGSF', for p <= 12 and e <= 0.2 which can imeadiately be used with 
@@ -24,16 +24,18 @@ It is typically tested with only the latest available version.
 
 Installation
 ------------
-Clone the repository and place it somewhere on Mathematica's $Path.
-Typical locations are inside ${HOME}/.Mathematica/Applications/ for Linux or
-inside ${HOME}/Library/Mathematica/Applications/ for Mac OSX.
+Clone the repository and place it somewhere on Mathematica's `$Path`.
+Typical locations are inside `${HOME}/.Mathematica/Applications/` for Linux,
+`${HOME}/Library/Mathematica/Applications/` for Mac OSX, or in 
+`C:\Users\yourusername\AppData\Roaming\Mathematica\Applications`
+for Windows.
 
 
 Usage
 -----
 The package may be loaded into Mathematica using the command:
 
-```Mathematica
+```mathematica
 << OsculatingOrbitalElements`
 ```
 Example
@@ -41,28 +43,24 @@ Example
 
 First define the r and &phi; componants of the self acceleration
 
-```
-Fr[p_, e_, &xi;_] := FastGSF[p, e, &xi;]["Fr"];
-F&phi;[p_, e_, &xi;_] := FastGSF[p, e, &xi;]["F&phi;"];
-
+```mathematica
+Fr[p_, e_, xi_] := FastGSF[p, e, xi]["Fr"];
+Fphi[p_, e_, xi_] := FastGSF[p, e, xi]["Fphi"];
 ```
 
 Next define the mass ratio and the initial conditions.
 
-```
-&eta; = 10^-5;
+```mathematica
+eta = 10^-5;
 p0 = 12;
 e0 = 0.2;
-&xi;0 = 0.0;
-
+xi0 = 0.0;
 ```
 
 Finally, calculate the inspiral.
 
-```
- 
-OsculatingOrbitalElementsEvolutionSchwarzschild[Fr, F&phi; , &eta;, p0, e0, &xi;0]
-
+```mathematica
+OsculatingOrbitalElementsEvolutionSchwarzschild[Fr, Fphi , eta, p0, e0, xi0]
 ```
 
 The output is a list of accosciaitons for p, e, &xi; as well as 
