@@ -16,7 +16,7 @@ BeginPackage["OsculatingOrbitalElements`"]
 
 
 MessageName[OsculatingOrbitalElementsEvolutionSchwarzschild, "usage"] = 
-"OsculatingOrbitalElementEvolutionSchwarzschild[Fr,F\[Phi], \[Eta], p0, e0, \[Xi]0, t0, \[Phi]0] calculates {p[\[Chi]],e[\[Chi]],\[Xi][\[Chi]],t[\[Chi]],\[Phi][\[Chi]]} using a Gravitaional Self Force given by Fr,F\[Phi] and a mass ratio given by \[Eta]."
+"OsculatingOrbitalElementEvolutionSchwarzschild[Fr,F\[Phi], \[Eta], p0, e0, \[Xi]0, t0, \[Phi]0] calculates p(\[Chi]), e(\[Chi]), \[Xi](\[Chi]), t(\[Chi]) and \[Phi](\[Chi]) using a Gravitaional Self Acceleration given by Fr,F\[Phi] and a mass ratio given by \[Eta]."
 
 MessageName[IntegrationLimit, "usage"] = 
 "IntegrationLimit is an option for OsculatingOrbitalElementEvolutionSchwarzschild which specifies the value of \[Chi] up to which the functions for p, e, \[Xi], t, and \[Phi] will be evlauated."
@@ -25,7 +25,7 @@ MessageName[AccuracyGoal, "usage"] = "AccuracyGoal is an option for OsculatingOr
 
 MessageName[PrecisionGoal, "usage"]= "PrecisionGoal is an option for OsculatingOrbitalElementEvolutionSchwarzschild which specifies the PrecisionGoal of NDSolve"
 
-MessageName[FastGSF, "usage"]= "FastGSF[\[Eta],p,e,\[Xi]] returns Fr and F\[Phi] in terms of p, e, and \[Xi] for a mass ratio \[Eta]. 
+MessageName[FastGSF, "usage"]= "FastGSF[p,e,\[Xi]] returns Fr and F\[Phi] in terms of p, e, and \[Xi]. 
 This function is accurate to first order for p < 12 and e< 0.2"
 
 
@@ -71,10 +71,10 @@ initialConditions = {p[0] ==p0 ,  e[0] == e0, \[Xi][0] == \[Xi]0, t[0] == 0, \[P
 
 (*Defining the Evolution equations*)
 evolutionEqns = { t'[\[Chi]] == (M p[\[Chi]]^2 Sqrt[(p[\[Chi]]-2)^2 -4e[\[Chi]]^2])/((p[\[Chi]]-2-2e[\[Chi]] Cos[\[Xi][\[Chi]]])(1+e[\[Chi]] Cos[\[Xi][\[Chi]]])^2 Sqrt[p[\[Chi]]-6-2e[\[Chi]]Cos[\[Xi][\[Chi]]]]),
-				p'[\[Chi]] == ((2 M p[\[Chi]]^2 Sqrt[(p[\[Chi]]-2)^2 -4e[\[Chi]]^2])/((p[\[Chi]]-2-2e[\[Chi]] Cos[\[Xi][\[Chi]]])(1+e[\[Chi]] Cos[\[Xi][\[Chi]]])^2 Sqrt[p[\[Chi]]-6-2e[\[Chi]]Cos[\[Xi][\[Chi]]]]))p[\[Chi]]f0[\[Chi]]f1[\[Chi]](p[\[Chi]]^(1/2) f1[\[Chi]]f2[\[Chi]](p[\[Chi]]-3-e[\[Chi]]^2 Cos[\[Xi][\[Chi]]]^2) M/\[Mu] F\[Phi][p[\[Chi]],e[\[Chi]],\[Xi][\[Chi]]] - e[\[Chi]]Sin[\[Xi][\[Chi]]] Fr[p[\[Chi]],e[\[Chi]],\[Xi][\[Chi]]]/\[Mu]), 
-				e'[\[Chi]] == ((M p[\[Chi]]^2 Sqrt[(p[\[Chi]]-2)^2 -4e[\[Chi]]^2])/((p[\[Chi]]-2-2e[\[Chi]] Cos[\[Xi][\[Chi]]])(1+e[\[Chi]] Cos[\[Xi][\[Chi]]])^2 Sqrt[p[\[Chi]]-6-2e[\[Chi]]Cos[\[Xi][\[Chi]]]]))f0[\[Chi]](p[\[Chi]]^(1/2) f2[\[Chi]](\[Beta][\[Chi]]f3[\[Chi]]Cos[\[Xi][\[Chi]]]+e[\[Chi]](p[\[Chi]]^2-10p[\[Chi]]+12+4e[\[Chi]]^2)) M/\[Mu] F\[Phi][p[\[Chi]],e[\[Chi]],\[Xi][\[Chi]]] + \[Beta][\[Chi]]f1[\[Chi]]Sin[\[Xi][\[Chi]]] Fr[p[\[Chi]],e[\[Chi]],\[Xi][\[Chi]]]/\[Mu]),
+				p'[\[Chi]] == \[Eta]((2 p[\[Chi]]^2 Sqrt[(p[\[Chi]]-2)^2 -4e[\[Chi]]^2])/((p[\[Chi]]-2-2e[\[Chi]] Cos[\[Xi][\[Chi]]])(1+e[\[Chi]] Cos[\[Xi][\[Chi]]])^2 Sqrt[p[\[Chi]]-6-2e[\[Chi]]Cos[\[Xi][\[Chi]]]]))p[\[Chi]]f0[\[Chi]]f1[\[Chi]](p[\[Chi]]^(1/2) f1[\[Chi]]f2[\[Chi]](p[\[Chi]]-3-e[\[Chi]]^2 Cos[\[Xi][\[Chi]]]^2)M F\[Phi][p[\[Chi]],e[\[Chi]],\[Xi][\[Chi]]] - e[\[Chi]]Sin[\[Xi][\[Chi]]] Fr[p[\[Chi]],e[\[Chi]],\[Xi][\[Chi]]]), 
+				e'[\[Chi]] == \[Eta](( p[\[Chi]]^2 Sqrt[(p[\[Chi]]-2)^2 -4e[\[Chi]]^2])/((p[\[Chi]]-2-2e[\[Chi]] Cos[\[Xi][\[Chi]]])(1+e[\[Chi]] Cos[\[Xi][\[Chi]]])^2 Sqrt[p[\[Chi]]-6-2e[\[Chi]]Cos[\[Xi][\[Chi]]]]))f0[\[Chi]](p[\[Chi]]^(1/2) f2[\[Chi]](\[Beta][\[Chi]]f3[\[Chi]]Cos[\[Xi][\[Chi]]]+e[\[Chi]](p[\[Chi]]^2-10p[\[Chi]]+12+4e[\[Chi]]^2)) M F\[Phi][p[\[Chi]],e[\[Chi]],\[Xi][\[Chi]]] + \[Beta][\[Chi]]f1[\[Chi]]Sin[\[Xi][\[Chi]]] Fr[p[\[Chi]],e[\[Chi]],\[Xi][\[Chi]]]),
 
-				\[Xi]'[\[Chi]] == 1-((M p[\[Chi]]^2 Sqrt[(p[\[Chi]]-2)^2 -4e[\[Chi]]^2])/((p[\[Chi]]-2-2e[\[Chi]] Cos[\[Xi][\[Chi]]])(1+e[\[Chi]] Cos[\[Xi][\[Chi]]])^2 Sqrt[p[\[Chi]]-6-2e[\[Chi]]Cos[\[Xi][\[Chi]]]])) f0[\[Chi]]/e[\[Chi]] (p[\[Chi]]^(1/2) f2[\[Chi]]Sin[\[Xi][\[Chi]]]((p[\[Chi]]-6)f3[\[Chi]]-4e[\[Chi]]^3 Cos[\[Xi][\[Chi]]]) M/\[Mu] F\[Phi][p[\[Chi]],e[\[Chi]],\[Xi][\[Chi]]]- f1[\[Chi]]((p[\[Chi]]-6)Cos[\[Xi][\[Chi]]]+2e[\[Chi]]) Fr[p[\[Chi]],e[\[Chi]],\[Xi][\[Chi]]] /\[Mu]),
+				\[Xi]'[\[Chi]] == 1-\[Eta](( p[\[Chi]]^2 Sqrt[(p[\[Chi]]-2)^2 -4e[\[Chi]]^2])/((p[\[Chi]]-2-2e[\[Chi]] Cos[\[Xi][\[Chi]]])(1+e[\[Chi]] Cos[\[Xi][\[Chi]]])^2 Sqrt[p[\[Chi]]-6-2e[\[Chi]]Cos[\[Xi][\[Chi]]]])) f0[\[Chi]]/e[\[Chi]] (p[\[Chi]]^(1/2) f2[\[Chi]]Sin[\[Xi][\[Chi]]]((p[\[Chi]]-6)f3[\[Chi]]-4e[\[Chi]]^3 Cos[\[Xi][\[Chi]]]) M F\[Phi][p[\[Chi]],e[\[Chi]],\[Xi][\[Chi]]]- f1[\[Chi]]((p[\[Chi]]-6)Cos[\[Xi][\[Chi]]]+2e[\[Chi]]) Fr[p[\[Chi]],e[\[Chi]],\[Xi][\[Chi]]] ),
 				\[Phi]'[\[Chi]] ==  Sqrt[p[\[Chi]]/(p[\[Chi]]-6-2e[\[Chi]] Cos[\[Xi][\[Chi]]])]};
 (*Solving the Evolution Equaitons*)
 {{psol,esol,\[Xi]sol,tsol, \[Phi]sol}}= {p,e,\[Xi],t,\[Phi]}/.NDSolve[{Join[evolutionEqns,initialConditions],WhenEvent[p[\[Chi]]-6-2e[\[Chi]] -0.001 == 0, "StopIntegration"]}, {p,e,\[Xi],t,\[Phi]},{\[Chi],0, IntegrationLimit}, AccuracyGoal->Accuracy,PrecisionGoal->Precision];
@@ -114,11 +114,11 @@ initialConditions = { p[0] == p0, \[Alpha][0] ==\[Alpha]0 ,  \[Beta][0] == \[Bet
 (*Define the evolution equations*)
 (*There's no way around it, these things are ugly*)
 
-evolutionEqns = {p'[\[Chi]] == (2p[\[Chi]]^(7/2) M^2 Sqrt[p[\[Chi]]-6-2(\[CapitalPsi][\[Chi]]+\[CapitalOmega][\[Chi]])](p[\[Chi]]-3-\[Alpha][\[Chi]]^2-\[Beta][\[Chi]]^2)(p[\[Chi]]-3-(\[CapitalPsi][\[Chi]]+\[CapitalOmega][\[Chi]])^2) \[Mu]^-1 F\[Phi][p[\[Chi]], e[\[Chi]], \[Xi][\[Chi]]])/(((p[\[Chi]]-6)^2-4(\[Alpha][\[Chi]]^2+\[Beta][\[Chi]]^2))(1+\[CapitalPsi][\[Chi]]+\[CapitalOmega][\[Chi]])^4) - (2p[\[Chi]]^3 M(p[\[Chi]]-3-\[Alpha][\[Chi]]^2-\[Beta][\[Chi]]^2)(\[Beta][\[Chi]] Sin[\[Chi]] - \[Alpha][\[Chi]] Cos[\[Chi]]) \[Mu]^-1 Fr[p[\[Chi]], e[\[Chi]], \[Xi][\[Chi]]])/(((p[\[Chi]]-6)^2-4(\[Alpha][\[Chi]]^2+\[Beta][\[Chi]]^2))(1+\[CapitalPsi][\[Chi]]+\[CapitalOmega][\[Chi]])^2),
+evolutionEqns = {p'[\[Chi]] == \[Eta] (2p[\[Chi]]^(7/2) M Sqrt[p[\[Chi]]-6-2(\[CapitalPsi][\[Chi]]+\[CapitalOmega][\[Chi]])](p[\[Chi]]-3-\[Alpha][\[Chi]]^2-\[Beta][\[Chi]]^2)(p[\[Chi]]-3-(\[CapitalPsi][\[Chi]]+\[CapitalOmega][\[Chi]])^2)  F\[Phi][p[\[Chi]], e[\[Chi]], \[Xi][\[Chi]]])/(((p[\[Chi]]-6)^2-4(\[Alpha][\[Chi]]^2+\[Beta][\[Chi]]^2))(1+\[CapitalPsi][\[Chi]]+\[CapitalOmega][\[Chi]])^4) - \[Eta] (2p[\[Chi]]^3 M(p[\[Chi]]-3-\[Alpha][\[Chi]]^2-\[Beta][\[Chi]]^2)(\[Beta][\[Chi]] Sin[\[Chi]] - \[Alpha][\[Chi]] Cos[\[Chi]]) Fr[p[\[Chi]], e[\[Chi]], \[Xi][\[Chi]]])/(((p[\[Chi]]-6)^2-4(\[Alpha][\[Chi]]^2+\[Beta][\[Chi]]^2))(1+\[CapitalPsi][\[Chi]]+\[CapitalOmega][\[Chi]])^2),
 
-\[Alpha]'[\[Chi]] == (p[\[Chi]]^(5/2) M^2 (p[\[Chi]]-3-\[Alpha][\[Chi]]^2-\[Beta][\[Chi]]^2) \[Mu]^-1 F\[Phi][p[\[Chi]], e[\[Chi]], \[Xi][\[Chi]]])/(Sqrt[p[\[Chi]]-6-2(\[CapitalPsi][\[Chi]] + \[CapitalOmega][\[Chi]])]((p[\[Chi]]-6)^2-4(\[Alpha][\[Chi]]^2+\[Beta][\[Chi]]^2))(1+\[CapitalPsi][\[Chi]]+\[CapitalOmega][\[Chi]])^4) (4\[Beta][\[Chi]](\[Alpha][\[Chi]] \[Beta][\[Chi]] Cos[2\[Chi]] + 1/2 (\[Alpha][\[Chi]]^2-\[Beta][\[Chi]]^2)Sin[2\[Chi]])+(2(p[\[Chi]]-3)+(p[\[Chi]]-6)(\[CapitalPsi][\[Chi]]+\[CapitalOmega][\[Chi]])-2(\[CapitalPsi][\[Chi]]+\[CapitalOmega][\[Chi]])^2)((p[\[Chi]]-6)Sin[\[Chi]] - 2\[Alpha][\[Chi]](\[CapitalPsi][\[Chi]]+\[CapitalOmega][\[Chi]])) + \[Alpha][\[Chi]](p[\[Chi]]^2-10p[\[Chi]] +12 + 4(\[Alpha][\[Chi]]^2+ \[Beta][\[Chi]]^2)))- (p[\[Chi]]^2 M(p[\[Chi]]-3-\[Alpha][\[Chi]]^2-\[Beta][\[Chi]]^2)((p[\[Chi]]-6-2\[Alpha][\[Chi]]^2)Cos[\[Chi]]+2\[Beta][\[Chi]](1+\[CapitalPsi][\[Chi]]))\[Mu]^-1 Fr[p[\[Chi]], e[\[Chi]], \[Xi][\[Chi]]] )/(((p[\[Chi]]-6)^2-4(\[Alpha][\[Chi]]^2+ \[Beta][\[Chi]]^2))(1+\[CapitalPsi][\[Chi]]+\[CapitalOmega][\[Chi]])^2),
+\[Alpha]'[\[Chi]] == \[Eta]((p[\[Chi]]^(5/2) M (p[\[Chi]]-3-\[Alpha][\[Chi]]^2-\[Beta][\[Chi]]^2) F\[Phi][p[\[Chi]], e[\[Chi]], \[Xi][\[Chi]]])/(Sqrt[p[\[Chi]]-6-2(\[CapitalPsi][\[Chi]] + \[CapitalOmega][\[Chi]])]((p[\[Chi]]-6)^2-4(\[Alpha][\[Chi]]^2+\[Beta][\[Chi]]^2))(1+\[CapitalPsi][\[Chi]]+\[CapitalOmega][\[Chi]])^4) (4\[Beta][\[Chi]](\[Alpha][\[Chi]] \[Beta][\[Chi]] Cos[2\[Chi]] + 1/2 (\[Alpha][\[Chi]]^2-\[Beta][\[Chi]]^2)Sin[2\[Chi]])+(2(p[\[Chi]]-3)+(p[\[Chi]]-6)(\[CapitalPsi][\[Chi]]+\[CapitalOmega][\[Chi]])-2(\[CapitalPsi][\[Chi]]+\[CapitalOmega][\[Chi]])^2)((p[\[Chi]]-6)Sin[\[Chi]] - 2\[Alpha][\[Chi]](\[CapitalPsi][\[Chi]]+\[CapitalOmega][\[Chi]])) + \[Alpha][\[Chi]](p[\[Chi]]^2-10p[\[Chi]] +12 + 4(\[Alpha][\[Chi]]^2+ \[Beta][\[Chi]]^2)))- (p[\[Chi]]^2 M(p[\[Chi]]-3-\[Alpha][\[Chi]]^2-\[Beta][\[Chi]]^2)((p[\[Chi]]-6-2\[Alpha][\[Chi]]^2)Cos[\[Chi]]+2\[Beta][\[Chi]](1+\[CapitalPsi][\[Chi]])) Fr[p[\[Chi]], e[\[Chi]], \[Xi][\[Chi]]] )/(((p[\[Chi]]-6)^2-4(\[Alpha][\[Chi]]^2+ \[Beta][\[Chi]]^2))(1+\[CapitalPsi][\[Chi]]+\[CapitalOmega][\[Chi]])^2)),
 
-\[Beta]'[\[Chi]] == (p[\[Chi]]^(5/2) M^2 (p[\[Chi]]-3-\[Alpha][\[Chi]]^2-\[Beta][\[Chi]]^2) \[Mu]^-1 F\[Phi][p[\[Chi]], e[\[Chi]], \[Xi][\[Chi]]])/(Sqrt[p[\[Chi]]-6-2(\[CapitalPsi][\[Chi]] + \[CapitalOmega][\[Chi]])]((p[\[Chi]]-6)^2-4(\[Alpha][\[Chi]]^2+\[Beta][\[Chi]]^2))(1+\[CapitalPsi][\[Chi]]+\[CapitalOmega][\[Chi]])^4) (-4\[Alpha][\[Chi]](\[Alpha][\[Chi]] \[Beta][\[Chi]] Cos[2\[Chi]] + 1/2 (\[Alpha][\[Chi]]^2-\[Beta][\[Chi]]^2)Sin[2\[Chi]])+(2(p[\[Chi]]-3)+(p[\[Chi]]-6)(\[CapitalPsi][\[Chi]]+\[CapitalOmega][\[Chi]])-2(\[CapitalPsi][\[Chi]]+\[CapitalOmega][\[Chi]])^2)((p[\[Chi]]-6)Cos[\[Chi]] - 2\[Beta][\[Chi]](\[CapitalPsi][\[Chi]]+\[CapitalOmega][\[Chi]])) + \[Beta][\[Chi]](p[\[Chi]]^2-10p[\[Chi]] +12 + 4(\[Alpha][\[Chi]]^2+ \[Beta][\[Chi]]^2))) +(p[\[Chi]]^2 M(p[\[Chi]]-3-\[Alpha][\[Chi]]^2-\[Beta][\[Chi]]^2)((p[\[Chi]]-6-2\[Beta][\[Chi]]^2)Sin[\[Chi]]+2\[Alpha][\[Chi]](1+\[CapitalOmega][\[Chi]]))\[Mu]^-1 Fr[p[\[Chi]], e[\[Chi]], \[Xi][\[Chi]]])/(((p[\[Chi]]-6)^2-4(\[Alpha][\[Chi]]^2+ \[Beta][\[Chi]]^2))(1+\[CapitalPsi][\[Chi]]+\[CapitalOmega][\[Chi]])^2),
+\[Beta]'[\[Chi]] == \[Eta]((p[\[Chi]]^(5/2) M (p[\[Chi]]-3-\[Alpha][\[Chi]]^2-\[Beta][\[Chi]]^2) F\[Phi][p[\[Chi]], e[\[Chi]], \[Xi][\[Chi]]])/(Sqrt[p[\[Chi]]-6-2(\[CapitalPsi][\[Chi]] + \[CapitalOmega][\[Chi]])]((p[\[Chi]]-6)^2-4(\[Alpha][\[Chi]]^2+\[Beta][\[Chi]]^2))(1+\[CapitalPsi][\[Chi]]+\[CapitalOmega][\[Chi]])^4) (-4\[Alpha][\[Chi]](\[Alpha][\[Chi]] \[Beta][\[Chi]] Cos[2\[Chi]] + 1/2 (\[Alpha][\[Chi]]^2-\[Beta][\[Chi]]^2)Sin[2\[Chi]])+(2(p[\[Chi]]-3)+(p[\[Chi]]-6)(\[CapitalPsi][\[Chi]]+\[CapitalOmega][\[Chi]])-2(\[CapitalPsi][\[Chi]]+\[CapitalOmega][\[Chi]])^2)((p[\[Chi]]-6)Cos[\[Chi]] - 2\[Beta][\[Chi]](\[CapitalPsi][\[Chi]]+\[CapitalOmega][\[Chi]])) + \[Beta][\[Chi]](p[\[Chi]]^2-10p[\[Chi]] +12 + 4(\[Alpha][\[Chi]]^2+ \[Beta][\[Chi]]^2))) +(p[\[Chi]]^2 M(p[\[Chi]]-3-\[Alpha][\[Chi]]^2-\[Beta][\[Chi]]^2)((p[\[Chi]]-6-2\[Beta][\[Chi]]^2)Sin[\[Chi]]+2\[Alpha][\[Chi]](1+\[CapitalOmega][\[Chi]]))Fr[p[\[Chi]], e[\[Chi]], \[Xi][\[Chi]]])/(((p[\[Chi]]-6)^2-4(\[Alpha][\[Chi]]^2+ \[Beta][\[Chi]]^2))(1+\[CapitalPsi][\[Chi]]+\[CapitalOmega][\[Chi]])^2)),
 t'[\[Chi]]== (p[\[Chi]]^2 M Sqrt[(p[\[Chi]]-2)^2-4(\[Alpha][\[Chi]]^2+\[Beta][\[Chi]]^2)])/((p[\[Chi]]-2-2(\[CapitalPsi][\[Chi]]+\[CapitalOmega][\[Chi]]))Sqrt[p[\[Chi]]-6-2(\[CapitalPsi][\[Chi]]+\[CapitalOmega][\[Chi]])] (1+\[CapitalPsi][\[Chi]]+\[CapitalOmega][\[Chi]])^2),
 
 \[Phi]'[\[Chi]] ==  Sqrt[p[\[Chi]]/(p[\[Chi]]-6-2(\[CapitalPsi][\[Chi]]+\[CapitalOmega][\[Chi]]))]};
@@ -150,7 +150,7 @@ esol[\[Chi]_] := (\[Alpha]sol[\[Chi]]^2 + \[Beta]sol[\[Chi]]^2)^(1/2);
 
 
 (* ::Input::Initialization:: *)
-FastGSF[\[Eta]_,p_,e_,v_, M_:1]:= Module[{FrCons, FrDiss,F\[Phi]Cons,F\[Phi]Diss, nmax,jbar,kbar,ki, a, b, c, d, dataA,dataB,dataC,dataD}, 
+FastGSF[p_,e_,v_, M_:1]:= Module[{FrCons, FrDiss,F\[Phi]Cons,F\[Phi]Diss, nmax,jbar,kbar,ki, a, b, c, d, dataA,dataB,dataC,dataD}, 
 
 (*Make sue the files are stored in the same ddirectory as the notebook*)
 (*Might make this editable in futre for greater ease of use*)
@@ -183,7 +183,7 @@ F\[Phi]Cons=1/p^ki[3] Sum[If[n==0,1/2,1]c[1][n][[j+1,k+1]]p^(-ki[3]-k) e^(n+2j) 
 F\[Phi]Diss=1/p^ki[4] Sum[If[n==0,1/2,1]d[1][n][[j+1,k+1]]p^(-ki[4]-k) e^(n+2j) Cos[n v],{n,0,nmax},{j,0,jbar},{k,0,kbar}];
 
 (*Retuning the componants as a 4 vector*)
-<|"Fr" -> \[Eta]^2 (FrDiss + FrCons), "F\[Phi]" -> \[Eta]^2 M(F\[Phi]Cons + F\[Phi]Diss)|>]
+<|"Fr" -> (FrDiss + FrCons), "F\[Phi]" -> M(F\[Phi]Cons + F\[Phi]Diss)|>]
 
 
 (* ::Subsubsection:: *)
@@ -203,7 +203,7 @@ F\[Phi]Diss=1/p^ki[4] Sum[If[n==0,1/2,1]d[1][n][[j+1,k+1]]p^(-ki[4]-k) e^(n+2j) 
 
 
 (* ::Input::Initialization:: *)
-OsculatingOrbitalElementEvolutionSchwarzschild[Fr_,F\[Phi]_,\[Eta]_, p0_, e0_, \[Xi]0_, t0_:0, \[Phi]0_:0, OptionsPattern[]]:= Module[{},
+OsculatingOrbitalElementsEvolutionSchwarzschild[Fr_,F\[Phi]_,\[Eta]_, p0_, e0_, \[Xi]0_, t0_:0, \[Phi]0_:0, OptionsPattern[]]:= Module[{},
 	(*Seperatrix condition for bound orbits in Schwarzschild Spacetime*)
 	If[p0 < 6 + 2 e0,
 		(*Error Message*)
