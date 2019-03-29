@@ -33,7 +33,7 @@ This function is accurate to first order for p < 12 and e< 0.2"
 (*Options and Syntax Information*)
 
 
-Options[OsculatingOrbitalElementEvolutionSchwarzschild] = {IntegrationLimit-> 1000000, AccuracyGoal-> Automatic, PrecisionGoal -> Automatic};
+Options[OsculatingOrbitalElementsEvolutionSchwarzschild] = {IntegrationLimit-> 1000000, AccuracyGoal-> Automatic, PrecisionGoal -> Automatic};
 
 
 (* ::Subsection:: *)

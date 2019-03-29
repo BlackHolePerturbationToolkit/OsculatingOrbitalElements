@@ -1,5 +1,4 @@
-===============================================================================
- OsculatingOrbitalElements
+OsculatingOrbitalElements
 ===============================================================================
 
 The OsculatingOrbitalElements package calculates the inpsiral of a 'small' 
@@ -8,9 +7,8 @@ for its gravitational slef-acceleration using the Method of Osculating Orbital
 Elements (also known as Method of Osculating Geodeiscs).
 
 The package comes with a function for the Gravitaional Self Acceleration
-'Fast GSF', for p <= 12 and e <= 0.2 which can imeadiately be used with 
+'FastGSF', for p <= 12 and e <= 0.2 which can imeadiately be used with 
 the package.
-===============================================================================
 
 Getting the package
 -------------------
@@ -35,30 +33,29 @@ Usage
 -----
 The package may be loaded into Mathematica using the command:
 
+```Mathematica
 << OsculatingOrbitalElements`
-
-Examples
+```
+Example
 --------
-First define the r and \theta componants of the self acceleration:
 
+```Mathematica
+(*First define the r and\theta componants of the self acceleration*)
 Fr[p_, e_, \[Xi]_] := FastGSF[p, e, \[Xi]]["Fr"];
 F\[Phi][p_, e_, \[Xi]_] := FastGSF[p, e, \[Xi]]["F\[Phi]"];
 
-Next define the mass ratio and the initial conditions:
-
+(*Next define the mass ratio and the initial conditions*)
 \[Eta] = 10^-5;
 p0 = 12;
 e0 = 0.2;
 \[Xi]0 = 0.0;
-
-Finally, calculate the inspiral:
-
-OsculatingOrbitalElementEvolutionSchwarzschild[Fr, F\[Phi] , \[Eta], \
+(*Finally, calculate the inspiral*)
+OsculatingOrbitalElementsEvolutionSchwarzschild[Fr, F\[Phi] , \[Eta], \
 p0, e0, \[Xi]0]
 
 The output is a list of accosciaitons for p, e, \[Xi] as well as 
  t, r, \[Theta] and \[Phi]. 
-
+```
 Changelog
 ---------
 25 March 2019: Initial version created.
