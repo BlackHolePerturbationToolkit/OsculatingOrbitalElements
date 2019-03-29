@@ -39,23 +39,35 @@ The package may be loaded into Mathematica using the command:
 Example
 --------
 
-```Mathematica
-(*First define the r and\theta componants of the self acceleration*)
-Fr[p_, e_, \[Xi]_] := FastGSF[p, e, \[Xi]]["Fr"];
-F\[Phi][p_, e_, \[Xi]_] := FastGSF[p, e, \[Xi]]["F\[Phi]"];
+First define the r and &phi; componants of the self acceleration
 
-(*Next define the mass ratio and the initial conditions*)
-\[Eta] = 10^-5;
+```
+Fr[p_, e_, &xi;_] := FastGSF[p, e, &xi;]["Fr"];
+F&phi;[p_, e_, &xi;_] := FastGSF[p, e, &xi;]["F&phi;"];
+
+```
+
+Next define the mass ratio and the initial conditions.
+
+```
+&eta; = 10^-5;
 p0 = 12;
 e0 = 0.2;
-\[Xi]0 = 0.0;
-(*Finally, calculate the inspiral*)
-OsculatingOrbitalElementsEvolutionSchwarzschild[Fr, F\[Phi] , \[Eta], \
-p0, e0, \[Xi]0]
+&xi;0 = 0.0;
 
-The output is a list of accosciaitons for p, e, \[Xi] as well as 
- t, r, \[Theta] and \[Phi]. 
 ```
+
+Finally, calculate the inspiral.
+
+```
+ 
+OsculatingOrbitalElementsEvolutionSchwarzschild[Fr, F&phi; , &eta;, p0, e0, &xi;0]
+
+```
+
+The output is a list of accosciaitons for p, e, &xi; as well as 
+ t, r, &theta; and &phi;. 
+
 Changelog
 ---------
 25 March 2019: Initial version created.
