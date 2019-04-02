@@ -67,7 +67,7 @@ f3[x_] := f1[x]^2 e[x]Cos[\[Xi][x]]+2(p[x]-3);
 
 
 (*Define the initial Conditions*)
-initialConditions = {p[0] ==p0 ,  e[0] == e0, \[Xi][0] == \[Xi]0, t[0] == 0, \[Phi][0] == 0};
+initialConditions = {p[0] ==p0 ,  e[0] == e0, \[Xi][0] == \[Xi]0, t[0] == t0, \[Phi][0] == \[Phi]0};
 
 (*Defining the Evolution equations*)
 evolutionEqns = { t'[\[Chi]] == (M p[\[Chi]]^2 Sqrt[(p[\[Chi]]-2)^2 -4e[\[Chi]]^2])/((p[\[Chi]]-2-2e[\[Chi]] Cos[\[Xi][\[Chi]]])(1+e[\[Chi]] Cos[\[Xi][\[Chi]]])^2 Sqrt[p[\[Chi]]-6-2e[\[Chi]]Cos[\[Xi][\[Chi]]]]),
@@ -203,7 +203,7 @@ F\[Phi]Diss=1/p^ki[4] Sum[If[n==0,1/2,1]d[1][n][[j+1,k+1]]p^(-ki[4]-k) e^(n+2j) 
 
 
 (* ::Input::Initialization:: *)
-OsculatingOrbitalElementsEvolutionSchwarzschild[Fr_,F\[Phi]_,\[Eta]_, p0_, e0_, \[Xi]0_, t0_:0, \[Phi]0_:0, OptionsPattern[]]:= Module[{},
+OsculatingOrbitalElementsEvolutionSchwarzschild[Fr_,F\[Phi]_,\[Eta]_, p0_, e0_, \[Xi]0_, t0_:0.0, \[Phi]0_:0.0, OptionsPattern[]]:= Module[{},
 	(*Seperatrix condition for bound orbits in Schwarzschild Spacetime*)
 	If[p0 < 6 + 2 e0,
 		(*Error Message*)
