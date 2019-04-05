@@ -150,7 +150,7 @@ esol[\[Chi]_] := (\[Alpha]sol[\[Chi]]^2 + \[Beta]sol[\[Chi]]^2)^(1/2);
 
 
 (* ::Input::Initialization:: *)
-FastGSF[p_,e_,v_, M_:1]:= Module[{FrCons, FrDiss,F\[Phi]Cons,F\[Phi]Diss, nmax,jbar,kbar,ki, a, b, c, d, dataA,dataB,dataC,dataD}, 
+FastGSF[p_,e_,\[Xi]_, M_:1]:= Module[{FrCons, FrDiss,F\[Phi]Cons,F\[Phi]Diss, nmax,jbar,kbar,ki, a, b, c, d, dataA,dataB,dataC,dataD}, 
 
 (*Make sue the files are stored in the same ddirectory as the notebook*)
 (*Might make this editable in futre for greater ease of use*)
@@ -177,10 +177,10 @@ Table[c[1][n]=Table[dataC[[4+n,3+j kbar+2j;;3+(j+1) kbar+2j]],{j,0,4}],{n,0,nmax
 Table[d[1][n]=Table[dataD[[4+n,3+j kbar+2j;;3+(j+1) kbar+2j]],{j,0,4}],{n,0,nmax}];
 
 (*Calculating the companants of the graviational self force*)
-FrCons=1/p^ki[1] Sum[If[n==0,1/2,1]a[1][n][[j+1,k+1]]p^(-ki[1]-k) e^(n+2j) Cos[n v],{n,0,nmax},{j,0,jbar},{k,0,kbar}];
-FrDiss=1/p^ki[2] Sum[If[n==0,1/2,1]b[1][n][[j+1,k+1]]p^(-ki[2]-k) e^(n+2j) Sin[n v],{n,0,nmax},{j,0,jbar},{k,0,kbar}];
-F\[Phi]Cons=1/p^ki[3] Sum[If[n==0,1/2,1]c[1][n][[j+1,k+1]]p^(-ki[3]-k) e^(n+2j) Sin[n v],{n,0,nmax},{j,0,jbar},{k,0,kbar}];
-F\[Phi]Diss=1/p^ki[4] Sum[If[n==0,1/2,1]d[1][n][[j+1,k+1]]p^(-ki[4]-k) e^(n+2j) Cos[n v],{n,0,nmax},{j,0,jbar},{k,0,kbar}];
+FrCons=1/p^ki[1] Sum[If[n==0,1/2,1]a[1][n][[j+1,k+1]]p^(-ki[1]-k) e^(n+2j) Cos[n \[Xi]],{n,0,nmax},{j,0,jbar},{k,0,kbar}];
+FrDiss=1/p^ki[2] Sum[If[n==0,1/2,1]b[1][n][[j+1,k+1]]p^(-ki[2]-k) e^(n+2j) Sin[n \[Xi]],{n,0,nmax},{j,0,jbar},{k,0,kbar}];
+F\[Phi]Cons=1/p^ki[3] Sum[If[n==0,1/2,1]c[1][n][[j+1,k+1]]p^(-ki[3]-k) e^(n+2j) Sin[n \[Xi]],{n,0,nmax},{j,0,jbar},{k,0,kbar}];
+F\[Phi]Diss=1/p^ki[4] Sum[If[n==0,1/2,1]d[1][n][[j+1,k+1]]p^(-ki[4]-k) e^(n+2j) Cos[n \[Xi]],{n,0,nmax},{j,0,jbar},{k,0,kbar}];
 
 (*Retuning the componants as a 4 vector*)
 <|"Fr" -> (FrDiss + FrCons), "F\[Phi]" -> M(F\[Phi]Cons + F\[Phi]Diss)|>]
@@ -203,9 +203,9 @@ F\[Phi]Diss=1/p^ki[4] Sum[If[n==0,1/2,1]d[1][n][[j+1,k+1]]p^(-ki[4]-k) e^(n+2j) 
 
 
 (* ::Input::Initialization:: *)
-OsculatingOrbitalElementsEvolutionSchwarzschild[Fr_,F\[Phi]_,\[Eta]_, p0_, e0_, \[Xi]0_, t0_:0.0, \[Phi]0_:0.0, OptionsPattern[]]:= Module[{},
+OsculatingOrbitalElementsEvolutionSchwarzschild[Fr_,F\[Phi]_,\[Eta]_?NumericQ, p0_?NumericQ, e0_?NumericQ, \[Xi]0_, t0:(_?NumericQ):0, \[Phi]0:(_?NumericQ):0, OptionsPattern[]]:= Module[{},
 	(*Seperatrix condition for bound orbits in Schwarzschild Spacetime*)
-	If[p0 < 6 + 2 e0,
+	If[p0 < 6 + 2 e0, 
 		(*Error Message*)
 		Print["Error: The intial conditions you have given do not satisfy the condition for a bound orbit: p >= 6 + 2 e"],
 		(*Decide which method to use*)
