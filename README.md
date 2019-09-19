@@ -1,14 +1,14 @@
 OsculatingOrbitalElements
 ===============================================================================
 
-The OsculatingOrbitalElements package calculates the inpsiral of a 'small' 
-compact object orbiting a Schwarzschild Black Hole when provided a function 
-for its gravitational slef-acceleration using the Method of Osculating Orbital 
-Elements (also known as the Method of Osculating Geodeiscs).
+The OsculatingOrbitalElements package solves the forced geodesic motion in either Schwarzshild or Kerr spacetime 
+using the Method of Osculating Orbital Elements (also known as the Method of Osculating Geodeiscs).
 
-The package comes with a function for the Gravitaional Self Acceleration
-'FastGSF', for p <= 12 and e <= 0.2 which can imeadiately be used with 
-the package.
+The user can specify the function for the force or make use of the following models included with the package:
+
+SchwarzFastGSF[p, e, &xi;]: Fast first order Gravitatinoal Self Force Model for p<12 and e<0.2
+SchwarzGasDrag[p, e, &xi;]: Relativistic gas drag model for Schwarzschild spacetime
+KerrGasDrag[En, L, K, &psi;r, &psi;&theta;]: Relativistic gas drag model for Kerr spacetime
 
 Getting the package
 -------------------
@@ -30,45 +30,24 @@ Typical locations are inside `${HOME}/.Mathematica/Applications/` for Linux,
 `C:\Users\yourusername\AppData\Roaming\Mathematica\Applications`
 for Windows.
 
+This package requires the [KerrGeodesics Package](https://github.com/BlackHolePerturbationToolkit/KerrGeodesics).
+
 
 Usage
 -----
-The package may be loaded into Mathematica using the command:
+This package, along with the KerrGeodesics package may be loaded into Mathematica using the command:
 
 ```mathematica
 << OsculatingOrbitalElements`
 ```
 Example
 --------
-
-First define the r and &phi; componants of the self acceleration
-
-```mathematica
-Fr[p_, e_, xi_] := FastGSF[p, e, xi]["Fr"];
-Fphi[p_, e_, xi_] := FastGSF[p, e, xi]["Fphi"];
-```
-
-Next define the mass ratio and the initial conditions.
-
-```mathematica
-eta = 10^-5;
-p0 = 12;
-e0 = 0.2;
-xi0 = 0.0;
-```
-
-Finally, calculate the inspiral.
-
-```mathematica
-OsculatingOrbitalElementsEvolutionSchwarzschild[Fr, Fphi , eta, p0, e0, xi0]
-```
-
-The output is a list of accosciaitons for p, e, &xi; as well as 
- t, r, &theta; and &phi;. 
+Examples are included in tutorial.nb.
 
 Changelog
 ---------
 25 March 2019: Initial version created.
+19 September 2019: Added code for Kerr Spacetime
 
 Known problems
 --------------

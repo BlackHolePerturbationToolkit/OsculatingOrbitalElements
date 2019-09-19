@@ -8,40 +8,71 @@
 (*Begin Package*)
 
 
-BeginPackage["OsculatingOrbitalElements`"]
+BeginPackage["OsculatingOrbitalElements`",{"KerrGeodesics`"}]
 
 
 (* ::Subsection:: *)
 (*Usage Statements*)
 
 
-MessageName[OsculatingOrbitalElementsEvolutionSchwarzschild, "usage"] = 
-"OsculatingOrbitalElementEvolutionSchwarzschild[Fr,F\[Phi], \[Eta], p0, e0, \[Xi]0, t0, \[Phi]0] calculates p(\[Chi]), e(\[Chi]), \[Xi](\[Chi]), t(\[Chi]) and \[Phi](\[Chi]) using a Gravitaional Self Acceleration given by Fr,F\[Phi] and a mass ratio given by \[Eta]."
+MessageName[SchwarzOsculatingOrbitalElements, "usage"] = 
+"SchwarzOsculatingOrbitalElements[\[Eta], p, e, \[Xi], Force-> {Fr, F\[Phi]}] calculates p, e, \[Xi], t and \[Phi] as functions of the Darwin Parameter (\[Chi]) using the contravarient components of an acceleration (Fr,F\[Phi]) and a mass ratio given by \[Eta]."
+
+MessageName[SchwarzOsculatingOrbitalElements, "InvalidForce"] =  "Error: Invalid Expression for Force."
+
+MessageName[SchwarzOsculatingOrbitalElements, "ICs"] =  "Error: The initial conditions given do not describe a bound orbit."
+
+MessageName[SchwarzOsculatingOrbitalElements, "OutOfRange"] =  "Warning: FastGSF model only defined up to p<12 and e<0.2"
+
+MessageName[KerrOsculatingOrbitalElements, "usage"] = 
+"KerrOsculatingOrbitalElements[\[Eta], a, p, e, x, \[Psi]r, \[Psi]\[Theta], Force->{at, ar, a\[Theta] a\[Phi]}] calculates En, L, K, \[Psi]r and \[Psi]\[Theta] as functions of Mino time (\[Lambda]) using a given by covariant components of an acceleration (at, ar, a\[Theta], a\[Phi]) a mass ratio given by \[Eta]."
+
+MessageName[KerrOsculatingOrbitalElements, "InvalidForce"] = 
+"Error: Invalid Expression for Force."
+
+MessageName[KerrOsculatingOrbitalElements, "ICs"] =  "Error: The initial conditions given do not describe a bound orbit."
 
 MessageName[IntegrationLimit, "usage"] = 
-"IntegrationLimit is an option for OsculatingOrbitalElementEvolutionSchwarzschild which specifies the value of \[Chi] up to which the functions for p, e, \[Xi], t, and \[Phi] will be evlauated."
+"IntegrationLimit is an option for SchwarzOsculatingOrbitalElements and KerrOsculatingOrbitalElements which specifies the maximum value of \[Chi] or \[Lambda] to use when solving the equations of motion.
+SchwarzOsculatingOrbitalElements Default: 1000000
+KerrOsculatingOrbitalElements Default: 10000"
 
-MessageName[AccuracyGoal, "usage"] = "AccuracyGoal is an option for OsculatingOrbitalElementEvolutionSchwarzschild which specifies the AccuarcyGoal of NDSolve"
+MessageName[Force, "usage"] = "Force is an option for SchwarzOsculatingOrbitalElements and KerrOsculatingOrbitalElements which specifies the model to use when solving the oscualting goedesic euqaitons. 
+By default, the appropriate Gas Drag model is used. 
+One can replace this with the name of any of the included models, or provide functions for each component. "
 
-MessageName[PrecisionGoal, "usage"]= "PrecisionGoal is an option for OsculatingOrbitalElementEvolutionSchwarzschild which specifies the PrecisionGoal of NDSolve"
+MessageName[AccuracyGoal, "usage"] = "AccuracyGoal is an option for SchwarzOsculatingOrbitalElements and KerrOsculatingOrbitalElements which specifies the AccuarcyGoal of NDSolve.
+Default: Automatic"
 
-MessageName[FastGSF, "usage"]= "FastGSF[p,e,\[Xi]] returns Fr and F\[Phi] in terms of p, e, and \[Xi]. 
+MessageName[PrecisionGoal, "usage"]= "PrecisionGoal is an option for SchwarzOsculatingOrbitalElements and KerrOsculatingOrbitalElements which specifies the PrecisionGoal of NDSolve.
+Default: Automatic"
+
+MessageName[SchwarzFastGSF, "usage"]= "SchwarzFastGSF[p,e,\[Xi]] returns Fr and F\[Phi] in terms of p, e, and \[Xi]. 
 This function is accurate to first order for p < 12 and e< 0.2"
+
+MessageName[SchwarzGasDrag, "usage"]= "SchwarzGasDrag[p,e,\[Xi]] returns contravarient components of a relativistic drag force, {Fr F\[Phi]}, in terms of p, e, and \[Xi]."
+
+MessageName[KerrGasDrag, "usage"]= "KerrGasDrag[a,En,L,K, \[Psi]r, \[Psi]\[Theta]] returns covarient components of a relativistic drag force, {at,ar,a\[Theta],a\[Phi]}, in terms of a, En, L and K."
 
 
 (* ::Subsection:: *)
 (*Options and Syntax Information*)
 
 
-Options[OsculatingOrbitalElementsEvolutionSchwarzschild] = {IntegrationLimit-> 1000000, AccuracyGoal-> Automatic, PrecisionGoal -> Automatic};
-
-
-(* ::Subsection:: *)
-(*Defining Private Functions*)
+Options[SchwarzOsculatingOrbitalElements] = {IntegrationLimit-> 1000000, AccuracyGoal-> Automatic, PrecisionGoal -> Automatic, Force -> SchwarzGasDrag};
+Options[KerrOsculatingOrbitalElements] = {IntegrationLimit-> 10000, AccuracyGoal-> Automatic, PrecisionGoal -> Automatic, Force -> KerrGasDrag};
 
 
 (* ::Input::Initialization:: *)
 Begin["`Private`"]
+
+
+(* ::Section:: *)
+(*Schwarzschild Spacetime*)
+
+
+(* ::Subsection:: *)
+(*Private Functions*)
 
 
 (* ::Subsubsection:: *)
@@ -49,12 +80,12 @@ Begin["`Private`"]
 
 
 (* ::Text:: *)
-(*This seems to be the fastest and most accurate method. Equations are kept in terms of p,e, and \[Xi]. *)
+(*This seems to be the fastest version of the Osculating Geodesics Equations which can be found in Warburton et al [1].  Equations are kept in terms of p,e, and \[Xi]. *)
 (*However, this method is undefined when e = 0, and so the equation for \[Xi]' diverges for small values of e. *)
 
 
 (* ::Input::Initialization:: *)
-EvolutionV1[\[Eta]_,Fr_,F\[Phi]_, p0_, e0_, \[Xi]0_,t0_,\[Phi]0_,IntegrationLimit_, Accuracy_, Precision_]:= Module[{M =1, \[Mu], f0,f1,f2,f3,\[Beta], evolutionEqns,initialConditions, psol,esol,\[Xi]sol,tsol, \[Phi]sol, p,e,\[Xi],t,\[Phi],\[Chi], rsol, \[Theta]sol}, 
+SchwarzOscGeoEqs1[\[Eta]_,Fr_,F\[Phi]_, p0_, e0_, \[Xi]0_,IntegrationLimit_, Accuracy_, Precision_]:= Module[{M =1, \[Mu], f0,f1,f2,f3,\[Beta], evolutionEqns,initialConditions, psol,esol,\[Xi]sol,tsol, \[Phi]sol, p,e,\[Xi],t,\[Phi],\[Chi], rsol, \[Theta]sol, progress = 0}, 
 \[Mu] = \[Eta] M;
 
 
@@ -67,7 +98,7 @@ f3[x_] := f1[x]^2 e[x]Cos[\[Xi][x]]+2(p[x]-3);
 
 
 (*Define the initial Conditions*)
-initialConditions = {p[0] ==p0 ,  e[0] == e0, \[Xi][0] == \[Xi]0, t[0] == t0, \[Phi][0] == \[Phi]0};
+initialConditions = {p[0] ==p0 ,  e[0] == e0, \[Xi][0] == \[Xi]0, t[0] == 0, \[Phi][0] == 0};
 
 (*Defining the Evolution equations*)
 evolutionEqns = { t'[\[Chi]] == (M p[\[Chi]]^2 Sqrt[(p[\[Chi]]-2)^2 -4e[\[Chi]]^2])/((p[\[Chi]]-2-2e[\[Chi]] Cos[\[Xi][\[Chi]]])(1+e[\[Chi]] Cos[\[Xi][\[Chi]]])^2 Sqrt[p[\[Chi]]-6-2e[\[Chi]]Cos[\[Xi][\[Chi]]]]),
@@ -77,12 +108,12 @@ evolutionEqns = { t'[\[Chi]] == (M p[\[Chi]]^2 Sqrt[(p[\[Chi]]-2)^2 -4e[\[Chi]]^
 				\[Xi]'[\[Chi]] == 1-\[Eta](( p[\[Chi]]^2 Sqrt[(p[\[Chi]]-2)^2 -4e[\[Chi]]^2])/((p[\[Chi]]-2-2e[\[Chi]] Cos[\[Xi][\[Chi]]])(1+e[\[Chi]] Cos[\[Xi][\[Chi]]])^2 Sqrt[p[\[Chi]]-6-2e[\[Chi]]Cos[\[Xi][\[Chi]]]])) f0[\[Chi]]/e[\[Chi]] (p[\[Chi]]^(1/2) f2[\[Chi]]Sin[\[Xi][\[Chi]]]((p[\[Chi]]-6)f3[\[Chi]]-4e[\[Chi]]^3 Cos[\[Xi][\[Chi]]]) M F\[Phi][p[\[Chi]],e[\[Chi]],\[Xi][\[Chi]]]- f1[\[Chi]]((p[\[Chi]]-6)Cos[\[Xi][\[Chi]]]+2e[\[Chi]]) Fr[p[\[Chi]],e[\[Chi]],\[Xi][\[Chi]]] ),
 				\[Phi]'[\[Chi]] ==  Sqrt[p[\[Chi]]/(p[\[Chi]]-6-2e[\[Chi]] Cos[\[Xi][\[Chi]]])]};
 (*Solving the Evolution Equaitons*)
-{{psol,esol,\[Xi]sol,tsol, \[Phi]sol}}= {p,e,\[Xi],t,\[Phi]}/.NDSolve[{Join[evolutionEqns,initialConditions],WhenEvent[p[\[Chi]]-6-2e[\[Chi]] -0.001 == 0, "StopIntegration"]}, {p,e,\[Xi],t,\[Phi]},{\[Chi],0, IntegrationLimit}, AccuracyGoal->Accuracy,PrecisionGoal->Precision];
+{{psol,esol,\[Xi]sol,tsol, \[Phi]sol}}= Monitor[{p,e,\[Xi],t,\[Phi]}/.NDSolve[{Join[evolutionEqns,initialConditions],WhenEvent[p[\[Chi]]-6-2e[\[Chi]] -0.001 == 0, "StopIntegration"]}, {p,e,\[Xi],t,\[Phi]},{\[Chi],0, IntegrationLimit}, AccuracyGoal->Accuracy,PrecisionGoal->Precision, EvaluationMonitor :> (progress = \[Chi])],  Print[progress]];
 
 (*Return associations for p, e, \[Xi], t and \[Phi] as functions of \[Chi]*)
 rsol[\[Chi]_] := (M psol[\[Chi]])/(1-esol[\[Chi]] Cos[\[Xi]sol[\[Chi]]]);
 \[Theta]sol[\[Chi]_]:= \[Pi]/2;
-<|"p" -> psol, "e" -> esol, "\[Xi]" -> \[Xi]sol, "t"-> tsol,"r" -> rsol, "\[Theta]"-> \[Theta]sol, "\[Phi]"-> \[Phi]sol|>
+<|"t"-> tsol, "r"-> rsol, "\[Theta]" -> \[Theta]sol, "\[Phi]"-> \[Phi]sol,"p" -> psol, "e"-> esol,  "\[Xi]" -> \[Xi]sol|>
 ]
 
 
@@ -91,11 +122,11 @@ rsol[\[Chi]_] := (M psol[\[Chi]])/(1-esol[\[Chi]] Cos[\[Xi]sol[\[Chi]]]);
 
 
 (* ::Text:: *)
-(*The equations are recast to be in terms of p, \[Alpha], \[Beta]. This isn't as fast or as accurate as version 1, but it is well defined for small values of e. *)
+(*The equations are recast to be in terms of p, \[Alpha], \[Beta], which was formulated by Pound and Poisson [2]. This isn't as fast as version 1, but it is well defined for small values of e. *)
 
 
 (* ::Input::Initialization:: *)
-EvolutionV2[\[Eta]_,Fr_,F\[Phi]_, p0_, e0_, \[Xi]0_,t0_,\[Phi]0_,IntegrationLimit_, Accuracy_, Precision_]:= Module[{M=1, \[Mu], evolutionEqns,initialConditions, \[CapitalPsi],\[CapitalOmega],\[Alpha]0,\[Beta]0,psol, \[Alpha]sol, \[Beta]sol, esol, \[Xi]sol, \[Phi]sol, tsol, rsol, \[Theta]sol,p,e,\[Xi],\[Alpha],\[Beta],t,\[Phi],\[Chi]},
+SchwarzOscGeoEqs2[\[Eta]_,Fr_,F\[Phi]_, p0_, e0_, \[Xi]0_,IntegrationLimit_, Accuracy_, Precision_]:= Module[{M=1, \[Mu], evolutionEqns,initialConditions, \[CapitalPsi],\[CapitalOmega],\[Alpha]0,\[Beta]0,psol, \[Alpha]sol, \[Beta]sol, esol, \[Xi]sol, \[Phi]sol, tsol, rsol, \[Theta]sol,p,e,\[Xi],\[Alpha],\[Beta],t,\[Phi],\[Chi], progress = 0},
 
 \[Mu] = \[Eta] M;
 (*Recast our initial conditions*)
@@ -109,10 +140,9 @@ e[\[Chi]_] := (\[Alpha][\[Chi]]^2 + \[Beta][\[Chi]]^2)^(1/2);
 \[Xi][\[Chi]_] := \[Chi]- ArcTan[\[Beta][\[Chi]],\[Alpha][\[Chi]]];
 
 (*Define the initial Conditions*)
-initialConditions = { p[0] == p0, \[Alpha][0] ==\[Alpha]0 ,  \[Beta][0] == \[Beta]0,t[0] ==  t0, \[Phi][0] ==\[Phi]0};
+initialConditions = { p[0] == p0, \[Alpha][0] ==\[Alpha]0 ,  \[Beta][0] == \[Beta]0,t[0] ==  0, \[Phi][0] ==0};
 
 (*Define the evolution equations*)
-(*There's no way around it, these things are ugly*)
 
 evolutionEqns = {p'[\[Chi]] == \[Eta] (2p[\[Chi]]^(7/2) M Sqrt[p[\[Chi]]-6-2(\[CapitalPsi][\[Chi]]+\[CapitalOmega][\[Chi]])](p[\[Chi]]-3-\[Alpha][\[Chi]]^2-\[Beta][\[Chi]]^2)(p[\[Chi]]-3-(\[CapitalPsi][\[Chi]]+\[CapitalOmega][\[Chi]])^2)  F\[Phi][p[\[Chi]], e[\[Chi]], \[Xi][\[Chi]]])/(((p[\[Chi]]-6)^2-4(\[Alpha][\[Chi]]^2+\[Beta][\[Chi]]^2))(1+\[CapitalPsi][\[Chi]]+\[CapitalOmega][\[Chi]])^4) - \[Eta] (2p[\[Chi]]^3 M(p[\[Chi]]-3-\[Alpha][\[Chi]]^2-\[Beta][\[Chi]]^2)(\[Beta][\[Chi]] Sin[\[Chi]] - \[Alpha][\[Chi]] Cos[\[Chi]]) Fr[p[\[Chi]], e[\[Chi]], \[Xi][\[Chi]]])/(((p[\[Chi]]-6)^2-4(\[Alpha][\[Chi]]^2+\[Beta][\[Chi]]^2))(1+\[CapitalPsi][\[Chi]]+\[CapitalOmega][\[Chi]])^2),
 
@@ -125,7 +155,7 @@ t'[\[Chi]]== (p[\[Chi]]^2 M Sqrt[(p[\[Chi]]-2)^2-4(\[Alpha][\[Chi]]^2+\[Beta][\[
 
 
 (*Solving the evolution equations*)
-{{psol,\[Alpha]sol,\[Beta]sol,tsol,\[Phi]sol}}= {p,\[Alpha],\[Beta],t, \[Phi]}/.NDSolve[{Join[evolutionEqns,initialConditions],WhenEvent[p[\[Chi]]-6-2(\[Alpha][\[Chi]]^2+\[Beta][\[Chi]]^2)^(1/2) -0.001 == 0, "StopIntegration"]}, {p,\[Alpha],\[Beta],t,\[Phi]},{\[Chi],0,IntegrationLimit},AccuracyGoal->Accuracy,PrecisionGoal->Precision, Method->{"EquationSimplification"->"Residual"} ];
+{{psol,\[Alpha]sol,\[Beta]sol,tsol,\[Phi]sol}}= Monitor[{p,\[Alpha],\[Beta],t, \[Phi]}/.NDSolve[{Join[evolutionEqns,initialConditions],WhenEvent[p[\[Chi]]-6-2(\[Alpha][\[Chi]]^2+\[Beta][\[Chi]]^2)^(1/2) -0.001 == 0, "StopIntegration"]}, {p,\[Alpha],\[Beta],t,\[Phi]},{\[Chi],0,IntegrationLimit},AccuracyGoal->Accuracy,PrecisionGoal->Precision, Method->{"EquationSimplification"->"Solve"},EvaluationMonitor :> (progress = \[Chi])],  Print[progress]];
 
 rsol[\[Chi]_] := (M psol[\[Chi]] )/(1+ \[Alpha]sol[\[Chi]] Sin[\[Chi]]+ \[Beta]sol[\[Chi]]Cos[\[Chi]] ); 
 esol[\[Chi]_] := (\[Alpha]sol[\[Chi]]^2 + \[Beta]sol[\[Chi]]^2)^(1/2);
@@ -133,16 +163,16 @@ esol[\[Chi]_] := (\[Alpha]sol[\[Chi]]^2 + \[Beta]sol[\[Chi]]^2)^(1/2);
 \[Theta]sol[\[Chi]_] := \[Pi]/2;
 
 (*Return associations for the varibales as functions of \[Chi]*)
-<| "p" -> psol, "e"-> esol,  "\[Xi]" -> \[Xi]sol, "t"-> tsol, "r"-> rsol, "\[Theta]" -> \[Theta]sol, "\[Phi]"-> \[Phi]sol|>
+<| "t"-> tsol, "r"-> rsol, "\[Theta]" -> \[Theta]sol, "\[Phi]"-> \[Phi]sol,"p" -> psol, "e"-> esol,  "\[Xi]" -> \[Xi]sol |>
 ]
 
 
 (* ::Subsection:: *)
-(*Defining Public Functions*)
+(*Public Functions*)
 
 
 (* ::Subsubsection:: *)
-(*Default Self Force Model: Fast GSF by Niels Warburton*)
+(*Default Self Force Model: Fast GSF by Warburton et al.*)
 
 
 (* ::Text:: *)
@@ -150,7 +180,7 @@ esol[\[Chi]_] := (\[Alpha]sol[\[Chi]]^2 + \[Beta]sol[\[Chi]]^2)^(1/2);
 
 
 (* ::Input::Initialization:: *)
-FastGSF[p_,e_,\[Xi]_, M_:1]:= Module[{FrCons, FrDiss,F\[Phi]Cons,F\[Phi]Diss, nmax,jbar,kbar,ki, a, b, c, d, dataA,dataB,dataC,dataD}, 
+SchwarzFastGSF[p_,e_,\[Xi]_, M_:1]:= Module[{FrCons, FrDiss,F\[Phi]Cons,F\[Phi]Diss, nmax,jbar,kbar,ki, a, b, c, d, dataA,dataB,dataC,dataD}, 
 
 (*Make sue the files are stored in the same ddirectory as the notebook*)
 (*Might make this editable in futre for greater ease of use*)
@@ -187,6 +217,22 @@ F\[Phi]Diss=1/p^ki[4] Sum[If[n==0,1/2,1]d[1][n][[j+1,k+1]]p^(-ki[4]-k) e^(n+2j) 
 
 
 (* ::Subsubsection:: *)
+(*Relativistic Gas Drag for Schwarzschild*)
+
+
+(* ::Text:: *)
+(*Relativistic Gas Drag Force for Schwarzschild spacetime as described in Appendix  D of "Forced Motion near a Black Hole" [5]*)
+
+
+SchwarzGasDrag[p_, e_, \[Xi]_, M_:1]:= Module[{Fr, F\[Phi], ur, u\[Phi]}, 
+ur = e Sin [\[Xi]] Sqrt[(p - 6 - 2e Cos[\[Xi]])/(p(p-3-e^2))];
+u\[Phi] = (1+e Cos[\[Xi]])^2/(p M Sqrt[p-3-e^2]);
+(*Retuning the componants as a 4 vector*)
+<|"Fr" -> -ur, "F\[Phi]" ->  - u\[Phi]|>
+]
+
+
+(* ::Subsubsection:: *)
 (*Osculating Orbital Element Evolution on Schwarzschild*)
 
 
@@ -203,19 +249,281 @@ F\[Phi]Diss=1/p^ki[4] Sum[If[n==0,1/2,1]d[1][n][[j+1,k+1]]p^(-ki[4]-k) e^(n+2j) 
 
 
 (* ::Input::Initialization:: *)
-OsculatingOrbitalElementsEvolutionSchwarzschild[Fr_,F\[Phi]_,\[Eta]_?NumericQ, p0_?NumericQ, e0_?NumericQ, \[Xi]0_, t0:(_?NumericQ):0, \[Phi]0:(_?NumericQ):0, OptionsPattern[]]:= Module[{},
+SchwarzOsculatingOrbitalElements[\[Eta]_?NumericQ, p0_?NumericQ, e0_?NumericQ, \[Xi]0_, OptionsPattern[]]:= Module[{flag,error, Fr, F\[Phi]},
 	(*Seperatrix condition for bound orbits in Schwarzschild Spacetime*)
 	If[p0 < 6 + 2 e0, 
-		(*Error Message*)
-		Print["Error: The intial conditions you have given do not satisfy the condition for a bound orbit: p >= 6 + 2 e"],
+		Message[SchwarzOsculatingOrbitalElements::ICs];,
+(* Go throught the different cases to assign functions to Fr and F\[Phi] *)
+Switch[OptionValue["Force"],
+			{_,_}, {Fr,F\[Phi]} = OptionValue["Force"];,
+			SchwarzGasDrag, Fr[p_,e_,\[Xi]_]:=SchwarzGasDrag[p, e, \[Xi]]["Fr"]; F\[Phi][p_,e_,\[Xi]_]:=SchwarzGasDrag[p, e, \[Xi]]["F\[Phi]"];,
+			SchwarzFastGSF, If[p0> 12.0 || e0 > 0.2,Message[SchwarzOsculatingOrbitalElements::OutOfRange];];
+				Fr[p_,e_,\[Xi]_]:=SchwarzFastGSF[p, e, \[Xi]]["Fr"];
+				F\[Phi][p_,e_,\[Xi]_]:=SchwarzFastGSF[p, e, \[Xi]]["F\[Phi]"];,
+			_, Message[SchwarzOsculatingOrbitalElements::InvalidForce];  Return[]];
+
+(*If[flag\[Equal] error, Return[]];(*If there's an error, return Null*)*)
 		(*Decide which method to use*)
 		If[e0> 0.05,
-			(*Faster, seemingly more accurate, but bad for small e0 values*)
-			EvolutionV1[\[Eta],Fr,F\[Phi], p0, e0, \[Xi]0,t0,\[Phi]0,OptionValue["IntegrationLimit"], OptionValue["AccuracyGoal"], OptionValue["PrecisionGoal"]],
-			(*Slower, less accurate, but works for arbitrily small values of e0*)
-			EvolutionV2[\[Eta],Fr,F\[Phi], p0, e0, \[Xi]0,t0,\[Phi]0,OptionValue["IntegrationLimit"], OptionValue["AccuracyGoal"], OptionValue["PrecisionGoal"]]
+			(*Faster, but bad for small e0 values*)
+			SchwarzOscGeoEqs1[\[Eta],Fr,F\[Phi], p0, e0, \[Xi]0,OptionValue["IntegrationLimit"], OptionValue["AccuracyGoal"], OptionValue["PrecisionGoal"]],
+			(*Slower, but works for arbitrily small values of e0*)
+			SchwarzOscGeoEqs2[\[Eta],Fr,F\[Phi], p0, e0, \[Xi]0,OptionValue["IntegrationLimit"], OptionValue["AccuracyGoal"], OptionValue["PrecisionGoal"]]
 		]
 	]
+]
+
+
+(* ::Section:: *)
+(*Kerr Spacetime*)
+
+
+(* ::Subsection:: *)
+(*Private Functions*)
+
+
+(* ::Subsubsection:: *)
+(*Roots of the Radial Potential*)
+
+
+(* ::Text:: *)
+(*We first must find the roots of the radial potential for a given value of a, En, L, and K. We note that the best performance comes from using analytic solutions of the roots for the integration (but taking care to account for when their values switch). We then use numerical functions to reconstruct functions for various quantities after the EoM have been solved.*)
+
+
+Root1[a_, En_, L_, K_] := -(1/(2 (-1+En^2)))+1/2 \[Sqrt](1/(-1+En^2)^2-(2 (-a^2+2 a^2 En^2-K-2 a En L))/(3 (-1+En^2))+(2^(1/3) (-12 K+(-a^2+2 a^2 En^2-K-2 a En L)^2+12 (-1+En^2) (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2)))/(3 (-1+En^2) (108 (-1+En^2) K^2-36 K (-a^2+2 a^2 En^2-K-2 a En L)+2 (-a^2+2 a^2 En^2-K-2 a En L)^3+108 (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2)-72 (-1+En^2) (-a^2+2 a^2 En^2-K-2 a En L) (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2)+\[Sqrt](-4 (-12 K+(-a^2+2 a^2 En^2-K-2 a En L)^2+12 (-1+En^2) (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2))^3+(108 (-1+En^2) K^2-36 K (-a^2+2 a^2 En^2-K-2 a En L)+2 (-a^2+2 a^2 En^2-K-2 a En L)^3+108 (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2)-72 (-1+En^2) (-a^2+2 a^2 En^2-K-2 a En L) (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2))^2))^(1/3))+(108 (-1+En^2) K^2-36 K (-a^2+2 a^2 En^2-K-2 a En L)+2 (-a^2+2 a^2 En^2-K-2 a En L)^3+108 (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2)-72 (-1+En^2) (-a^2+2 a^2 En^2-K-2 a En L) (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2)+\[Sqrt](-4 (-12 K+(-a^2+2 a^2 En^2-K-2 a En L)^2+12 (-1+En^2) (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2))^3+(108 (-1+En^2) K^2-36 K (-a^2+2 a^2 En^2-K-2 a En L)+2 (-a^2+2 a^2 En^2-K-2 a En L)^3+108 (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2)-72 (-1+En^2) (-a^2+2 a^2 En^2-K-2 a En L) (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2))^2))^(1/3)/(3 2^(1/3) (-1+En^2)))+1/2 \[Sqrt](2/(-1+En^2)^2-(4 (-a^2+2 a^2 En^2-K-2 a En L))/(3 (-1+En^2))-(2^(1/3) (-12 K+(-a^2+2 a^2 En^2-K-2 a En L)^2+12 (-1+En^2) (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2)))/(3 (-1+En^2) (108 (-1+En^2) K^2-36 K (-a^2+2 a^2 En^2-K-2 a En L)+2 (-a^2+2 a^2 En^2-K-2 a En L)^3+108 (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2)-72 (-1+En^2) (-a^2+2 a^2 En^2-K-2 a En L) (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2)+\[Sqrt](-4 (-12 K+(-a^2+2 a^2 En^2-K-2 a En L)^2+12 (-1+En^2) (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2))^3+(108 (-1+En^2) K^2-36 K (-a^2+2 a^2 En^2-K-2 a En L)+2 (-a^2+2 a^2 En^2-K-2 a En L)^3+108 (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2)-72 (-1+En^2) (-a^2+2 a^2 En^2-K-2 a En L) (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2))^2))^(1/3))-(108 (-1+En^2) K^2-36 K (-a^2+2 a^2 En^2-K-2 a En L)+2 (-a^2+2 a^2 En^2-K-2 a En L)^3+108 (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2)-72 (-1+En^2) (-a^2+2 a^2 En^2-K-2 a En L) (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2)+\[Sqrt](-4 (-12 K+(-a^2+2 a^2 En^2-K-2 a En L)^2+12 (-1+En^2) (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2))^3+(108 (-1+En^2) K^2-36 K (-a^2+2 a^2 En^2-K-2 a En L)+2 (-a^2+2 a^2 En^2-K-2 a En L)^3+108 (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2)-72 (-1+En^2) (-a^2+2 a^2 En^2-K-2 a En L) (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2))^2))^(1/3)/(3 2^(1/3) (-1+En^2))+(-(8/(-1+En^2)^3)-(16 K)/(-1+En^2)+(8 (-a^2+2 a^2 En^2-K-2 a En L))/(-1+En^2)^2)/(4 \[Sqrt](1/(-1+En^2)^2-(2 (-a^2+2 a^2 En^2-K-2 a En L))/(3 (-1+En^2))+(2^(1/3) (-12 K+(-a^2+2 a^2 En^2-K-2 a En L)^2+12 (-1+En^2) (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2)))/(3 (-1+En^2) (108 (-1+En^2) K^2-36 K (-a^2+2 a^2 En^2-K-2 a En L)+2 (-a^2+2 a^2 En^2-K-2 a En L)^3+108 (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2)-72 (-1+En^2) (-a^2+2 a^2 En^2-K-2 a En L) (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2)+\[Sqrt](-4 (-12 K+(-a^2+2 a^2 En^2-K-2 a En L)^2+12 (-1+En^2) (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2))^3+(108 (-1+En^2) K^2-36 K (-a^2+2 a^2 En^2-K-2 a En L)+2 (-a^2+2 a^2 En^2-K-2 a En L)^3+108 (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2)-72 (-1+En^2) (-a^2+2 a^2 En^2-K-2 a En L) (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2))^2))^(1/3))+(108 (-1+En^2) K^2-36 K (-a^2+2 a^2 En^2-K-2 a En L)+2 (-a^2+2 a^2 En^2-K-2 a En L)^3+108 (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2)-72 (-1+En^2) (-a^2+2 a^2 En^2-K-2 a En L) (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2)+\[Sqrt](-4 (-12 K+(-a^2+2 a^2 En^2-K-2 a En L)^2+12 (-1+En^2) (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2))^3+(108 (-1+En^2) K^2-36 K (-a^2+2 a^2 En^2-K-2 a En L)+2 (-a^2+2 a^2 En^2-K-2 a En L)^3+108 (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2)-72 (-1+En^2) (-a^2+2 a^2 En^2-K-2 a En L) (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2))^2))^(1/3)/(3 2^(1/3) (-1+En^2)))));
+
+
+Root2[a_, En_, L_, K_]:= -(1/(2 (-1+En^2)))-1/2 \[Sqrt](1/(-1+En^2)^2-(2 (-a^2+2 a^2 En^2-K-2 a En L))/(3 (-1+En^2))+(2^(1/3) (-12 K+(-a^2+2 a^2 En^2-K-2 a En L)^2+12 (-1+En^2) (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2)))/(3 (-1+En^2) (108 (-1+En^2) K^2-36 K (-a^2+2 a^2 En^2-K-2 a En L)+2 (-a^2+2 a^2 En^2-K-2 a En L)^3+108 (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2)-72 (-1+En^2) (-a^2+2 a^2 En^2-K-2 a En L) (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2)+\[Sqrt](-4 (-12 K+(-a^2+2 a^2 En^2-K-2 a En L)^2+12 (-1+En^2) (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2))^3+(108 (-1+En^2) K^2-36 K (-a^2+2 a^2 En^2-K-2 a En L)+2 (-a^2+2 a^2 En^2-K-2 a En L)^3+108 (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2)-72 (-1+En^2) (-a^2+2 a^2 En^2-K-2 a En L) (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2))^2))^(1/3))+(108 (-1+En^2) K^2-36 K (-a^2+2 a^2 En^2-K-2 a En L)+2 (-a^2+2 a^2 En^2-K-2 a En L)^3+108 (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2)-72 (-1+En^2) (-a^2+2 a^2 En^2-K-2 a En L) (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2)+\[Sqrt](-4 (-12 K+(-a^2+2 a^2 En^2-K-2 a En L)^2+12 (-1+En^2) (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2))^3+(108 (-1+En^2) K^2-36 K (-a^2+2 a^2 En^2-K-2 a En L)+2 (-a^2+2 a^2 En^2-K-2 a En L)^3+108 (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2)-72 (-1+En^2) (-a^2+2 a^2 En^2-K-2 a En L) (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2))^2))^(1/3)/(3 2^(1/3) (-1+En^2)))+1/2 \[Sqrt](2/(-1+En^2)^2-(4 (-a^2+2 a^2 En^2-K-2 a En L))/(3 (-1+En^2))-(2^(1/3) (-12 K+(-a^2+2 a^2 En^2-K-2 a En L)^2+12 (-1+En^2) (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2)))/(3 (-1+En^2) (108 (-1+En^2) K^2-36 K (-a^2+2 a^2 En^2-K-2 a En L)+2 (-a^2+2 a^2 En^2-K-2 a En L)^3+108 (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2)-72 (-1+En^2) (-a^2+2 a^2 En^2-K-2 a En L) (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2)+\[Sqrt](-4 (-12 K+(-a^2+2 a^2 En^2-K-2 a En L)^2+12 (-1+En^2) (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2))^3+(108 (-1+En^2) K^2-36 K (-a^2+2 a^2 En^2-K-2 a En L)+2 (-a^2+2 a^2 En^2-K-2 a En L)^3+108 (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2)-72 (-1+En^2) (-a^2+2 a^2 En^2-K-2 a En L) (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2))^2))^(1/3))-(108 (-1+En^2) K^2-36 K (-a^2+2 a^2 En^2-K-2 a En L)+2 (-a^2+2 a^2 En^2-K-2 a En L)^3+108 (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2)-72 (-1+En^2) (-a^2+2 a^2 En^2-K-2 a En L) (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2)+\[Sqrt](-4 (-12 K+(-a^2+2 a^2 En^2-K-2 a En L)^2+12 (-1+En^2) (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2))^3+(108 (-1+En^2) K^2-36 K (-a^2+2 a^2 En^2-K-2 a En L)+2 (-a^2+2 a^2 En^2-K-2 a En L)^3+108 (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2)-72 (-1+En^2) (-a^2+2 a^2 En^2-K-2 a En L) (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2))^2))^(1/3)/(3 2^(1/3) (-1+En^2))-(-(8/(-1+En^2)^3)-(16 K)/(-1+En^2)+(8 (-a^2+2 a^2 En^2-K-2 a En L))/(-1+En^2)^2)/(4 \[Sqrt](1/(-1+En^2)^2-(2 (-a^2+2 a^2 En^2-K-2 a En L))/(3 (-1+En^2))+(2^(1/3) (-12 K+(-a^2+2 a^2 En^2-K-2 a En L)^2+12 (-1+En^2) (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2)))/(3 (-1+En^2) (108 (-1+En^2) K^2-36 K (-a^2+2 a^2 En^2-K-2 a En L)+2 (-a^2+2 a^2 En^2-K-2 a En L)^3+108 (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2)-72 (-1+En^2) (-a^2+2 a^2 En^2-K-2 a En L) (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2)+\[Sqrt](-4 (-12 K+(-a^2+2 a^2 En^2-K-2 a En L)^2+12 (-1+En^2) (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2))^3+(108 (-1+En^2) K^2-36 K (-a^2+2 a^2 En^2-K-2 a En L)+2 (-a^2+2 a^2 En^2-K-2 a En L)^3+108 (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2)-72 (-1+En^2) (-a^2+2 a^2 En^2-K-2 a En L) (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2))^2))^(1/3))+(108 (-1+En^2) K^2-36 K (-a^2+2 a^2 En^2-K-2 a En L)+2 (-a^2+2 a^2 En^2-K-2 a En L)^3+108 (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2)-72 (-1+En^2) (-a^2+2 a^2 En^2-K-2 a En L) (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2)+\[Sqrt](-4 (-12 K+(-a^2+2 a^2 En^2-K-2 a En L)^2+12 (-1+En^2) (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2))^3+(108 (-1+En^2) K^2-36 K (-a^2+2 a^2 En^2-K-2 a En L)+2 (-a^2+2 a^2 En^2-K-2 a En L)^3+108 (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2)-72 (-1+En^2) (-a^2+2 a^2 En^2-K-2 a En L) (a^4 En^2-a^2 K-2 a^3 En L+a^2 L^2))^2))^(1/3)/(3 2^(1/3) (-1+En^2)))));
+
+
+NumRoot1[a_?NumericQ, En_?NumericQ, L_?NumericQ, K_?NumericQ] :=  Module[{Vr, r, r1,r2,r3,r4},
+(*Radial Potential*)
+Vr = (En(r^2 + a^2) - a L )^2 - (r^2 + a^2 - 2r) (r^2+ K);
+(*Finds roots and sorts them from largest to smallest *)
+ {r1,r2,r3,r4} = Sort[ Re[r/.Solve[Vr == 0, r]], Greater];
+ r1
+];
+
+
+NumRoot2[a_?NumericQ, En_?NumericQ, L_?NumericQ, K_?NumericQ] :=  Module[{Vr, r, r1,r2,r3,r4},
+(*Radial Potential*)
+Vr = (En(r^2 + a^2) - a L )^2 - (r^2 + a^2 - 2r) (r^2+ K);
+(*Finds roots and sorts them from largest to smallest *)
+ {r1,r2,r3,r4} = Sort[ Re[r/.Solve[Vr == 0, r]], Greater];
+ r2
+];
+
+
+(* ::Subsubsection:: *)
+(*Evolution Equations*)
+
+
+KerrOscGeoEqs[\[Eta]_,a_,En_,L_,K_,\[Psi]r_,\[Psi]\[Theta]_,t_, \[Phi]_, at_,ar_,a\[Theta]_,a\[Phi]_, \[Lambda]_]:= Module[{Vr,r1, r2, p, e, r, \[Beta],Q, zm, zp, \[CapitalSigma], \[CapitalSigma]1, \[CapitalSigma]2, \[CapitalDelta], \[CapitalDelta]1, \[CapitalDelta]2, \[Omega], F, F1, F2, H, \[Theta], \[Kappa]1, \[Kappa]2, z, Q1, Q2,C,\[ScriptCapitalD],\[Epsilon], J, P, G, ur, u\[Theta], utup, u\[Phi]up, ut, u\[Phi], un, uztup, uz\[Phi]up, uzt, an,A1, A2, A3, dEd\[Lambda], dLd\[Lambda], dKd\[Lambda], d\[Psi]rd\[Lambda], d\[Psi]\[Theta]d\[Lambda], Eqns, psol, esol, rsol, tsol, \[Phi]sol, \[Alpha]},
+(*Have to compare which of these two values is bigger/smaller as the definition of the roots flip in certain areas of te parameter space*)
+r1 = Max[Re[Root1[a, En, L, K]],Re[Root2[a, En, L, K]]];
+r2 = Min[Re[Root1[a, En, L, K]],Re[Root2[a, En, L, K]]] ;
+
+
+(*p and e*)
+e = (r1 - r2)/(r1 + r2); 
+p = (2 r1 r2)/(r1 + r2);
+(*r coordinate*)
+r = p/(1 + e Cos[\[Psi]r]) ;
+\[Beta]= a^2 (1 - En^2);
+Q = K - (L - a En)^2;
+(*Polar Roots*)
+zm = 1/(2\[Beta]) ((L^2+ Q + \[Beta]) - Sqrt[(L^2 + Q + \[Beta])^2 - 4\[Beta] Q ] ); 
+zp = 1/(2\[Beta]) ((L^2+ Q + \[Beta])+ Sqrt[(L^2+ Q + \[Beta])^2 - 4\[Beta] Q] );
+z = zm Cos[\[Psi]\[Theta]]^2;
+
+(*Useful Shorthand*)
+
+\[CapitalSigma] = r^2 + a^2 zm Cos[\[Psi]\[Theta]]^2;
+\[CapitalSigma]1 = r1^2 + a^2 zm Cos[\[Psi]\[Theta]]^2;
+\[CapitalSigma]2 = r2^2 + a^2 zm Cos[\[Psi]\[Theta]]^2;
+
+\[CapitalDelta] = r^2 + a^2 - 2r;
+\[CapitalDelta]1 = r1^2 + a^2 - 2r1;
+\[CapitalDelta]2 = r2^2 + a^2 - 2r2;
+
+\[Omega] = Sqrt[r^2+ a^2];
+
+F = (r^2+ a^2) En- a L;
+F1 = (r1^2+ a^2) En- a L;
+F2 = (r2^2+ a^2) En- a L;
+
+H = L - a En (1- zm Cos[\[Psi]\[Theta]]^2);
+\[Theta] = ArcCos[Sqrt[zm]Cos[\[Psi]\[Theta]]];
+
+\[Kappa]1 = 4En F1 r1 - 2 r1 \[CapitalDelta]1 - 2(r1-1)(r1^2 + K);
+\[Kappa]2 = 4En F2 r2 - 2 r2 \[CapitalDelta]2 - 2(r2-1)(r2^2 + K);
+
+Q1 = - 2 a L r r1 - a^4 En(r+r1) + a^3 L(r+r1) - a^2 En(r^3 + r^2 r1 + r1^3 + r r1(-2 + r1)) - En r r1 ( r r1 (r + r1) - 2(r^2 + r r1 + r1^2)) - a^2 (2a^2 En - 2En r r1 + a L(-2 + r + r1)) zm Cos[\[Psi]\[Theta]]^2;
+
+Q2 = - 2 a L r r2 - a^4 En(r+r2) + a^3 L(r+r2) - a^2 En(r^3 + r^2 r2 + r2^3 + r r2(-2 + r2)) - En r r2 ( r r2 (r + r2) - 2(r^2 + r r2+ r2^2)) - a^2 (2a^2 En - 2En r r2 + a L(-2 + r + r2)) zm Cos[\[Psi]\[Theta]]^2;
+C = (Q1 (1- e))/\[Kappa]1 - (Q2 (1+ e))/\[Kappa]2; 
+
+\[ScriptCapitalD] = (1-e)^2 (1 - Cos[\[Psi]r]) \[CapitalDelta]1/\[Kappa]1 + (1+e)^2 (1 + Cos[\[Psi]r]) \[CapitalDelta]2/\[Kappa]2;
+
+\[Epsilon] = (F1(1-e)(r+r1))/\[Kappa]1 - (F2 (1+ e) (r + r2))/\[Kappa]2;  
+J = (1-En^2)(1-e^2) + 2(1 - En^2-(1-e^2)/p)(1 + e Cos[\[Psi]r]) + ((1 - En^2) (3+ e^2)/(1 - e^2) - 4/p+ (\[Beta] + L^2 +Q) (1-e^2)/p^2)(1+e Cos[\[Psi]r])^2;
+P = (p Sqrt[J])/(1 - e^2); 
+G =  (\[Omega]^2 L)/Sin[\[Theta]] - a^3 (1 - zm) Sin[\[Theta]] En;
+
+(*Particle Velocities*)
+ur = (p e Sin[\[Psi]r] P)/(\[CapitalDelta] (1+ e Cos[\[Psi]r])^2); 
+u\[Theta] = (Sqrt[zm]Sin[\[Psi]\[Theta]])/Sin[\[Theta]] Sqrt[\[Beta](zp - z)];
+un = -(F /(2\[CapitalSigma]))- \[CapitalDelta]/(2\[CapitalSigma]) ur; 
+
+(*Convert from BL to Null Tetrad Componets*)
+
+an = \[Omega]^2/(2\[CapitalSigma]) \[Eta] at[a, En, L, K, \[Psi]r, \[Psi]\[Theta]] - \[CapitalDelta]/(2\[CapitalSigma]) \[Eta] ar[a, En, L, K, \[Psi]r, \[Psi]\[Theta]] + a/(2\[CapitalSigma]) \[Eta] a\[Phi][a, En, L, K, \[Psi]r, \[Psi]\[Theta]];
+
+A1 = \[Eta] a\[Theta][a, En, L, K, \[Psi]r, \[Psi]\[Theta]];
+A2 = -a Sin[\[Theta]] \[Eta] at[a, En, L, K, \[Psi]r, \[Psi]\[Theta]] - 1/Sin[\[Theta]] \[Eta] a\[Phi][a, En, L, K, \[Psi]r, \[Psi]\[Theta]];
+A3 = (a(L - a En Sin[\[Theta]]^2))/\[CapitalSigma] \[Eta] at[a, En, L, K, \[Psi]r, \[Psi]\[Theta]] + u\[Theta]/\[CapitalSigma] \[Eta] a\[Theta][a, En, L, K, \[Psi]r, \[Psi]\[Theta]] + (L - a En Sin[\[Theta]]^2)/(\[CapitalSigma] Sin[\[Theta]]^2) \[Eta] a\[Phi][a, En, L, K, \[Psi]r, \[Psi]\[Theta]] ;  
+
+(*Osculating Geodesic Equations*)
+(*Using simpler equations for the evolution of E, L and K*)
+Eqns = {
+D[En , \[Lambda]]== -\[CapitalSigma] \[Eta] at [a, En, L, K, \[Psi]r, \[Psi]\[Theta]], 
+
+D[L, \[Lambda]] == \[CapitalSigma] \[Eta] a\[Phi][a, En, L, K, \[Psi]r, \[Psi]\[Theta]],   
+D[K, \[Lambda]] == (2\[CapitalSigma])/\[CapitalDelta] (- \[Eta] at[a, En, L, K, \[Psi]r, \[Psi]\[Theta]](\[Omega]^4 En - a \[Omega]^2 L) + \[Eta] a\[Phi][a, En, L, K, \[Psi]r, \[Psi]\[Theta]](a^2 L -a \[Omega]^2 En) - \[CapitalDelta]^2  ur \[Eta] ar[a, En, L, K, \[Psi]r, \[Psi]\[Theta]]),  
+D[\[Psi]r, \[Lambda]] ==  P + (C A3 Sin[\[Psi]r])/(2(1 + e Cos[\[Psi]r]) un) + (\[ScriptCapitalD] \[CapitalSigma] A3 P )/(2(1+ e Cos[\[Psi]r])^2 un) - (a \[Epsilon] Sin[\[Theta]]Sin[\[Psi]r] A2)/(1 + e Cos[\[Psi]r])  +  (P an)/(un ( 1 + e Cos[\[Psi]r])^2) ((1-e)^2 (1 - Cos[\[Psi]r]) ( \[CapitalSigma]1 F1)/\[Kappa]1  +(1+e)^2 (1+Cos[\[Psi]r]) (\[CapitalSigma]2 F2)/\[Kappa]2),
+
+ D[\[Psi]\[Theta], \[Lambda]] == Sqrt[\[Beta](zp - z)]( 1 + ((1 - zm) \[CapitalSigma] A1 Cos[\[Psi]\[Theta]])/(\[Beta] Sqrt[zm](zp - zm) Sin[\[Theta]])) + (Cos[\[Psi]\[Theta]] Sin[\[Psi]\[Theta]] H a \[CapitalDelta] ( A3 - 2 ur an))/(2(zp - zm) \[Beta] un) + (Cos[\[Psi]\[Theta]] Sin[\[Psi]\[Theta]] G A2 )/(\[Beta](zp - zm)),
+  D[t, \[Lambda]] == En(\[Omega]^4/\[CapitalDelta] - a^2 (1 - zm Cos[\[Psi]\[Theta]]^2)) + a L(1 - \[Omega]^2/\[CapitalDelta]),
+  D[\[Phi], \[Lambda]] == L/(1-zm Cos[\[Psi]\[Theta]]^2) + a En (\[Omega]^2/\[CapitalDelta]-1) - (a^2 L)/\[CapitalDelta] 
+};
+
+Eqns
+]
+
+
+(* ::Subsection:: *)
+(*Public Functions*)
+
+
+(* ::Subsubsection:: *)
+(*Relativistic Gas Drag for Kerr*)
+
+
+KerrGasDrag[a_, En_, L_, K_, \[Psi]r_, \[Psi]\[Theta]_] := Module[{ur,u\[Theta],u\[Phi]up,utup,ut,u\[Phi],un,uztup,uz\[Phi]up, uzt,at,ar,a\[Theta],a\[Phi], r1, r2, p, e, r, \[Beta], Q, zm, zp, z, \[CapitalSigma], \[CapitalDelta], \[Omega],F, \[Theta], P, J }, 
+
+r1 = Max[Re[Root1[a, En, L, K]],Re[Root2[a, En, L, K]]];
+r2 = Min[Re[Root1[a, En, L, K]],Re[Root2[a, En, L, K]]] ;
+
+(*p and e*)
+e = (r1 - r2)/(r1 + r2); 
+p = (2 r1 r2)/(r1 + r2);
+(*r coordinate*)
+r = p/(1 + e Cos[\[Psi]r]) ;
+\[Beta]= a^2 (1 - En^2);
+Q = K - (L - a En)^2;
+(*Polar Roots*)
+zm = 1/(2\[Beta]) ((L^2+ Q + \[Beta]) - Sqrt[(L^2 + Q + \[Beta])^2 - 4\[Beta] Q ] ); 
+zp = 1/(2\[Beta]) ((L^2+ Q + \[Beta])+ Sqrt[(L^2+ Q + \[Beta])^2 - 4\[Beta] Q] );
+z = zm Cos[\[Psi]\[Theta]]^2;
+
+(*Useful Shorthand*)
+\[CapitalSigma] = r^2 + a^2 zm Cos[\[Psi]\[Theta]]^2;
+\[CapitalDelta] = r^2 + a^2 - 2r;
+\[Omega] = Sqrt[r^2+ a^2];
+F = (r^2+ a^2) En- a L;
+\[Theta] = ArcCos[Sqrt[zm]Cos[\[Psi]\[Theta]]];
+J = (1-En^2)(1-e^2) + 2(1 - En^2-(1-e^2)/p)(1 + e Cos[\[Psi]r]) + ((1 - En^2) (3+ e^2)/(1 - e^2) - 4/p+ (\[Beta] + L^2 +Q) (1-e^2)/p^2)(1+e Cos[\[Psi]r])^2;
+P = (p Sqrt[J])/(1 - e^2); 
+
+(*Particle Velocities*)
+ur = (p e Sin[\[Psi]r] P)/(\[CapitalDelta] (1+ e Cos[\[Psi]r])^2); 
+u\[Theta] = (Sqrt[zm]Sin[\[Psi]\[Theta]])/Sin[\[Theta]] Sqrt[\[Beta](zp - z)];
+u\[Phi]up =  1/\[CapitalSigma] (L/(1 - zm Cos[\[Psi]\[Theta]]^2) + a En (\[Omega]^2/\[CapitalDelta] -1) - (a^2 L)/\[CapitalDelta]);
+utup = 1/\[CapitalSigma] (En(\[Omega]^4/\[CapitalDelta] - a^2 (1 - zm Cos[\[Psi]\[Theta]]^2)) + a L (1 - \[Omega]^2/\[CapitalDelta])); 
+ut = -(1 - (2r)/\[CapitalSigma])utup -(2 a r(1-zm Cos[\[Psi]\[Theta]]^2))/\[CapitalSigma] u\[Phi]up; 
+u\[Phi] = -((2 a r(1-zm Cos[\[Psi]\[Theta]]^2))/\[CapitalSigma])utup + ((\[Omega]^4 -\[CapitalDelta] a^2 (1-zm Cos[\[Psi]\[Theta]]^2))(1-zm Cos[\[Psi]\[Theta]]^2))/\[CapitalSigma] u\[Phi]up ;   
+un = -(F /(2\[CapitalSigma]))- \[CapitalDelta]/(2\[CapitalSigma]) ur; 
+
+(*ZAMO Velocities*)
+uztup =  Sqrt[(\[Omega]^4- \[CapitalDelta] a^2 (1-zm Cos[\[Psi]\[Theta]]^2))/(\[CapitalSigma] \[CapitalDelta] )]; 
+uz\[Phi]up = (2 a r)/Sqrt[\[CapitalSigma] \[CapitalDelta] (\[Omega]^4- \[CapitalDelta] a^2 (1-zm Cos[\[Psi]\[Theta]]^2))];  
+uzt = -(1 - (2 r)/\[CapitalSigma]) uztup  - (2 a r(1-zm Cos[\[Psi]\[Theta]]^2))/\[CapitalSigma] uz\[Phi]up; 
+(*Gas Drag*)
+
+at = -(ut + uzt/(uzt utup));
+ar = -(ur);
+a\[Theta] = -(u\[Theta]);
+a\[Phi] = -(u\[Phi]);
+
+<|"at" -> at, "ar" -> ar, "a\[Theta]" -> a\[Theta], "a\[Phi]" ->   a\[Phi]|>
+]
+
+
+(* ::Subsubsection:: *)
+(*Kerr Osculating Geodesics Solver*)
+
+
+KerrOsculatingOrbitalElements[\[Eta]_, a_, p0_, e0_,x0_, \[Psi]r0_, \[Psi]\[Theta]0_, OptionsPattern[]] := Module[{at, ar, a\[Theta], a\[Phi], \[Lambda], En, L, k, \[Psi]r, \[Psi]\[Theta],t,\[Phi], En0, L0, K0, Q0, ICs, Ensol,Lsol, Ksol, Qsol, \[Psi]rsol,\[Psi]\[Theta]sol,tsol, \[Phi]sol, r1sol, r2sol, psol, esol, rsol,\[Theta]sol,\[Iota]sol,zmsol, xsol, zsol, Equations, p, e,\[Theta]inc,\[Theta]incsol, progress = 0},
+(*Load in Kerr Geodesics Package*)
+Needs["KerrGeodesics`"];
+(*Determine that Initial Conditions are stable*)
+If[KerrGeoBoundOrbitQ[a, p0, e0, x0],
+(*Determine the Initial Conditions*)
+{En0, L0, Q0} = KerrGeoConstantsOfMotion[a, p0, e0, x0];
+K0 = Q0 + (L0 - a En0)^2 ;
+
+ICs = {
+En[0] == En0, 
+L[0] == L0, 
+k[0] == K0, 
+\[Psi]r[0] == \[Psi]r0, 
+\[Psi]\[Theta][0] == \[Psi]\[Theta]0,
+t[0] == 0,
+\[Phi][0] == 0
+};
+ (*Assign the force components*)
+ Switch[OptionValue["Force"],
+			{_,_,_,_}, 
+			{at, ar, a\[Theta], a\[Phi]} = OptionValue["Force"];,
+			
+			KerrGasDrag, 
+			at[a1_, En_, L_, K_, \[Psi]r_, \[Psi]\[Theta]_] := KerrGasDrag[a1, En, L, K, \[Psi]r, \[Psi]\[Theta]]["at"];
+			ar[ a1_, En_, L_, K_, \[Psi]r_, \[Psi]\[Theta]_] := KerrGasDrag[a1, En, L, K, \[Psi]r, \[Psi]\[Theta]]["ar"];
+			a\[Theta][ a1_, En_, L_, K_, \[Psi]r_, \[Psi]\[Theta]_] := KerrGasDrag[a1, En, L, K, \[Psi]r, \[Psi]\[Theta]]["a\[Theta]"];
+			a\[Phi][a1_, En_, L_, K_, \[Psi]r_, \[Psi]\[Theta]_] := KerrGasDrag[a1, En, L, K, \[Psi]r, \[Psi]\[Theta]]["a\[Phi]"];,
+			
+			_, (*Any other input*)
+			Message[KerrOsculatingOrbitalElements::InvalidForce];  Return[]];
+
+(*Define the Evolution Equaitons*)
+Equations = Join[ICs, KerrOscGeoEqs[\[Eta], a, En[\[Lambda]], L[\[Lambda]], k[\[Lambda]], \[Psi]r[\[Lambda]], \[Psi]\[Theta][\[Lambda]],t[\[Lambda]], \[Phi][\[Lambda]],at,ar,a\[Theta],a\[Phi], \[Lambda]]];
+
+(*Solve the Evolution Equations*)
+{{Ensol, Lsol, Ksol, \[Psi]rsol, \[Psi]\[Theta]sol, tsol, \[Phi]sol}} = Monitor[{En, L, k, \[Psi]r, \[Psi]\[Theta], t, \[Phi]} /. NDSolve[Equations, {En,L,k,\[Psi]r,\[Psi]\[Theta], t, \[Phi]}, 
+	{\[Lambda],0,OptionValue["IntegrationLimit"]}, Method->{"EquationSimplification"->"Solve"}, AccuracyGoal->OptionValue["AccuracyGoal"], 
+	PrecisionGoal->OptionValue["PrecisionGoal"], EvaluationMonitor :> (progress = \[Lambda])],  Print[progress]];
+
+(*Funcitons for Useful Properties of the Orbit*)
+Qsol[\[Lambda]_] := Ksol[\[Lambda]] - (Lsol[\[Lambda]] - a Ensol[\[Lambda]])^2;
+
+(*Using Numeric versions of the roots to avoid the roots flipping*)
+r1sol[\[Lambda]_] := NumRoot1[a, Ensol[\[Lambda]], Lsol[\[Lambda]], Ksol[\[Lambda]]];
+r2sol[\[Lambda]_] := NumRoot2[a, Ensol[\[Lambda]], Lsol[\[Lambda]], Ksol[\[Lambda]]];
+
+psol[\[Lambda]_] := (2 r1sol[\[Lambda]] r2sol[\[Lambda]]  )/(r1sol[\[Lambda]] + r2sol[\[Lambda]]);
+esol[\[Lambda]_] := (r1sol[\[Lambda]] - r2sol[\[Lambda]])/(r1sol[\[Lambda]] + r2sol[\[Lambda]]);
+rsol[\[Lambda]_] := psol[\[Lambda]]/(1 + esol[\[Lambda]] Cos[\[Psi]rsol[\[Lambda]]]); 
+
+zmsol[\[Lambda]_]:= 1/(2a^2 (1 - Ensol[\[Lambda]])) ((Lsol[\[Lambda]]^2+ Qsol[\[Lambda]] + a^2 (1 - Ensol[\[Lambda]])) - Sqrt[(Lsol[\[Lambda]]^2 + Qsol[\[Lambda]] + a^2 (1 - Ensol[\[Lambda]]))^2 - 4 (a^2) (1 - Ensol[\[Lambda]]) Qsol[\[Lambda]] ] ); 
+xsol[\[Lambda]_]:= Sqrt[1 - zmsol[\[Lambda]]^2];
+
+\[Theta]sol[\[Lambda]_] :=  ArcCos[Sqrt[zmsol[\[Lambda]]]Cos[\[Psi]\[Theta]sol[\[Lambda]]]];
+\[Iota]sol[\[Lambda]_] := ArcCos[Lsol[\[Lambda]]/Sqrt[Ksol[\[Lambda]] + 2 a Lsol[\[Lambda]] Ensol[\[Lambda]] - a^2 Ensol[\[Lambda]]^2]];
+
+(*Retrun the results*)
+<| "t" -> tsol, "r" -> rsol, "\[Theta]" -> \[Theta]sol, "\[Phi]"-> \[Phi]sol, "En"-> Ensol, "L"-> Lsol, "K" -> Ksol, "Q" -> Qsol, "p"-> psol, "e"-> esol, "x" -> xsol, "\[Iota]" -> \[Iota]sol,"\[Psi]r" -> \[Psi]rsol, "\[Psi]\[Theta]" -> \[Psi]\[Theta]sol|>
+ ,
+Message[KerrOsculatingOrbitalElements::ICs];]
 ]
 
 
@@ -226,3 +534,11 @@ OsculatingOrbitalElementsEvolutionSchwarzschild[Fr_,F\[Phi]_,\[Eta]_?NumericQ, p
 (* ::Input::Initialization:: *)
 End[]
 EndPackage[]
+
+
+(* ::Subsection::Closed:: *)
+(*References*)
+
+
+(* ::Text:: *)
+(**)
