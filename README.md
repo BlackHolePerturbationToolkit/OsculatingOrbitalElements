@@ -6,9 +6,11 @@ using the Method of Osculating Orbital Elements (also known as the Method of Osc
 
 The user can specify the function for the force or make use of the following models included with the package:
 
-SchwarzFastGSF[p, e, &xi;]: Fast first order Gravitatinoal Self Force Model for p<12 and e<0.2
-SchwarzGasDrag[p, e, &xi;]: Relativistic gas drag model for Schwarzschild spacetime
-KerrGasDrag[En, L, K, &psi;r, &psi;&theta;]: Relativistic gas drag model for Kerr spacetime
+SchwarzFastGSF[p, e, &xi;]: Fast first order Gravitatinoal Self Force Model for p<12 and e<0.2.
+
+SchwarzGasDrag[p, e, &xi;]: Relativistic gas drag model for Schwarzschild spacetime.
+
+KerrGasDrag[En, L, K, &psi;r, &psi;&theta;]: Relativistic gas drag model for Kerr spacetime.
 
 Getting the package
 -------------------
