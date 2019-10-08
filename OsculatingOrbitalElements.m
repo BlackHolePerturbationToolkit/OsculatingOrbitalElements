@@ -110,8 +110,13 @@ evolutionEqns = { t'[\[Chi]] == (M p[\[Chi]]^2 Sqrt[(p[\[Chi]]-2)^2 -4e[\[Chi]]^
 
 				\[Xi]'[\[Chi]] == 1-\[Eta](( p[\[Chi]]^2 Sqrt[(p[\[Chi]]-2)^2 -4e[\[Chi]]^2])/((p[\[Chi]]-2-2e[\[Chi]] Cos[\[Xi][\[Chi]]])(1+e[\[Chi]] Cos[\[Xi][\[Chi]]])^2 Sqrt[p[\[Chi]]-6-2e[\[Chi]]Cos[\[Xi][\[Chi]]]])) f0[\[Chi]]/e[\[Chi]] (p[\[Chi]]^(1/2) f2[\[Chi]]Sin[\[Xi][\[Chi]]]((p[\[Chi]]-6)f3[\[Chi]]-4e[\[Chi]]^3 Cos[\[Xi][\[Chi]]]) M F\[Phi][p[\[Chi]],e[\[Chi]],\[Xi][\[Chi]]]- f1[\[Chi]]((p[\[Chi]]-6)Cos[\[Xi][\[Chi]]]+2e[\[Chi]]) Fr[p[\[Chi]],e[\[Chi]],\[Xi][\[Chi]]] ),
 				\[Phi]'[\[Chi]] ==  Sqrt[p[\[Chi]]/(p[\[Chi]]-6-2e[\[Chi]] Cos[\[Xi][\[Chi]]])]};
+
 (*Solving the Evolution Equaitons*)
-{{psol,esol,\[Xi]sol,tsol, \[Phi]sol}}= Monitor[{p,e,\[Xi],t,\[Phi]}/.NDSolve[{Join[evolutionEqns,initialConditions],WhenEvent[p[\[Chi]]-6-2e[\[Chi]] -0.001 == 0, "StopIntegration"]}, {p,e,\[Xi],t,\[Phi]},{\[Chi],0, IntegrationLimit}, AccuracyGoal->Accuracy,PrecisionGoal->Precision, EvaluationMonitor :> (progress = \[Chi])],  Print[progress]];
+Print["Starting NDSolve..."];
+{{psol,esol,\[Xi]sol,tsol, \[Phi]sol}}= Monitor[{p,e,\[Xi],t,\[Phi]}/.NDSolve[{Join[evolutionEqns,initialConditions],WhenEvent[p[\[Chi]]-6-2e[\[Chi]] -0.001 == 0, "StopIntegration"]}, {p,e,\[Xi],t,\[Phi]},{\[Chi],0, IntegrationLimit}, AccuracyGoal->Accuracy,PrecisionGoal->Precision, StepMonitor :> (progress = \[Chi])],  "\[Chi] = "<> ToString[progress]]//Quiet;
+
+(*Punging Message*)
+If[psol["Domain"][[1,2]] < IntegrationLimit, Print["Unbound orbit encountered."]];
 
 (*Return associations for p, e, \[Xi], t and \[Phi] as functions of \[Chi]*)
 rsol[\[Chi]_] := (M psol[\[Chi]])/(1-esol[\[Chi]] Cos[\[Xi]sol[\[Chi]]]);
@@ -158,7 +163,11 @@ t'[\[Chi]]== (p[\[Chi]]^2 M Sqrt[(p[\[Chi]]-2)^2-4(\[Alpha][\[Chi]]^2+\[Beta][\[
 
 
 (*Solving the evolution equations*)
-{{psol,\[Alpha]sol,\[Beta]sol,tsol,\[Phi]sol}}= Monitor[{p,\[Alpha],\[Beta],t, \[Phi]}/.NDSolve[{Join[evolutionEqns,initialConditions],WhenEvent[p[\[Chi]]-6-2(\[Alpha][\[Chi]]^2+\[Beta][\[Chi]]^2)^(1/2) -0.001 == 0, "StopIntegration"]}, {p,\[Alpha],\[Beta],t,\[Phi]},{\[Chi],0,IntegrationLimit},AccuracyGoal->Accuracy,PrecisionGoal->Precision, Method->{"EquationSimplification"->"Solve"},EvaluationMonitor :> (progress = \[Chi])],  Print[progress]];
+Print["Starting NDSolve..."];
+{{psol,\[Alpha]sol,\[Beta]sol,tsol,\[Phi]sol}}= Monitor[{p,\[Alpha],\[Beta],t, \[Phi]}/.NDSolve[{Join[evolutionEqns,initialConditions],WhenEvent[p[\[Chi]]-6-2(\[Alpha][\[Chi]]^2+\[Beta][\[Chi]]^2)^(1/2) -0.001 == 0, "StopIntegration"]}, {p,\[Alpha],\[Beta],t,\[Phi]},{\[Chi],0,IntegrationLimit},AccuracyGoal->Accuracy,PrecisionGoal->Precision, Method->{"EquationSimplification"->"Solve"},StepMonitor :> (progress = \[Chi])],  "\[Chi] = "<> ToString[progress]]//Quiet;
+
+(*Punging Message*)
+If[psol["Domain"][[1,2]] < IntegrationLimit, Print["Unbound orbit encountered."]];
 
 rsol[\[Chi]_] := (M psol[\[Chi]] )/(1+ \[Alpha]sol[\[Chi]] Sin[\[Chi]]+ \[Beta]sol[\[Chi]]Cos[\[Chi]] ); 
 esol[\[Chi]_] := (\[Alpha]sol[\[Chi]]^2 + \[Beta]sol[\[Chi]]^2)^(1/2);
@@ -466,7 +475,7 @@ a\[Phi] = -(u\[Phi]);
 (*Kerr Osculating Geodesics Solver*)
 
 
-KerrOsculatingOrbitalElements[\[Eta]_, a_, p0_, e0_,x0_, \[Psi]r0_, \[Psi]\[Theta]0_, OptionsPattern[]] := Module[{at, ar, a\[Theta], a\[Phi], \[Lambda], En, L, k, \[Psi]r, \[Psi]\[Theta],t,\[Phi], En0, L0, K0, Q0, ICs, Ensol,Lsol, Ksol, Qsol, \[Psi]rsol,\[Psi]\[Theta]sol,tsol, \[Phi]sol, r1sol, r2sol, psol, esol, rsol,\[Theta]sol,\[Iota]sol,zmsol, xsol, zsol, Equations, p, e,\[Theta]inc,\[Theta]incsol, progress = 0},
+KerrOsculatingOrbitalElements[\[Eta]_, a_, p0_, e0_,x0_, \[Psi]r0_, \[Psi]\[Theta]0_, OptionsPattern[]] := Module[{at, ar, a\[Theta], a\[Phi], \[Lambda], En, L, k, \[Psi]r, \[Psi]\[Theta],t,\[Phi], En0, L0, K0, Q0, ICs, Ensol,Lsol, Ksol, Qsol, \[Psi]rsol,\[Psi]\[Theta]sol,tsol, \[Phi]sol, r1sol, r2sol, psol, esol, rsol,\[Theta]sol,\[Iota]sol,zmsol, xsol, zsol, Equations, p, e,\[Theta]inc,\[Theta]incsol, progress = 0, limit},
 (*Load in Kerr Geodesics Package*)
 Needs["KerrGeodesics`"];
 (*Determine that Initial Conditions are stable*)
@@ -500,12 +509,16 @@ t[0] == 0,
 
 (*Define the Evolution Equaitons*)
 Equations = Join[ICs, KerrOscGeoEqs[\[Eta], a, En[\[Lambda]], L[\[Lambda]], k[\[Lambda]], \[Psi]r[\[Lambda]], \[Psi]\[Theta][\[Lambda]],t[\[Lambda]], \[Phi][\[Lambda]],at,ar,a\[Theta],a\[Phi], \[Lambda]]];
-
+Print["Starting NDSolve..."];
+limit = OptionValue["IntegrationLimit"];
 (*Solve the Evolution Equations*)
 {{Ensol, Lsol, Ksol, \[Psi]rsol, \[Psi]\[Theta]sol, tsol, \[Phi]sol}} = Monitor[{En, L, k, \[Psi]r, \[Psi]\[Theta], t, \[Phi]} /. NDSolve[Equations, {En,L,k,\[Psi]r,\[Psi]\[Theta], t, \[Phi]}, 
-	{\[Lambda],0,OptionValue["IntegrationLimit"]}, Method->{"EquationSimplification"->"Solve"}, AccuracyGoal->OptionValue["AccuracyGoal"], 
-	PrecisionGoal->OptionValue["PrecisionGoal"], EvaluationMonitor :> (progress = \[Lambda])],  Print[progress]];
-
+	{\[Lambda],0,limit}, Method->{"EquationSimplification"->"Solve"}, AccuracyGoal->OptionValue["AccuracyGoal"], 
+	PrecisionGoal->OptionValue["PrecisionGoal"], StepMonitor :> (progress = \[Lambda])],  "\[Lambda] = "<> ToString[progress]]//Quiet;
+	
+(*If orbit plunges or escapes*)	
+If[Ensol["Domain"][[1,2]] < limit, Print["Unbound orbit encountered."];];
+	
 (*Funcitons for Useful Properties of the Orbit*)
 Qsol[\[Lambda]_] := Ksol[\[Lambda]] - (Lsol[\[Lambda]] - a Ensol[\[Lambda]])^2;
 
@@ -518,13 +531,17 @@ esol[\[Lambda]_] := (r1sol[\[Lambda]] - r2sol[\[Lambda]])/(r1sol[\[Lambda]] + r2
 rsol[\[Lambda]_] := psol[\[Lambda]]/(1 + esol[\[Lambda]] Cos[\[Psi]rsol[\[Lambda]]]); 
 
 zmsol[\[Lambda]_]:= 1/(2a^2 (1 - Ensol[\[Lambda]])) ((Lsol[\[Lambda]]^2+ Qsol[\[Lambda]] + a^2 (1 - Ensol[\[Lambda]])) - Sqrt[(Lsol[\[Lambda]]^2 + Qsol[\[Lambda]] + a^2 (1 - Ensol[\[Lambda]]))^2 - 4 (a^2) (1 - Ensol[\[Lambda]]) Qsol[\[Lambda]] ] ); 
-xsol[\[Lambda]_]:= Sqrt[1 - zmsol[\[Lambda]]^2];
+xsol[\[Lambda]_]:= Sqrt[1 - zmsol[\[Lambda]]];
 
 \[Theta]sol[\[Lambda]_] :=  ArcCos[Sqrt[zmsol[\[Lambda]]]Cos[\[Psi]\[Theta]sol[\[Lambda]]]];
 \[Iota]sol[\[Lambda]_] := ArcCos[Lsol[\[Lambda]]/Sqrt[Ksol[\[Lambda]] + 2 a Lsol[\[Lambda]] Ensol[\[Lambda]] - a^2 Ensol[\[Lambda]]^2]];
 
 (*Retrun the results*)
-<| "t" -> tsol, "r" -> rsol, "\[Theta]" -> \[Theta]sol, "\[Phi]"-> \[Phi]sol, "En"-> Ensol, "L"-> Lsol, "K" -> Ksol, "Q" -> Qsol, "p"-> psol, "e"-> esol, "x" -> xsol, "\[Iota]" -> \[Iota]sol,"\[Psi]r" -> \[Psi]rsol, "\[Psi]\[Theta]" -> \[Psi]\[Theta]sol|>
+<| "t" -> tsol, "r" -> rsol, "\[Theta]" -> \[Theta]sol, "\[Phi]"-> \[Phi]sol, 
+"En"-> Ensol, "L"-> Lsol, "K" -> Ksol, "Q" -> Qsol, 
+"p"-> psol, "e"-> esol, "x" -> xsol, "\[Iota]" -> \[Iota]sol,
+"\[Psi]r" -> \[Psi]rsol, "\[Psi]\[Theta]" -> \[Psi]\[Theta]sol, 
+"r1"-> r1sol, "r2" -> r2sol, "z1"-> zmsol|>
  ,
 Message[KerrOsculatingOrbitalElements::ICs];]
 ]
