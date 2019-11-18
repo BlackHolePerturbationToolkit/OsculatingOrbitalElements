@@ -8,7 +8,7 @@
 (*Begin Package*)
 
 
-BeginPackage["OsculatingOrbitalElements`",{"KerrGeodesics`"}]
+BeginPackage["OsculatingOrbitalElements`",{"KerrGeodesics`","KerrGeodesics`SpecialOrbits`","KerrGeodesics`ConstantsOfMotion`"}]
 
 
 (* ::Subsection:: *)
@@ -70,11 +70,11 @@ SyntaxInformation[KerrOsculatingOrbitalElements] = {"ArgumentsPattern"-> {_, _, 
 Begin["`Private`"]
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*Schwarzschild Spacetime*)
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Private Functions*)
 
 
@@ -179,7 +179,7 @@ esol[\[Chi]_] := (\[Alpha]sol[\[Chi]]^2 + \[Beta]sol[\[Chi]]^2)^(1/2);
 ]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Public Functions*)
 
 
@@ -481,7 +481,7 @@ Needs["KerrGeodesics`"];
 (*Determine that Initial Conditions are stable*)
 If[KerrGeoBoundOrbitQ[a, p0, e0, x0],
 (*Determine the Initial Conditions*)
-{En0, L0, Q0} = KerrGeoConstantsOfMotion[a, p0, e0, x0];
+{En0, L0, Q0} = Values[KerrGeoConstantsOfMotion[a, p0, e0, x0]];
 K0 = Q0 + (L0 - a En0)^2 ;
 
 ICs = {
