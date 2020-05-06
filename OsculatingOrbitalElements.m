@@ -70,11 +70,11 @@ SyntaxInformation[KerrOsculatingOrbitalElements] = {"ArgumentsPattern"-> {_, _, 
 Begin["`Private`"]
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*Schwarzschild Spacetime*)
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Private Functions*)
 
 
@@ -179,7 +179,7 @@ esol[\[Chi]_] := (\[Alpha]sol[\[Chi]]^2 + \[Beta]sol[\[Chi]]^2)^(1/2);
 ]
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Public Functions*)
 
 
@@ -191,18 +191,26 @@ esol[\[Chi]_] := (\[Alpha]sol[\[Chi]]^2 + \[Beta]sol[\[Chi]]^2)^(1/2);
 (*A fast to evaluate function for the Gravitational Self Force. This code was adapted from that provided by Niels Warburton. The derivation of this function is discussed in [2]*)
 
 
-(* ::Input::Initialization:: *)
-SchwarzFastGSF[p_,e_,\[Xi]_, M_:1]:= Module[{FrCons, FrDiss,F\[Phi]Cons,F\[Phi]Diss, nmax,jbar,kbar,ki, a, b, c, d, dataA,dataB,dataC,dataD}, 
-
-(*Make sue the files are stored in the same ddirectory as the notebook*)
-(*Might make this editable in futre for greater ease of use*)
 SetDirectory[FileNameJoin[{$UserBaseDirectory,"Applications", "OsculatingOrbitalElements", "DataFiles"}]];
-
 (*Loading the files*)
 dataA=Import["a_n_jk","Table"];
 dataB=Import["b_n_jk","Table"];
 dataC=Import["c_n_jk","Table"];
 dataD=Import["d_n_jk","Table"];
+
+
+(* ::Input::Initialization:: *)
+SchwarzFastGSF[p_,e_,\[Xi]_, M_:1]:= Module[{FrCons, FrDiss,F\[Phi]Cons,F\[Phi]Diss, nmax,jbar,kbar,ki, a, b, c, d}, 
+
+(*Make sue the files are stored in the same ddirectory as the notebook*)
+(*Might make this editable in futre for greater ease of use*)
+(*SetDirectory[FileNameJoin[{$UserBaseDirectory,"Applications", "OsculatingOrbitalElements", "DataFiles"}]];
+
+(*Loading the files*)
+dataA=Import["a_n_jk","Table"];
+dataB=Import["b_n_jk","Table"];
+dataC=Import["c_n_jk","Table"];
+dataD=Import["d_n_jk","Table"];*)
 (*Setting constants*)
 nmax=7;
 jbar=4;
@@ -244,7 +252,7 @@ u\[Phi] = (1+e Cos[\[Xi]])^2/(p M Sqrt[p-3-e^2]);
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Osculating Orbital Element Evolution on Schwarzschild*)
 
 
@@ -330,7 +338,7 @@ Vr = (En(r^2 + a^2) - a L )^2 - (r^2 + a^2 - 2r) (r^2+ K);
 (*Evolution Equations*)
 
 
-KerrOscGeoEqs[\[Eta]_,a_,En_,L_,K_,\[Psi]r_,\[Psi]\[Theta]_,t_, \[Phi]_, at_,ar_,a\[Theta]_,a\[Phi]_, \[Lambda]_]:= Module[{Vr,r1, r2, p, e, r, \[Beta],Q, zm, zp, \[CapitalSigma], \[CapitalSigma]1, \[CapitalSigma]2, \[CapitalDelta], \[CapitalDelta]1, \[CapitalDelta]2, \[Omega], F, F1, F2, H, \[Theta], \[Kappa]1, \[Kappa]2, z, Q1, Q2,C,\[ScriptCapitalD],\[Epsilon], J, P, G, ur, u\[Theta], utup, u\[Phi]up, ut, u\[Phi], un, uztup, uz\[Phi]up, uzt, an,A1, A2, A3, dEd\[Lambda], dLd\[Lambda], dKd\[Lambda], d\[Psi]rd\[Lambda], d\[Psi]\[Theta]d\[Lambda], Eqns, psol, esol, rsol, tsol, \[Phi]sol, \[Alpha]},
+KerrOscGeoEqs[\[Eta]_,a_,En_,L_,K_,\[Psi]r_,\[Psi]\[Theta]_,t_, \[Phi]_, at_,ar_,a\[Theta]_,a\[Phi]_, \[Lambda]_]:= Module[{Vr,r1, r2, p, e, r, \[Beta],Q, zm, zp, \[CapitalSigma], \[CapitalSigma]1, \[CapitalSigma]2, \[CapitalDelta], \[CapitalDelta]1, \[CapitalDelta]2, \[Omega], F, F1, F2, H, \[Theta], \[Kappa]1, \[Kappa]2, z, Q1, Q2,C,\[ScriptCapitalD],\[Epsilon], J, P, G, ur, u\[Theta], utup, u\[Phi]up, ut, u\[Phi], un, uztup, uz\[Phi]up, uzt, an,A1, A2, A3, dEd\[Lambda], dLd\[Lambda], dKd\[Lambda], d\[Psi]rd\[Lambda], d\[Psi]\[Theta]d\[Lambda], Eqns, psol, esol, rsol, tsol, \[Phi]sol, \[Alpha],dtd\[Lambda],d\[Phi]d\[Lambda]},
 (*Have to compare which of these two values is bigger/smaller as the definition of the roots flip in certain areas of te parameter space*)
 r1 = Max[Re[Root1[a, En, L, K]],Re[Root2[a, En, L, K]]];
 r2 = Min[Re[Root1[a, En, L, K]],Re[Root2[a, En, L, K]]] ;
@@ -395,14 +403,16 @@ A1 = \[Eta] a\[Theta][a, En, L, K, \[Psi]r, \[Psi]\[Theta]];
 A2 = -a Sin[\[Theta]] \[Eta] at[a, En, L, K, \[Psi]r, \[Psi]\[Theta]] - 1/Sin[\[Theta]] \[Eta] a\[Phi][a, En, L, K, \[Psi]r, \[Psi]\[Theta]];
 A3 = (a(L - a En Sin[\[Theta]]^2))/\[CapitalSigma] \[Eta] at[a, En, L, K, \[Psi]r, \[Psi]\[Theta]] + u\[Theta]/\[CapitalSigma] \[Eta] a\[Theta][a, En, L, K, \[Psi]r, \[Psi]\[Theta]] + (L - a En Sin[\[Theta]]^2)/(\[CapitalSigma] Sin[\[Theta]]^2) \[Eta] a\[Phi][a, En, L, K, \[Psi]r, \[Psi]\[Theta]] ;  
 
+dtd\[Lambda] = En(\[Omega]^4/\[CapitalDelta] - a^2 (1 - zm Cos[\[Psi]\[Theta]]^2)) + a L(1 - \[Omega]^2/\[CapitalDelta]);
+d\[Phi]d\[Lambda] = L/(1-zm Cos[\[Psi]\[Theta]]^2) + a En (\[Omega]^2/\[CapitalDelta]-1) - (a^2 L)/\[CapitalDelta];
 (*Osculating Geodesic Equations*)
 (*Using simpler equations for the evolution of E, L and K*)
 Eqns = {
 D[En , \[Lambda]]== -\[CapitalSigma] \[Eta] at [a, En, L, K, \[Psi]r, \[Psi]\[Theta]], 
 
 D[L, \[Lambda]] == \[CapitalSigma] \[Eta] a\[Phi][a, En, L, K, \[Psi]r, \[Psi]\[Theta]],   
-D[K, \[Lambda]] == (2\[CapitalSigma])/\[CapitalDelta] (- \[Eta] at[a, En, L, K, \[Psi]r, \[Psi]\[Theta]](\[Omega]^4 En - a \[Omega]^2 L) + \[Eta] a\[Phi][a, En, L, K, \[Psi]r, \[Psi]\[Theta]](a^2 L -a \[Omega]^2 En) - \[CapitalDelta]^2  ur \[Eta] ar[a, En, L, K, \[Psi]r, \[Psi]\[Theta]]),  
-D[\[Psi]r, \[Lambda]] ==  P + (C A3 Sin[\[Psi]r])/(2(1 + e Cos[\[Psi]r]) un) + (\[ScriptCapitalD] \[CapitalSigma] A3 P )/(2(1+ e Cos[\[Psi]r])^2 un) - (a \[Epsilon] Sin[\[Theta]]Sin[\[Psi]r] A2)/(1 + e Cos[\[Psi]r])  +  (P an)/(un ( 1 + e Cos[\[Psi]r])^2) ((1-e)^2 (1 - Cos[\[Psi]r]) ( \[CapitalSigma]1 F1)/\[Kappa]1  +(1+e)^2 (1+Cos[\[Psi]r]) (\[CapitalSigma]2 F2)/\[Kappa]2),
+D[K, \[Lambda]] == (2\[CapitalSigma])/\[CapitalDelta] (- \[Eta] at[a, En, L, K, \[Psi]r, \[Psi]\[Theta]](\[Omega]^4 En - a \[Omega]^2 L) + \[Eta] a\[Phi][a, En, L, K, \[Psi]r, \[Psi]\[Theta]](a^2 L -a \[Omega]^2 En) - \[CapitalDelta]^2  ur \[Eta] ar[a, En, L, K, \[Psi]r, \[Psi]\[Theta]]) + r^2(dtd\[Lambda] \[Eta] at[a, En, L, K, \[Psi]r, \[Psi]\[Theta]] + (\[CapitalDelta] ur) \[Eta] ar[a, En, L, K, \[Psi]r, \[Psi]\[Theta]]  + u\[Theta] \[Eta] a\[Theta][a, En, L, K, \[Psi]r, \[Psi]\[Theta]] + d\[Phi]d\[Lambda] \[Eta] a\[Phi][a, En, L, K, \[Psi]r, \[Psi]\[Theta]]),  
+D[\[Psi]r, \[Lambda]] == P  +(C A3 Sin[\[Psi]r])/(2(1 + e Cos[\[Psi]r]) un) + (\[ScriptCapitalD] \[CapitalSigma] A3 P )/(2(1+ e Cos[\[Psi]r])^2 un) - (a \[Epsilon] Sin[\[Theta]]Sin[\[Psi]r] A2)/(1 + e Cos[\[Psi]r])  +  (P an)/(un ( 1 + e Cos[\[Psi]r])^2) ((1-e)^2 (1 - Cos[\[Psi]r]) ( \[CapitalSigma]1 F1)/\[Kappa]1  +(1+e)^2 (1+Cos[\[Psi]r]) (\[CapitalSigma]2 F2)/\[Kappa]2),
 
  D[\[Psi]\[Theta], \[Lambda]] == Sqrt[\[Beta](zp - z)]( 1 + ((1 - zm) \[CapitalSigma] A1 Cos[\[Psi]\[Theta]])/(\[Beta] Sqrt[zm](zp - zm) Sin[\[Theta]])) + (Cos[\[Psi]\[Theta]] Sin[\[Psi]\[Theta]] H a \[CapitalDelta] ( A3 - 2 ur an))/(2(zp - zm) \[Beta] un) + (Cos[\[Psi]\[Theta]] Sin[\[Psi]\[Theta]] G A2 )/(\[Beta](zp - zm)),
   D[t, \[Lambda]] == En(\[Omega]^4/\[CapitalDelta] - a^2 (1 - zm Cos[\[Psi]\[Theta]]^2)) + a L(1 - \[Omega]^2/\[CapitalDelta]),
@@ -530,7 +540,7 @@ psol[\[Lambda]_] := (2 r1sol[\[Lambda]] r2sol[\[Lambda]]  )/(r1sol[\[Lambda]] + 
 esol[\[Lambda]_] := (r1sol[\[Lambda]] - r2sol[\[Lambda]])/(r1sol[\[Lambda]] + r2sol[\[Lambda]]);
 rsol[\[Lambda]_] := psol[\[Lambda]]/(1 + esol[\[Lambda]] Cos[\[Psi]rsol[\[Lambda]]]); 
 
-zmsol[\[Lambda]_]:= 1/(2a^2 (1 - Ensol[\[Lambda]])) ((Lsol[\[Lambda]]^2+ Qsol[\[Lambda]] + a^2 (1 - Ensol[\[Lambda]])) - Sqrt[(Lsol[\[Lambda]]^2 + Qsol[\[Lambda]] + a^2 (1 - Ensol[\[Lambda]]))^2 - 4 (a^2) (1 - Ensol[\[Lambda]]) Qsol[\[Lambda]] ] ); 
+zmsol[\[Lambda]_]:= 1/(2 a^2 (1 - Ensol[\[Lambda]]^2)) ((Lsol[\[Lambda]]^2+ Qsol[\[Lambda]] + a^2 (1 - Ensol[\[Lambda]]^2)) - Sqrt[(Lsol[\[Lambda]]^2 + Qsol[\[Lambda]] + a^2 (1 - Ensol[\[Lambda]]^2))^2 - 4 (a^2) (1 - Ensol[\[Lambda]]^2) Qsol[\[Lambda]] ] ); 
 xsol[\[Lambda]_]:= Sqrt[1 - zmsol[\[Lambda]]];
 
 \[Theta]sol[\[Lambda]_] :=  ArcCos[Sqrt[zmsol[\[Lambda]]]Cos[\[Psi]\[Theta]sol[\[Lambda]]]];
@@ -541,7 +551,7 @@ xsol[\[Lambda]_]:= Sqrt[1 - zmsol[\[Lambda]]];
 "En"-> Ensol, "L"-> Lsol, "K" -> Ksol, "Q" -> Qsol, 
 "p"-> psol, "e"-> esol, "x" -> xsol, "\[Iota]" -> \[Iota]sol,
 "\[Psi]r" -> \[Psi]rsol, "\[Psi]\[Theta]" -> \[Psi]\[Theta]sol, 
-"r1"-> r1sol, "r2" -> r2sol, "z1"-> zmsol|>
+"r1"-> r1sol, "r2" -> r2sol, "z1"-> zmsol, "limit" -> Ensol["Domain"][[1,2]]|>
  ,
 Message[KerrOsculatingOrbitalElements::ICs];]
 ]
