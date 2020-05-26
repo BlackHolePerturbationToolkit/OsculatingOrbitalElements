@@ -78,7 +78,7 @@ Begin["`Private`"]
 (*Private Functions*)
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Orbital Evolution: Version 1 *)
 
 
@@ -121,11 +121,11 @@ If[psol["Domain"][[1,2]] < IntegrationLimit, Print["Unbound orbit encountered."]
 (*Return associations for p, e, \[Xi], t and \[Phi] as functions of \[Chi]*)
 rsol[\[Chi]_] := (M psol[\[Chi]])/(1-esol[\[Chi]] Cos[\[Xi]sol[\[Chi]]]);
 \[Theta]sol[\[Chi]_]:= \[Pi]/2;
-<|"t"-> tsol, "r"-> rsol, "\[Theta]" -> \[Theta]sol, "\[Phi]"-> \[Phi]sol,"p" -> psol, "e"-> esol,  "\[Xi]" -> \[Xi]sol|>
+<|"t"-> tsol, "r"-> rsol, "\[Theta]" -> \[Theta]sol, "\[Phi]"-> \[Phi]sol,"p" -> psol, "e"-> esol,  "\[Xi]" -> \[Xi]sol, "limit" -> psol["Domain"][[1,2]] |>
 ]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Orbital Evolution: Version 2*)
 
 
@@ -175,7 +175,7 @@ esol[\[Chi]_] := (\[Alpha]sol[\[Chi]]^2 + \[Beta]sol[\[Chi]]^2)^(1/2);
 \[Theta]sol[\[Chi]_] := \[Pi]/2;
 
 (*Return associations for the varibales as functions of \[Chi]*)
-<| "t"-> tsol, "r"-> rsol, "\[Theta]" -> \[Theta]sol, "\[Phi]"-> \[Phi]sol,"p" -> psol, "e"-> esol,  "\[Xi]" -> \[Xi]sol |>
+<| "t"-> tsol, "r"-> rsol, "\[Theta]" -> \[Theta]sol, "\[Phi]"-> \[Phi]sol,"p" -> psol, "e"-> esol,  "\[Xi]" -> \[Xi]sol , "limit" -> tsol["Domain"][[1,2]]|>
 ]
 
 
@@ -427,7 +427,7 @@ Eqns
 (*Public Functions*)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Relativistic Gas Drag for Kerr*)
 
 
