@@ -30,6 +30,9 @@ MessageName[SchwarzOsculatingOrbitalElements, "OutOfRange"] =  "Warning: FastGSF
 MessageName[KerrOsculatingOrbitalElements, "usage"] = 
 "KerrOsculatingOrbitalElements[\[Eta], a, p, e, x, \[Psi]r, \[Psi]\[Theta], Force->{at, ar, a\[Theta] a\[Phi]}] calculates En, L, K, \[Psi]r and \[Psi]\[Theta] as functions of Mino time (\[Lambda]) using a given by covariant components of an acceleration (at, ar, a\[Theta], a\[Phi]) a mass ratio given by \[Eta]."
 
+MessageName[KerrOsculatingOrbitalElementsTPVec, "usage"] = 
+"KerrOsculatingOrbitalElementsTPVec[\[Eta], a, p, e, x, \[Psi]r, \[Psi]\[Theta], Force->{ft, fr, f\[Theta] f\[Phi]}] calculates En, L, K, \[Psi]r and \[Psi]\[Theta] as functions of proper time (t) using a given by contravarient components of an acceleration (ft, fr, f\[Theta], f\[Phi]) a mass ratio given by \[Eta]."
+
 MessageName[KerrOsculatingOrbitalElementsTP, "usage"] = 
 "KerrOsculatingOrbitalElements[\[Eta], a, p, e, x, \[Psi]r, \[Psi]\[Theta], Force->{at, ar, a\[Theta] a\[Phi]}] calculates En, L, K, \[Psi]r and \[Psi]\[Theta] as functions of proper time (t) using a given by covariant components of an acceleration (at, ar, a\[Theta], a\[Phi]) a mass ratio given by \[Eta]."
 
@@ -61,6 +64,8 @@ MessageName[SchwarzGasDrag, "usage"]= "SchwarzGasDrag[p,e,\[Xi]] returns contrav
 
 MessageName[KerrGasDrag, "usage"]= "KerrGasDrag[a,En,L,K, \[Psi]r, \[Psi]\[Theta]] returns covarient components of a relativistic drag force, {at,ar,a\[Theta],a\[Phi]}, in terms of a, En, L and K."
 
+MessageName[KerrGasDragVec, "usage"]= "KerrGasDragVec[a,En,L,K, \[Psi]r, \[Psi]\[Theta]] returns vector components of a relativistic drag force, {ft,fr,f\[Theta],f\[Phi]}, in terms of a, En, L and K."
+
 
 (* ::Subsection:: *)
 (*Options and Syntax Information*)
@@ -77,6 +82,12 @@ SyntaxInformation[KerrOsculatingOrbitalElements] = {"ArgumentsPattern"-> {_, _, 
 
 Options[KerrOsculatingOrbitalElementsTP] = {IntegrationLimit-> 1000000, AccuracyGoal-> Automatic, PrecisionGoal -> Automatic, Force -> KerrGasDrag};
 SyntaxInformation[KerrOsculatingOrbitalElementsTP] = {"ArgumentsPattern"-> {_, _, _,_, _,_, OptionsPattern[]}};
+
+Options[KerrOsculatingOrbitalElementsTPVec] = {IntegrationLimit-> 1000000, AccuracyGoal-> Automatic, PrecisionGoal -> Automatic, Force -> KerrGasDrag};
+SyntaxInformation[KerrOsculatingOrbitalElementsTPVec] = {"ArgumentsPattern"-> {_, _, _,_, _,_, OptionsPattern[]}};
+
+Options[KerrOsculatingOrbitalElementsTPVecLessArg] = {IntegrationLimit-> 1000000, AccuracyGoal-> Automatic, PrecisionGoal -> Automatic, Force -> KerrGasDrag};
+SyntaxInformation[KerrOsculatingOrbitalElementsTPVecLessArg] = {"ArgumentsPattern"-> {_, _, _,_, _,_, OptionsPattern[]}};
 
 
 (* ::Input::Initialization:: *)
@@ -569,10 +580,181 @@ d\[Phi]d\[Lambda] = L/(1-zm Cos[\[Psi]\[Theta]]^2) + a En (\[Omega]^2/\[CapitalD
 (*Osculating Geodesic Equations*)
 (*Using simpler equations for the evolution of E, L and K*)
 Eqns = {
-D[En , t]== -\[CapitalSigma] \[Eta] 1/dtd\[Lambda]  at [a, En, L, K, \[Psi]r, \[Psi]\[Theta]], 
+D[En , t]== -\[CapitalSigma] \[Eta] 1/dtd\[Lambda]  at[a, En, L, K, \[Psi]r, \[Psi]\[Theta]], 
 
 D[L, t] == \[CapitalSigma] \[Eta] 1/dtd\[Lambda]  a\[Phi][a, En, L, K, \[Psi]r, \[Psi]\[Theta]],   
 D[K, t] == \[Eta]/dtd\[Lambda]  ((2\[CapitalSigma])/\[CapitalDelta] (-  at[a, En, L, K, \[Psi]r, \[Psi]\[Theta]](\[Omega]^4 En - a \[Omega]^2 L) +   a\[Phi][a, En, L, K, \[Psi]r, \[Psi]\[Theta]](a^2 L -a \[Omega]^2 En) - \[CapitalDelta]^2  ur   ar[a, En, L, K, \[Psi]r, \[Psi]\[Theta]]) + r^2(dtd\[Lambda]   at[a, En, L, K, \[Psi]r, \[Psi]\[Theta]] + (\[CapitalDelta] ur)   ar[a, En, L, K, \[Psi]r, \[Psi]\[Theta]]  + u\[Theta]   a\[Theta][a, En, L, K, \[Psi]r, \[Psi]\[Theta]] + d\[Phi]d\[Lambda]   a\[Phi][a, En, L, K, \[Psi]r, \[Psi]\[Theta]])),  
+D[\[Psi]r, t] == 1/dtd\[Lambda]  (P  +(C A3 Sin[\[Psi]r])/(2(1 + e Cos[\[Psi]r]) un) + (\[ScriptCapitalD] \[CapitalSigma] A3 P )/(2(1+ e Cos[\[Psi]r])^2 un) - (a \[Epsilon] Sin[\[Theta]]Sin[\[Psi]r] A2)/(1 + e Cos[\[Psi]r])  +  (P an)/(un ( 1 + e Cos[\[Psi]r])^2) ((1-e)^2 (1 - Cos[\[Psi]r]) ( \[CapitalSigma]1 F1)/\[Kappa]1  +(1+e)^2 (1+Cos[\[Psi]r]) (\[CapitalSigma]2 F2)/\[Kappa]2)),
+ D[\[Psi]\[Theta], t] == 1/dtd\[Lambda]  (Sqrt[\[Beta](zp - z)]( 1 + ((1 - zm) \[CapitalSigma] A1 Cos[\[Psi]\[Theta]])/(\[Beta] Sqrt[zm](zp - zm) Sin[\[Theta]])) + (Cos[\[Psi]\[Theta]] Sin[\[Psi]\[Theta]] H a \[CapitalDelta] ( A3 - 2 ur an))/(2(zp - zm) \[Beta] un) + (Cos[\[Psi]\[Theta]] Sin[\[Psi]\[Theta]] G A2 )/(\[Beta](zp - zm))),
+  D[\[Phi], t] == 1/dtd\[Lambda]  (L/(1-zm Cos[\[Psi]\[Theta]]^2) + a En (\[Omega]^2/\[CapitalDelta]-1) - (a^2 L)/\[CapitalDelta] )
+};
+
+Eqns
+]
+
+
+KerrOscGeoEqsTPVec[\[Eta]_,a_,En_,L_,K_,\[Psi]r_,\[Psi]\[Theta]_, \[Phi]_, ft_,fr_,f\[Theta]_,f\[Phi]_, t_]:= Module[{Vr,r1, r2,p, e, r, \[Beta],Q, zm, zp, \[CapitalSigma], \[CapitalSigma]1, \[CapitalSigma]2, \[CapitalDelta], \[CapitalDelta]1, \[CapitalDelta]2, \[Omega], F, F1, F2, H, \[Theta], \[Kappa]1, \[Kappa]2, z, Q1, Q2,C,\[ScriptCapitalD],\[Epsilon], J, P, G, ur, u\[Theta], utup, u\[Phi]up, ut, u\[Phi], un, uztup, uz\[Phi]up, uzt, an,A1, A2, A3, dEd\[Lambda], dLd\[Lambda], dKd\[Lambda], d\[Psi]rd\[Lambda], d\[Psi]\[Theta]d\[Lambda], Eqns, psol, esol, rsol, tsol, \[Phi]sol, \[Alpha],dtd\[Lambda],d\[Phi]d\[Lambda]},
+(*Have to compare which of these two values is bigger/smaller as the definition of the roots flip in certain areas of te parameter space*)
+r1 = Max[Re[Root1[a, En, L, K]],Re[Root2[a, En, L, K]]];
+r2 = Min[Re[Root1[a, En, L, K]],Re[Root2[a, En, L, K]]] ;
+
+
+(*p and e*)
+e = (r1 - r2)/(r1 + r2); 
+p = (2 r1 r2)/(r1 + r2);
+(*r coordinate*)
+r = p/(1 + e Cos[\[Psi]r]) ;
+\[Beta]= a^2 (1 - En^2);
+Q = K - (L - a En)^2;
+(*Polar Roots*)
+zm = 1/(2\[Beta]) ((L^2+ Q + \[Beta]) - Sqrt[(L^2 + Q + \[Beta])^2 - 4\[Beta] Q ] ); 
+zp = 1/(2\[Beta]) ((L^2+ Q + \[Beta])+ Sqrt[(L^2+ Q + \[Beta])^2 - 4\[Beta] Q] );
+z = zm Cos[\[Psi]\[Theta]]^2;
+
+(*Useful Shorthand*)
+
+\[CapitalSigma] = r^2 + a^2 zm Cos[\[Psi]\[Theta]]^2;
+\[CapitalSigma]1 = r1^2 + a^2 zm Cos[\[Psi]\[Theta]]^2;
+\[CapitalSigma]2 = r2^2 + a^2 zm Cos[\[Psi]\[Theta]]^2;
+
+\[CapitalDelta] = r^2 + a^2 - 2r;
+\[CapitalDelta]1 = r1^2 + a^2 - 2r1;
+\[CapitalDelta]2 = r2^2 + a^2 - 2r2;
+
+\[Omega] = Sqrt[r^2+ a^2];
+
+F = (r^2+ a^2) En- a L;
+F1 = (r1^2+ a^2) En- a L;
+F2 = (r2^2+ a^2) En- a L;
+
+H = L - a En (1- zm Cos[\[Psi]\[Theta]]^2);
+\[Theta] = ArcCos[Sqrt[zm]Cos[\[Psi]\[Theta]]];
+
+\[Kappa]1 = 4En F1 r1 - 2 r1 \[CapitalDelta]1 - 2(r1-1)(r1^2 + K);
+\[Kappa]2 = 4En F2 r2 - 2 r2 \[CapitalDelta]2 - 2(r2-1)(r2^2 + K);
+
+Q1 = - 2 a L r r1 - a^4 En(r+r1) + a^3 L(r+r1) - a^2 En(r^3 + r^2 r1 + r1^3 + r r1(-2 + r1)) - En r r1 ( r r1 (r + r1) - 2(r^2 + r r1 + r1^2)) - a^2 (2a^2 En - 2En r r1 + a L(-2 + r + r1)) zm Cos[\[Psi]\[Theta]]^2;
+
+Q2 = - 2 a L r r2 - a^4 En(r+r2) + a^3 L(r+r2) - a^2 En(r^3 + r^2 r2 + r2^3 + r r2(-2 + r2)) - En r r2 ( r r2 (r + r2) - 2(r^2 + r r2+ r2^2)) - a^2 (2a^2 En - 2En r r2 + a L(-2 + r + r2)) zm Cos[\[Psi]\[Theta]]^2;
+C = (Q1 (1- e))/\[Kappa]1 - (Q2 (1+ e))/\[Kappa]2; 
+
+\[ScriptCapitalD] = (1-e)^2 (1 - Cos[\[Psi]r]) \[CapitalDelta]1/\[Kappa]1 + (1+e)^2 (1 + Cos[\[Psi]r]) \[CapitalDelta]2/\[Kappa]2;
+
+\[Epsilon] = (F1(1-e)(r+r1))/\[Kappa]1 - (F2 (1+ e) (r + r2))/\[Kappa]2;  
+J = (1-En^2)(1-e^2) + 2(1 - En^2-(1-e^2)/p)(1 + e Cos[\[Psi]r]) + ((1 - En^2) (3+ e^2)/(1 - e^2) - 4/p+ (\[Beta] + L^2 +Q) (1-e^2)/p^2)(1+e Cos[\[Psi]r])^2;
+P = (p Sqrt[J])/(1 - e^2); 
+G =  (\[Omega]^2 L)/Sin[\[Theta]] - a^3 (1 - zm) Sin[\[Theta]] En;
+
+(*Particle Velocities*)
+ur = (p e Sin[\[Psi]r] P)/(\[CapitalDelta] (1+ e Cos[\[Psi]r])^2); 
+u\[Theta] = (Sqrt[zm]Sin[\[Psi]\[Theta]])/Sin[\[Theta]] Sqrt[\[Beta](zp - z)];
+un = -(F /(2\[CapitalSigma]))- \[CapitalDelta]/(2\[CapitalSigma]) ur; 
+
+(*Convert from BL to Null Tetrad Componets*)
+
+an = \[Omega]^2/(2\[CapitalSigma]) \[Eta] (-2 a f\[Phi] [a, En, L, K, \[Psi]r, \[Psi]\[Theta]]p (1+e Cos[\[Psi]r]) (-1+zm Cos[\[Psi]\[Theta]]^2)+ft[a, En, L, K, \[Psi]r, \[Psi]\[Theta]] (p^2-2 p (1+e Cos[\[Psi]r])+a^2 zm (1+e Cos[\[Psi]r])^2 Cos[\[Psi]\[Theta]]^2))/(p^2+a^2 zm (1+e Cos[\[Psi]r])^2 Cos[\[Psi]\[Theta]]^2) - \[CapitalDelta]/(2\[CapitalSigma]) \[Eta] (-(((p^2/(1+e Cos[\[Psi]r])^2+a^2 zm Cos[\[Psi]\[Theta]]^2) fr[a,En,L,K,\[Psi]r,\[Psi]\[Theta]])/(a^2+(p (-2+p-2 e Cos[\[Psi]r]))/(1+e Cos[\[Psi]r])^2))) + a/(2\[CapitalSigma]) \[Eta] (1-zm Cos[\[Psi]\[Theta]]^2) ((2 a p (1+e Cos[\[Psi]r]) ft[a,En,L,K,\[Psi]r,\[Psi]\[Theta]])/(p^2+a^2 zm (1+e Cos[\[Psi]r])^2 Cos[\[Psi]\[Theta]]^2)+(-a^2-p^2/(1+e Cos[\[Psi]r])^2+(a^2 p (1+e Cos[\[Psi]r]) (-2+zm+zm Cos[2 \[Psi]\[Theta]]))/(p^2+a^2 zm (1+e Cos[\[Psi]r])^2 Cos[\[Psi]\[Theta]]^2)) f\[Phi][a,En,L,K,\[Psi]r,\[Psi]\[Theta]]);
+
+A1 = \[Eta] (-(p^2/(1+e Cos[\[Psi]r])^2)-a^2 zm Cos[\[Psi]\[Theta]]^2) f\[Theta][a,En,L,K,\[Psi]r,\[Psi]\[Theta]];
+A2 = -a Sin[\[Theta]] \[Eta] (-2 a f\[Phi] [a, En, L, K, \[Psi]r, \[Psi]\[Theta]]p (1+e Cos[\[Psi]r]) (-1+zm Cos[\[Psi]\[Theta]]^2)+ft[a, En, L, K, \[Psi]r, \[Psi]\[Theta]] (p^2-2 p (1+e Cos[\[Psi]r])+a^2 zm (1+e Cos[\[Psi]r])^2 Cos[\[Psi]\[Theta]]^2))/(p^2+a^2 zm (1+e Cos[\[Psi]r])^2 Cos[\[Psi]\[Theta]]^2) - 1/Sin[\[Theta]] \[Eta] (1-zm Cos[\[Psi]\[Theta]]^2) ((2 a p (1+e Cos[\[Psi]r]) ft[a,En,L,K,\[Psi]r,\[Psi]\[Theta]])/(p^2+a^2 zm (1+e Cos[\[Psi]r])^2 Cos[\[Psi]\[Theta]]^2)+(-a^2-p^2/(1+e Cos[\[Psi]r])^2+(a^2 p (1+e Cos[\[Psi]r]) (-2+zm+zm Cos[2 \[Psi]\[Theta]]))/(p^2+a^2 zm (1+e Cos[\[Psi]r])^2 Cos[\[Psi]\[Theta]]^2)) f\[Phi][a,En,L,K,\[Psi]r,\[Psi]\[Theta]]);
+A3 = (a(L - a En Sin[\[Theta]]^2))/\[CapitalSigma] \[Eta] (-2 a f\[Phi] [a, En, L, K, \[Psi]r, \[Psi]\[Theta]]p (1+e Cos[\[Psi]r]) (-1+zm Cos[\[Psi]\[Theta]]^2)+ft[a, En, L, K, \[Psi]r, \[Psi]\[Theta]] (p^2-2 p (1+e Cos[\[Psi]r])+a^2 zm (1+e Cos[\[Psi]r])^2 Cos[\[Psi]\[Theta]]^2))/(p^2+a^2 zm (1+e Cos[\[Psi]r])^2 Cos[\[Psi]\[Theta]]^2) + u\[Theta]/\[CapitalSigma] \[Eta] (-(p^2/(1+e Cos[\[Psi]r])^2)-a^2 zm Cos[\[Psi]\[Theta]]^2) f\[Theta][a,En,L,K,\[Psi]r,\[Psi]\[Theta]] + (L - a En Sin[\[Theta]]^2)/(\[CapitalSigma] Sin[\[Theta]]^2) \[Eta] (1-zm Cos[\[Psi]\[Theta]]^2) ((2 a p (1+e Cos[\[Psi]r]) ft[a,En,L,K,\[Psi]r,\[Psi]\[Theta]])/(p^2+a^2 zm (1+e Cos[\[Psi]r])^2 Cos[\[Psi]\[Theta]]^2)+(-a^2-p^2/(1+e Cos[\[Psi]r])^2+(a^2 p (1+e Cos[\[Psi]r]) (-2+zm+zm Cos[2 \[Psi]\[Theta]]))/(p^2+a^2 zm (1+e Cos[\[Psi]r])^2 Cos[\[Psi]\[Theta]]^2)) f\[Phi][a,En,L,K,\[Psi]r,\[Psi]\[Theta]]) ;  
+
+dtd\[Lambda] = En(\[Omega]^4/\[CapitalDelta] - a^2 (1 - zm Cos[\[Psi]\[Theta]]^2)) + a L(1 - \[Omega]^2/\[CapitalDelta]);
+d\[Phi]d\[Lambda] = L/(1-zm Cos[\[Psi]\[Theta]]^2) + a En (\[Omega]^2/\[CapitalDelta]-1) - (a^2 L)/\[CapitalDelta];
+(*Osculating Geodesic Equations*)
+(*Using simpler equations for the evolution of E, L and K*)
+Eqns = {
+D[En , t]== -\[CapitalSigma] \[Eta] 1/dtd\[Lambda]  (-2 a f\[Phi] [a, En, L, K, \[Psi]r, \[Psi]\[Theta]]p (1+e Cos[\[Psi]r]) (-1+zm Cos[\[Psi]\[Theta]]^2)+ft[a, En, L, K, \[Psi]r, \[Psi]\[Theta]] (p^2-2 p (1+e Cos[\[Psi]r])+a^2 zm (1+e Cos[\[Psi]r])^2 Cos[\[Psi]\[Theta]]^2))/(p^2+a^2 zm (1+e Cos[\[Psi]r])^2 Cos[\[Psi]\[Theta]]^2), 
+
+D[L, t] == \[CapitalSigma] \[Eta] 1/dtd\[Lambda]  (1-zm Cos[\[Psi]\[Theta]]^2) ((2 a p (1+e Cos[\[Psi]r]) ft[a,En,L,K,\[Psi]r,\[Psi]\[Theta]])/(p^2+a^2 zm (1+e Cos[\[Psi]r])^2 Cos[\[Psi]\[Theta]]^2)+(-a^2-p^2/(1+e Cos[\[Psi]r])^2+(a^2 p (1+e Cos[\[Psi]r]) (-2+zm+zm Cos[2 \[Psi]\[Theta]]))/(p^2+a^2 zm (1+e Cos[\[Psi]r])^2 Cos[\[Psi]\[Theta]]^2)) f\[Phi][a,En,L,K,\[Psi]r,\[Psi]\[Theta]]),   
+D[K, t] == \[Eta]/dtd\[Lambda]  ((2\[CapitalSigma])/\[CapitalDelta] (-  (-2 a f\[Phi] [a, En, L, K, \[Psi]r, \[Psi]\[Theta]]p (1+e Cos[\[Psi]r]) (-1+zm Cos[\[Psi]\[Theta]]^2)+ft[a, En, L, K, \[Psi]r, \[Psi]\[Theta]] (p^2-2 p (1+e Cos[\[Psi]r])+a^2 zm (1+e Cos[\[Psi]r])^2 Cos[\[Psi]\[Theta]]^2))/(p^2+a^2 zm (1+e Cos[\[Psi]r])^2 Cos[\[Psi]\[Theta]]^2)(\[Omega]^4 En - a \[Omega]^2 L) +  (1-zm Cos[\[Psi]\[Theta]]^2) ((2 a p (1+e Cos[\[Psi]r]) ft[a,En,L,K,\[Psi]r,\[Psi]\[Theta]])/(p^2+a^2 zm (1+e Cos[\[Psi]r])^2 Cos[\[Psi]\[Theta]]^2)+(-a^2-p^2/(1+e Cos[\[Psi]r])^2+(a^2 p (1+e Cos[\[Psi]r]) (-2+zm+zm Cos[2 \[Psi]\[Theta]]))/(p^2+a^2 zm (1+e Cos[\[Psi]r])^2 Cos[\[Psi]\[Theta]]^2)) f\[Phi][a,En,L,K,\[Psi]r,\[Psi]\[Theta]])(a^2 L -a \[Omega]^2 En) - \[CapitalDelta]^2  ur   (-(((p^2/(1+e Cos[\[Psi]r])^2+a^2 zm Cos[\[Psi]\[Theta]]^2) fr[a,En,L,K,\[Psi]r,\[Psi]\[Theta]])/(a^2+(p (-2+p-2 e Cos[\[Psi]r]))/(1+e Cos[\[Psi]r])^2)))) + r^2(dtd\[Lambda]   (-2 a f\[Phi] [a, En, L, K, \[Psi]r, \[Psi]\[Theta]]p (1+e Cos[\[Psi]r]) (-1+zm Cos[\[Psi]\[Theta]]^2)+ft[a, En, L, K, \[Psi]r, \[Psi]\[Theta]] (p^2-2 p (1+e Cos[\[Psi]r])+a^2 zm (1+e Cos[\[Psi]r])^2 Cos[\[Psi]\[Theta]]^2))/(p^2+a^2 zm (1+e Cos[\[Psi]r])^2 Cos[\[Psi]\[Theta]]^2) + (\[CapitalDelta] ur)   (-(((p^2/(1+e Cos[\[Psi]r])^2+a^2 zm Cos[\[Psi]\[Theta]]^2) fr[a,En,L,K,\[Psi]r,\[Psi]\[Theta]])/(a^2+(p (-2+p-2 e Cos[\[Psi]r]))/(1+e Cos[\[Psi]r])^2)))  + u\[Theta]   (-(p^2/(1+e Cos[\[Psi]r])^2)-a^2 zm Cos[\[Psi]\[Theta]]^2) f\[Theta][a,En,L,K,\[Psi]r,\[Psi]\[Theta]] + d\[Phi]d\[Lambda]   (1-zm Cos[\[Psi]\[Theta]]^2) ((2 a p (1+e Cos[\[Psi]r]) ft[a,En,L,K,\[Psi]r,\[Psi]\[Theta]])/(p^2+a^2 zm (1+e Cos[\[Psi]r])^2 Cos[\[Psi]\[Theta]]^2)+(-a^2-p^2/(1+e Cos[\[Psi]r])^2+(a^2 p (1+e Cos[\[Psi]r]) (-2+zm+zm Cos[2 \[Psi]\[Theta]]))/(p^2+a^2 zm (1+e Cos[\[Psi]r])^2 Cos[\[Psi]\[Theta]]^2)) f\[Phi][a,En,L,K,\[Psi]r,\[Psi]\[Theta]]))),  
+D[\[Psi]r, t] == 1/dtd\[Lambda]  (P  +(C A3 Sin[\[Psi]r])/(2(1 + e Cos[\[Psi]r]) un) + (\[ScriptCapitalD] \[CapitalSigma] A3 P )/(2(1+ e Cos[\[Psi]r])^2 un) - (a \[Epsilon] Sin[\[Theta]]Sin[\[Psi]r] A2)/(1 + e Cos[\[Psi]r])  +  (P an)/(un ( 1 + e Cos[\[Psi]r])^2) ((1-e)^2 (1 - Cos[\[Psi]r]) ( \[CapitalSigma]1 F1)/\[Kappa]1  +(1+e)^2 (1+Cos[\[Psi]r]) (\[CapitalSigma]2 F2)/\[Kappa]2)),
+ D[\[Psi]\[Theta], t] == 1/dtd\[Lambda]  (Sqrt[\[Beta](zp - z)]( 1 + ((1 - zm) \[CapitalSigma] A1 Cos[\[Psi]\[Theta]])/(\[Beta] Sqrt[zm](zp - zm) Sin[\[Theta]])) + (Cos[\[Psi]\[Theta]] Sin[\[Psi]\[Theta]] H a \[CapitalDelta] ( A3 - 2 ur an))/(2(zp - zm) \[Beta] un) + (Cos[\[Psi]\[Theta]] Sin[\[Psi]\[Theta]] G A2 )/(\[Beta](zp - zm))),
+  D[\[Phi], t] == 1/dtd\[Lambda]  (L/(1-zm Cos[\[Psi]\[Theta]]^2) + a En (\[Omega]^2/\[CapitalDelta]-1) - (a^2 L)/\[CapitalDelta] )
+};
+
+Eqns
+]
+
+
+KerrOscGeoEqsTPVecLessArg[\[Eta]_,a_,En_,L_,K_,\[Psi]r_,\[Psi]\[Theta]_, \[Phi]_,fr_,f\[Theta]_,f\[Phi]_, t_]:= Module[{Vr,r1, r2,ft, p, e, r, \[Beta],Q, zm, zp, \[CapitalSigma], \[CapitalSigma]1, \[CapitalSigma]2, \[CapitalDelta], \[CapitalDelta]1, \[CapitalDelta]2, \[Omega], F, F1, F2, H, \[Theta], \[Kappa]1, \[Kappa]2, z, Q1, Q2,C,\[ScriptCapitalD],\[Epsilon], J, P, G, ur, u\[Theta], utup, u\[Phi]up, ut, u\[Phi], un, uztup, uz\[Phi]up, uzt, an,A1, A2, A3, dEd\[Lambda], dLd\[Lambda], dKd\[Lambda], d\[Psi]rd\[Lambda], d\[Psi]\[Theta]d\[Lambda], Eqns, psol, esol, rsol, tsol, \[Phi]sol, \[Alpha],dtd\[Lambda],d\[Phi]d\[Lambda]},
+(*Have to compare which of these two values is bigger/smaller as the definition of the roots flip in certain areas of te parameter space*)
+r1 = Max[Re[Root1[a, En, L, K]],Re[Root2[a, En, L, K]]];
+r2 = Min[Re[Root1[a, En, L, K]],Re[Root2[a, En, L, K]]] ;
+
+(*ft from ortogonality condition*)
+
+
+
+(*p and e*)
+e = (r1 - r2)/(r1 + r2); 
+p = (2 r1 r2)/(r1 + r2);
+(*r coordinate*)
+r = p/(1 + e Cos[\[Psi]r]) ;
+\[Beta]= a^2 (1 - En^2);
+Q = K - (L - a En)^2;
+(*Polar Roots*)
+zm = 1/(2\[Beta]) ((L^2+ Q + \[Beta]) - Sqrt[(L^2 + Q + \[Beta])^2 - 4\[Beta] Q ] ); 
+zp = 1/(2\[Beta]) ((L^2+ Q + \[Beta])+ Sqrt[(L^2+ Q + \[Beta])^2 - 4\[Beta] Q] );
+z = zm Cos[\[Psi]\[Theta]]^2;
+
+(*Useful Shorthand*)
+
+\[CapitalSigma] = r^2 + a^2 zm Cos[\[Psi]\[Theta]]^2;
+\[CapitalSigma]1 = r1^2 + a^2 zm Cos[\[Psi]\[Theta]]^2;
+\[CapitalSigma]2 = r2^2 + a^2 zm Cos[\[Psi]\[Theta]]^2;
+
+\[CapitalDelta] = r^2 + a^2 - 2r;
+\[CapitalDelta]1 = r1^2 + a^2 - 2r1;
+\[CapitalDelta]2 = r2^2 + a^2 - 2r2;
+
+\[Omega] = Sqrt[r^2+ a^2];
+
+F = (r^2+ a^2) En- a L;
+F1 = (r1^2+ a^2) En- a L;
+F2 = (r2^2+ a^2) En- a L;
+
+H = L - a En (1- zm Cos[\[Psi]\[Theta]]^2);
+\[Theta] = ArcCos[Sqrt[zm]Cos[\[Psi]\[Theta]]];
+
+\[Kappa]1 = 4En F1 r1 - 2 r1 \[CapitalDelta]1 - 2(r1-1)(r1^2 + K);
+\[Kappa]2 = 4En F2 r2 - 2 r2 \[CapitalDelta]2 - 2(r2-1)(r2^2 + K);
+
+Q1 = - 2 a L r r1 - a^4 En(r+r1) + a^3 L(r+r1) - a^2 En(r^3 + r^2 r1 + r1^3 + r r1(-2 + r1)) - En r r1 ( r r1 (r + r1) - 2(r^2 + r r1 + r1^2)) - a^2 (2a^2 En - 2En r r1 + a L(-2 + r + r1)) zm Cos[\[Psi]\[Theta]]^2;
+
+Q2 = - 2 a L r r2 - a^4 En(r+r2) + a^3 L(r+r2) - a^2 En(r^3 + r^2 r2 + r2^3 + r r2(-2 + r2)) - En r r2 ( r r2 (r + r2) - 2(r^2 + r r2+ r2^2)) - a^2 (2a^2 En - 2En r r2 + a L(-2 + r + r2)) zm Cos[\[Psi]\[Theta]]^2;
+C = (Q1 (1- e))/\[Kappa]1 - (Q2 (1+ e))/\[Kappa]2; 
+
+\[ScriptCapitalD] = (1-e)^2 (1 - Cos[\[Psi]r]) \[CapitalDelta]1/\[Kappa]1 + (1+e)^2 (1 + Cos[\[Psi]r]) \[CapitalDelta]2/\[Kappa]2;
+
+\[Epsilon] = (F1(1-e)(r+r1))/\[Kappa]1 - (F2 (1+ e) (r + r2))/\[Kappa]2;  
+J = (1-En^2)(1-e^2) + 2(1 - En^2-(1-e^2)/p)(1 + e Cos[\[Psi]r]) + ((1 - En^2) (3+ e^2)/(1 - e^2) - 4/p+ (\[Beta] + L^2 +Q) (1-e^2)/p^2)(1+e Cos[\[Psi]r])^2;
+P = (p Sqrt[J])/(1 - e^2); 
+G =  (\[Omega]^2 L)/Sin[\[Theta]] - a^3 (1 - zm) Sin[\[Theta]] En;
+
+(*Particle Velocities*)
+ur = (p e Sin[\[Psi]r] P)/(\[CapitalDelta] (1+ e Cos[\[Psi]r])^2); 
+u\[Theta] = (Sqrt[zm]Sin[\[Psi]\[Theta]])/Sin[\[Theta]] Sqrt[\[Beta](zp - z)];
+un = -(F /(2\[CapitalSigma]))- \[CapitalDelta]/(2\[CapitalSigma]) ur; 
+
+(*Convert from BL to Null Tetrad Componets*)
+
+an = \[Omega]^2/(2\[CapitalSigma]) \[Eta] (-2 a f\[Phi] [a, En, L, K, \[Psi]r, \[Psi]\[Theta]]p (1+e Cos[\[Psi]r]) (-1+zm Cos[\[Psi]\[Theta]]^2)+ft[a, En, L, K, \[Psi]r, \[Psi]\[Theta]] (p^2-2 p (1+e Cos[\[Psi]r])+a^2 zm (1+e Cos[\[Psi]r])^2 Cos[\[Psi]\[Theta]]^2))/(p^2+a^2 zm (1+e Cos[\[Psi]r])^2 Cos[\[Psi]\[Theta]]^2) - \[CapitalDelta]/(2\[CapitalSigma]) \[Eta] (-(((p^2/(1+e Cos[\[Psi]r])^2+a^2 zm Cos[\[Psi]\[Theta]]^2) fr[a,En,L,K,\[Psi]r,\[Psi]\[Theta]])/(a^2+(p (-2+p-2 e Cos[\[Psi]r]))/(1+e Cos[\[Psi]r])^2))) + a/(2\[CapitalSigma]) \[Eta] (1-zm Cos[\[Psi]\[Theta]]^2) ((2 a p (1+e Cos[\[Psi]r]) ft[a,En,L,K,\[Psi]r,\[Psi]\[Theta]])/(p^2+a^2 zm (1+e Cos[\[Psi]r])^2 Cos[\[Psi]\[Theta]]^2)+(-a^2-p^2/(1+e Cos[\[Psi]r])^2+(a^2 p (1+e Cos[\[Psi]r]) (-2+zm+zm Cos[2 \[Psi]\[Theta]]))/(p^2+a^2 zm (1+e Cos[\[Psi]r])^2 Cos[\[Psi]\[Theta]]^2)) f\[Phi][a,En,L,K,\[Psi]r,\[Psi]\[Theta]]);
+
+A1 = \[Eta] (-(p^2/(1+e Cos[\[Psi]r])^2)-a^2 zm Cos[\[Psi]\[Theta]]^2) f\[Theta][a,En,L,K,\[Psi]r,\[Psi]\[Theta]];
+A2 = -a Sin[\[Theta]] \[Eta] (-2 a f\[Phi] [a, En, L, K, \[Psi]r, \[Psi]\[Theta]]p (1+e Cos[\[Psi]r]) (-1+zm Cos[\[Psi]\[Theta]]^2)+ft[a, En, L, K, \[Psi]r, \[Psi]\[Theta]] (p^2-2 p (1+e Cos[\[Psi]r])+a^2 zm (1+e Cos[\[Psi]r])^2 Cos[\[Psi]\[Theta]]^2))/(p^2+a^2 zm (1+e Cos[\[Psi]r])^2 Cos[\[Psi]\[Theta]]^2) - 1/Sin[\[Theta]] \[Eta] (1-zm Cos[\[Psi]\[Theta]]^2) ((2 a p (1+e Cos[\[Psi]r]) ft[a,En,L,K,\[Psi]r,\[Psi]\[Theta]])/(p^2+a^2 zm (1+e Cos[\[Psi]r])^2 Cos[\[Psi]\[Theta]]^2)+(-a^2-p^2/(1+e Cos[\[Psi]r])^2+(a^2 p (1+e Cos[\[Psi]r]) (-2+zm+zm Cos[2 \[Psi]\[Theta]]))/(p^2+a^2 zm (1+e Cos[\[Psi]r])^2 Cos[\[Psi]\[Theta]]^2)) f\[Phi][a,En,L,K,\[Psi]r,\[Psi]\[Theta]]);
+A3 = (a(L - a En Sin[\[Theta]]^2))/\[CapitalSigma] \[Eta] (-2 a f\[Phi] [a, En, L, K, \[Psi]r, \[Psi]\[Theta]]p (1+e Cos[\[Psi]r]) (-1+zm Cos[\[Psi]\[Theta]]^2)+ft[a, En, L, K, \[Psi]r, \[Psi]\[Theta]] (p^2-2 p (1+e Cos[\[Psi]r])+a^2 zm (1+e Cos[\[Psi]r])^2 Cos[\[Psi]\[Theta]]^2))/(p^2+a^2 zm (1+e Cos[\[Psi]r])^2 Cos[\[Psi]\[Theta]]^2) + u\[Theta]/\[CapitalSigma] \[Eta] (-(p^2/(1+e Cos[\[Psi]r])^2)-a^2 zm Cos[\[Psi]\[Theta]]^2) f\[Theta][a,En,L,K,\[Psi]r,\[Psi]\[Theta]] + (L - a En Sin[\[Theta]]^2)/(\[CapitalSigma] Sin[\[Theta]]^2) \[Eta] (1-zm Cos[\[Psi]\[Theta]]^2) ((2 a p (1+e Cos[\[Psi]r]) ft[a,En,L,K,\[Psi]r,\[Psi]\[Theta]])/(p^2+a^2 zm (1+e Cos[\[Psi]r])^2 Cos[\[Psi]\[Theta]]^2)+(-a^2-p^2/(1+e Cos[\[Psi]r])^2+(a^2 p (1+e Cos[\[Psi]r]) (-2+zm+zm Cos[2 \[Psi]\[Theta]]))/(p^2+a^2 zm (1+e Cos[\[Psi]r])^2 Cos[\[Psi]\[Theta]]^2)) f\[Phi][a,En,L,K,\[Psi]r,\[Psi]\[Theta]]) ;  
+
+ft[a, En, L, K, \[Psi]r, \[Psi]\[Theta]]=1/En (f\[Phi][a, En, L, K, \[Psi]r, \[Psi]\[Theta]] L-(e fr[a, En, L, K, \[Psi]r, \[Psi]\[Theta]] p^2 \[Sqrt]((-1+e^2) (-1+En^2)+(2 (-1+e^2+p-En^2 p) (1+e Cos[\[Psi]r]))/p+(((3+e^2) (-1+En^2))/(-1+e^2)+((1-e^2) (a^2 (1-2 En^2)+K+2 a En L))/p^2-4/p) (1+e Cos[\[Psi]r])^2) Sin[\[Psi]r])/((-1+e^2) (a^2+(-2+p) p+2 e (a^2-p) Cos[\[Psi]r]+a^2 e^2 Cos[\[Psi]r]^2))+(f\[Theta][a, En, L, K, \[Psi]r, \[Psi]\[Theta]] Sqrt[zm] Sqrt[a^2 (-1+En^2) (-zp+zm Cos[\[Psi]\[Theta]]^2)] Sin[\[Psi]\[Theta]])/Sqrt[1-zm Cos[\[Psi]\[Theta]]^2]);
+
+dtd\[Lambda] = En(\[Omega]^4/\[CapitalDelta] - a^2 (1 - zm Cos[\[Psi]\[Theta]]^2)) + a L(1 - \[Omega]^2/\[CapitalDelta]);
+d\[Phi]d\[Lambda] = L/(1-zm Cos[\[Psi]\[Theta]]^2) + a En (\[Omega]^2/\[CapitalDelta]-1) - (a^2 L)/\[CapitalDelta];
+(*Osculating Geodesic Equations*)
+(*Using simpler equations for the evolution of E, L and K*)
+Eqns = {
+D[En , t]== -\[CapitalSigma] \[Eta] 1/dtd\[Lambda]  (-2 a f\[Phi] [a, En, L, K, \[Psi]r, \[Psi]\[Theta]]p (1+e Cos[\[Psi]r]) (-1+zm Cos[\[Psi]\[Theta]]^2)+ft[a, En, L, K, \[Psi]r, \[Psi]\[Theta]] (p^2-2 p (1+e Cos[\[Psi]r])+a^2 zm (1+e Cos[\[Psi]r])^2 Cos[\[Psi]\[Theta]]^2))/(p^2+a^2 zm (1+e Cos[\[Psi]r])^2 Cos[\[Psi]\[Theta]]^2), 
+
+D[L, t] == \[CapitalSigma] \[Eta] 1/dtd\[Lambda]  (1-zm Cos[\[Psi]\[Theta]]^2) ((2 a p (1+e Cos[\[Psi]r]) ft[a,En,L,K,\[Psi]r,\[Psi]\[Theta]])/(p^2+a^2 zm (1+e Cos[\[Psi]r])^2 Cos[\[Psi]\[Theta]]^2)+(-a^2-p^2/(1+e Cos[\[Psi]r])^2+(a^2 p (1+e Cos[\[Psi]r]) (-2+zm+zm Cos[2 \[Psi]\[Theta]]))/(p^2+a^2 zm (1+e Cos[\[Psi]r])^2 Cos[\[Psi]\[Theta]]^2)) f\[Phi][a,En,L,K,\[Psi]r,\[Psi]\[Theta]]),   
+D[K, t] == \[Eta]/dtd\[Lambda]  ((2\[CapitalSigma])/\[CapitalDelta] (-  (-2 a f\[Phi] [a, En, L, K, \[Psi]r, \[Psi]\[Theta]]p (1+e Cos[\[Psi]r]) (-1+zm Cos[\[Psi]\[Theta]]^2)+ft[a, En, L, K, \[Psi]r, \[Psi]\[Theta]] (p^2-2 p (1+e Cos[\[Psi]r])+a^2 zm (1+e Cos[\[Psi]r])^2 Cos[\[Psi]\[Theta]]^2))/(p^2+a^2 zm (1+e Cos[\[Psi]r])^2 Cos[\[Psi]\[Theta]]^2)(\[Omega]^4 En - a \[Omega]^2 L) +  (1-zm Cos[\[Psi]\[Theta]]^2) ((2 a p (1+e Cos[\[Psi]r]) ft[a,En,L,K,\[Psi]r,\[Psi]\[Theta]])/(p^2+a^2 zm (1+e Cos[\[Psi]r])^2 Cos[\[Psi]\[Theta]]^2)+(-a^2-p^2/(1+e Cos[\[Psi]r])^2+(a^2 p (1+e Cos[\[Psi]r]) (-2+zm+zm Cos[2 \[Psi]\[Theta]]))/(p^2+a^2 zm (1+e Cos[\[Psi]r])^2 Cos[\[Psi]\[Theta]]^2)) f\[Phi][a,En,L,K,\[Psi]r,\[Psi]\[Theta]])(a^2 L -a \[Omega]^2 En) - \[CapitalDelta]^2  ur   (-(((p^2/(1+e Cos[\[Psi]r])^2+a^2 zm Cos[\[Psi]\[Theta]]^2) fr[a,En,L,K,\[Psi]r,\[Psi]\[Theta]])/(a^2+(p (-2+p-2 e Cos[\[Psi]r]))/(1+e Cos[\[Psi]r])^2)))) + r^2(dtd\[Lambda]   (-2 a f\[Phi] [a, En, L, K, \[Psi]r, \[Psi]\[Theta]]p (1+e Cos[\[Psi]r]) (-1+zm Cos[\[Psi]\[Theta]]^2)+ft[a, En, L, K, \[Psi]r, \[Psi]\[Theta]] (p^2-2 p (1+e Cos[\[Psi]r])+a^2 zm (1+e Cos[\[Psi]r])^2 Cos[\[Psi]\[Theta]]^2))/(p^2+a^2 zm (1+e Cos[\[Psi]r])^2 Cos[\[Psi]\[Theta]]^2) + (\[CapitalDelta] ur)   (-(((p^2/(1+e Cos[\[Psi]r])^2+a^2 zm Cos[\[Psi]\[Theta]]^2) fr[a,En,L,K,\[Psi]r,\[Psi]\[Theta]])/(a^2+(p (-2+p-2 e Cos[\[Psi]r]))/(1+e Cos[\[Psi]r])^2)))  + u\[Theta]   (-(p^2/(1+e Cos[\[Psi]r])^2)-a^2 zm Cos[\[Psi]\[Theta]]^2) f\[Theta][a,En,L,K,\[Psi]r,\[Psi]\[Theta]] + d\[Phi]d\[Lambda]   (1-zm Cos[\[Psi]\[Theta]]^2) ((2 a p (1+e Cos[\[Psi]r]) ft[a,En,L,K,\[Psi]r,\[Psi]\[Theta]])/(p^2+a^2 zm (1+e Cos[\[Psi]r])^2 Cos[\[Psi]\[Theta]]^2)+(-a^2-p^2/(1+e Cos[\[Psi]r])^2+(a^2 p (1+e Cos[\[Psi]r]) (-2+zm+zm Cos[2 \[Psi]\[Theta]]))/(p^2+a^2 zm (1+e Cos[\[Psi]r])^2 Cos[\[Psi]\[Theta]]^2)) f\[Phi][a,En,L,K,\[Psi]r,\[Psi]\[Theta]]))),  
 D[\[Psi]r, t] == 1/dtd\[Lambda]  (P  +(C A3 Sin[\[Psi]r])/(2(1 + e Cos[\[Psi]r]) un) + (\[ScriptCapitalD] \[CapitalSigma] A3 P )/(2(1+ e Cos[\[Psi]r])^2 un) - (a \[Epsilon] Sin[\[Theta]]Sin[\[Psi]r] A2)/(1 + e Cos[\[Psi]r])  +  (P an)/(un ( 1 + e Cos[\[Psi]r])^2) ((1-e)^2 (1 - Cos[\[Psi]r]) ( \[CapitalSigma]1 F1)/\[Kappa]1  +(1+e)^2 (1+Cos[\[Psi]r]) (\[CapitalSigma]2 F2)/\[Kappa]2)),
  D[\[Psi]\[Theta], t] == 1/dtd\[Lambda]  (Sqrt[\[Beta](zp - z)]( 1 + ((1 - zm) \[CapitalSigma] A1 Cos[\[Psi]\[Theta]])/(\[Beta] Sqrt[zm](zp - zm) Sin[\[Theta]])) + (Cos[\[Psi]\[Theta]] Sin[\[Psi]\[Theta]] H a \[CapitalDelta] ( A3 - 2 ur an))/(2(zp - zm) \[Beta] un) + (Cos[\[Psi]\[Theta]] Sin[\[Psi]\[Theta]] G A2 )/(\[Beta](zp - zm))),
   D[\[Phi], t] == 1/dtd\[Lambda]  (L/(1-zm Cos[\[Psi]\[Theta]]^2) + a En (\[Omega]^2/\[CapitalDelta]-1) - (a^2 L)/\[CapitalDelta] )
@@ -637,6 +819,62 @@ a\[Theta] = -(u\[Theta]);
 a\[Phi] = -(u\[Phi]);
 
 <|"at" -> at, "ar" -> ar, "a\[Theta]" -> a\[Theta], "a\[Phi]" ->   a\[Phi]|>
+]
+
+
+KerrGasDragVec[a_, En_, L_, K_, \[Psi]r_, \[Psi]\[Theta]_] := Module[{an,fv,ur,u\[Theta],u\[Phi]up,utup,ut,u\[Phi],un,uztup,uz\[Phi]up,g, uzt,ft,fr,f\[Theta],f\[Phi],at,ar,a\[Theta],a\[Phi], r1, r2, p, e, r, \[Beta], Q, zm, zp, z, \[CapitalSigma], \[CapitalDelta], \[Omega],F, \[Theta], P, J }, 
+
+r1 = Max[Re[Root1[a, En, L, K]],Re[Root2[a, En, L, K]]];
+r2 = Min[Re[Root1[a, En, L, K]],Re[Root2[a, En, L, K]]] ;
+
+
+(*p and e*)
+e = (r1 - r2)/(r1 + r2); 
+p = (2 r1 r2)/(r1 + r2);
+(*r coordinate*)
+r = p/(1 + e Cos[\[Psi]r]) ;
+\[Beta]= a^2 (1 - En^2);
+Q = K - (L - a En)^2;
+(*Polar Roots*)
+zm = 1/(2\[Beta]) ((L^2+ Q + \[Beta]) - Sqrt[(L^2 + Q + \[Beta])^2 - 4\[Beta] Q ] ); 
+zp = 1/(2\[Beta]) ((L^2+ Q + \[Beta])+ Sqrt[(L^2+ Q + \[Beta])^2 - 4\[Beta] Q] );
+z = zm Cos[\[Psi]\[Theta]]^2;
+
+(*Useful Shorthand*)
+\[CapitalSigma] = r^2 + a^2 zm Cos[\[Psi]\[Theta]]^2;
+\[CapitalDelta] = r^2 + a^2 - 2r;
+\[Omega] = Sqrt[r^2+ a^2];
+F = (r^2+ a^2) En- a L;
+\[Theta] = ArcCos[Sqrt[zm]Cos[\[Psi]\[Theta]]];
+J = (1-En^2)(1-e^2) + 2(1 - En^2-(1-e^2)/p)(1 + e Cos[\[Psi]r]) + ((1 - En^2) (3+ e^2)/(1 - e^2) - 4/p+ (\[Beta] + L^2 +Q) (1-e^2)/p^2)(1+e Cos[\[Psi]r])^2;
+P = (p Sqrt[J])/(1 - e^2); 
+
+(*Particle Velocities*)
+ur = (p e Sin[\[Psi]r] P)/(\[CapitalDelta] (1+ e Cos[\[Psi]r])^2); 
+u\[Theta] = (Sqrt[zm]Sin[\[Psi]\[Theta]])/Sin[\[Theta]] Sqrt[\[Beta](zp - z)];
+u\[Phi]up =  1/\[CapitalSigma] (L/(1 - zm Cos[\[Psi]\[Theta]]^2) + a En (\[Omega]^2/\[CapitalDelta] -1) - (a^2 L)/\[CapitalDelta]);
+utup = 1/\[CapitalSigma] (En(\[Omega]^4/\[CapitalDelta] - a^2 (1 - zm Cos[\[Psi]\[Theta]]^2)) + a L (1 - \[Omega]^2/\[CapitalDelta])); 
+ut = -(1 - (2r)/\[CapitalSigma])utup -(2 a r(1-zm Cos[\[Psi]\[Theta]]^2))/\[CapitalSigma] u\[Phi]up; 
+u\[Phi] = -((2 a r(1-zm Cos[\[Psi]\[Theta]]^2))/\[CapitalSigma])utup + ((\[Omega]^4 -\[CapitalDelta] a^2 (1-zm Cos[\[Psi]\[Theta]]^2))(1-zm Cos[\[Psi]\[Theta]]^2))/\[CapitalSigma] u\[Phi]up ;   
+un = -(F /(2\[CapitalSigma]))- \[CapitalDelta]/(2\[CapitalSigma]) ur; 
+
+(*ZAMO Velocities*)
+uztup =  Sqrt[(\[Omega]^4- \[CapitalDelta] a^2 (1-zm Cos[\[Psi]\[Theta]]^2))/(\[CapitalSigma] \[CapitalDelta] )]; 
+uz\[Phi]up = (2 a r)/Sqrt[\[CapitalSigma] \[CapitalDelta] (\[Omega]^4- \[CapitalDelta] a^2 (1-zm Cos[\[Psi]\[Theta]]^2))];  
+uzt = -(1 - (2 r)/\[CapitalSigma]) uztup  - (2 a r(1-zm Cos[\[Psi]\[Theta]]^2))/\[CapitalSigma] uz\[Phi]up; 
+(*Gas Drag*)
+
+at = -(ut + uzt/(uzt utup));
+ar = -(ur);
+a\[Theta] = -(u\[Theta]);
+a\[Phi] = -(u\[Phi]);
+
+ft=(4 a a\[Phi] r)/((a^2+(-2+r) r) (a^2+2 r^2+a^2 Cos[2 \[Theta]]))+(at (a^4+2 r^4+a^2 r (2+3 r)+a^2 (a^2+(-2+r) r) Cos[2 \[Theta]]))/((a^2+(-2+r) r) (a^2+2 r^2+a^2 Cos[2 \[Theta]]));
+fr=-((ar (a^2-2 r+r^2))/(r^2+a^2 Cos[\[Theta]]^2));
+f\[Theta]=-(a\[Theta]/(r^2+a^2 Cos[\[Theta]]^2));
+f\[Phi]=(4 a at r)/((a^2+(-2+r) r) (a^2+2 r^2+a^2 Cos[2 \[Theta]]))-(2 a\[Phi] ((-2+r) r+a^2 Cos[\[Theta]]^2) Csc[\[Theta]]^2)/((a^2+(-2+r) r) (a^2+2 r^2+a^2 Cos[2 \[Theta]]));
+
+<|"ft" -> ft, "fr" -> fr, "f\[Theta]" -> f\[Theta], "f\[Phi]" ->   f\[Phi], "at" -> at, "ar" -> ar, "a\[Theta]" -> a\[Theta], "a\[Phi]" ->   a\[Phi]|>
 ]
 
 
@@ -746,7 +984,6 @@ k[0] == K0,
 			
 			_, (*Any other input*)
 			Message[KerrOsculatingOrbitalElements::InvalidForce];  Return[]];
-
 (*Define the Evolution Equaitons*)
 Equations = Join[ICs, KerrOscGeoEqsTP[\[Eta], a, En[t], L[t], k[t], \[Psi]r[t], \[Psi]\[Theta][t], \[Phi][t],at,ar,a\[Theta],a\[Phi], t]];
 Print["Starting NDSolve..."];
@@ -785,6 +1022,150 @@ xsol[t_]:= Sqrt[1 - zmsol[t]];
  ,
 Message[KerrOsculatingOrbitalElements::ICs];]
 ]
+
+
+KerrOsculatingOrbitalElementsTPVec[\[Eta]_, a_, p0_, e0_,x0_, \[Psi]r0_, \[Psi]\[Theta]0_, OptionsPattern[]] := Module[{ft, fr, f\[Theta], f\[Phi], \[Lambda], En, L, k, \[Psi]r, \[Psi]\[Theta],t,\[Phi], En0, L0, K0, Q0, ICs, Ensol,Lsol, Ksol, Qsol, \[Psi]rsol,\[Psi]\[Theta]sol,tsol, \[Phi]sol, r1sol, r2sol, psol, esol, rsol,\[Theta]sol,\[Iota]sol,zmsol, xsol, zsol, Equations, p, e,\[Theta]inc,\[Theta]incsol, progress = 0, limit},
+(*Load in Kerr Geodesics Package*)
+Needs["KerrGeodesics`"];
+(*Determine that Initial Conditions are stable*)
+If[True(*KerrGeoBoundOrbitQ[a, p0, e0, x0]*),
+(*Determine the Initial Conditions*)
+{En0, L0, Q0} = Values[KerrGeoConstantsOfMotion[a, p0, e0, x0]];
+K0 = Q0 + (L0 - a En0)^2 ;
+
+ICs = {
+En[0] == En0, 
+L[0] == L0, 
+k[0] == K0, 
+\[Psi]r[0] == \[Psi]r0, 
+\[Psi]\[Theta][0] == \[Psi]\[Theta]0,
+\[Phi][0] == 0
+};
+ (*Assign the force components*)
+ Switch[OptionValue["Force"],
+			{_,_,_,_}, 
+			{ft, fr, f\[Theta], f\[Phi]} = OptionValue["Force"];,
+			
+			KerrGasDragVec, 
+			ft[a1_, En_, L_, K_, \[Psi]r_, \[Psi]\[Theta]_] := KerrGasDragVec[a1, En, L, K, \[Psi]r, \[Psi]\[Theta]]["ft"];
+			fr[ a1_, En_, L_, K_, \[Psi]r_, \[Psi]\[Theta]_] := KerrGasDrag[a1, En, L, K, \[Psi]r, \[Psi]\[Theta]]["fr"];
+			f\[Theta][ a1_, En_, L_, K_, \[Psi]r_, \[Psi]\[Theta]_] := KerrGasDrag[a1, En, L, K, \[Psi]r, \[Psi]\[Theta]]["f\[Theta]"];
+			f\[Phi][a1_, En_, L_, K_, \[Psi]r_, \[Psi]\[Theta]_] := KerrGasDrag[a1, En, L, K, \[Psi]r, \[Psi]\[Theta]]["f\[Phi]"];,
+			
+			_, (*Any other input*)
+			Message[KerrOsculatingOrbitalElements::InvalidForce];  Return[]];
+(*Define the Evolution Equaitons*)
+Equations = Join[ICs, KerrOscGeoEqsTPVec[\[Eta], a, En[t], L[t], k[t], \[Psi]r[t], \[Psi]\[Theta][t], \[Phi][t], ft, fr, f\[Theta], f\[Phi], t]];
+
+Print["Starting NDSolve..."];
+limit = OptionValue["IntegrationLimit"];
+(*Solve the Evolution Equations*)
+{{Ensol, Lsol, Ksol, \[Psi]rsol, \[Psi]\[Theta]sol, \[Phi]sol}} = Monitor[{En, L, k, \[Psi]r, \[Psi]\[Theta], \[Phi]} /. NDSolve[Equations, {En,L,k,\[Psi]r,\[Psi]\[Theta], \[Phi]}, 
+	{t,0,limit}, Method->{"EquationSimplification"->"Solve"}, AccuracyGoal->OptionValue["AccuracyGoal"], 
+	PrecisionGoal->OptionValue["PrecisionGoal"], StepMonitor :> (progress = t)],  "t = "<> ToString[progress]]//Quiet;
+	
+(*If orbit plunges or escapes*)	
+If[Ensol["Domain"][[1,2]] < limit, Print["Unbound orbit encountered."];];
+	
+(*Funcitons for Useful Properties of the Orbit*)
+Qsol[t_] := Ksol[t] - (Lsol[t] - a Ensol[t])^2;
+
+(*Using Numeric versions of the roots to avoid the roots flipping*)
+r1sol[t_] := NumRoot1[a, Ensol[t], Lsol[t], Ksol[t]];
+r2sol[t_] := NumRoot2[a, Ensol[t], Lsol[t], Ksol[t]];
+
+psol[t_] := (2 r1sol[t] r2sol[t]  )/(r1sol[t] + r2sol[t]);
+esol[t_] := (r1sol[t] - r2sol[t])/(r1sol[t] + r2sol[t]);
+rsol[t_] := psol[t]/(1 + esol[t] Cos[\[Psi]rsol[t]]); 
+
+zmsol[t_]:= 1/(2 a^2 (1 - Ensol[t]^2)) ((Lsol[t]^2+ Qsol[t] + a^2 (1 - Ensol[t]^2)) - Sqrt[(Lsol[t]^2 + Qsol[t] + a^2 (1 - Ensol[t]^2))^2 - 4 (a^2) (1 - Ensol[t]^2) Qsol[t] ] ); 
+xsol[t_]:= Sqrt[1 - zmsol[t]];
+
+\[Theta]sol[t_] :=  ArcCos[Sqrt[zmsol[t]]Cos[\[Psi]\[Theta]sol[t]]];
+\[Iota]sol[t_] := ArcCos[Lsol[t]/Sqrt[Ksol[t] + 2 a Lsol[t] Ensol[t] - a^2 Ensol[t]^2]];
+
+(*Retrun the results*)
+<|"r" -> rsol, "\[Theta]" -> \[Theta]sol, "\[Phi]"-> \[Phi]sol, 
+"En"-> Ensol, "L"-> Lsol, "K" -> Ksol, "Q" -> Qsol, 
+"p"-> psol, "e"-> esol, "x" -> xsol, "\[Iota]" -> \[Iota]sol,
+"\[Psi]r" -> \[Psi]rsol, "\[Psi]\[Theta]" -> \[Psi]\[Theta]sol, 
+"r1"-> r1sol, "r2" -> r2sol, "z1"-> zmsol, "limit" -> Ensol["Domain"][[1,2]]|>
+ ,
+Message[KerrOsculatingOrbitalElements::ICs];]
+]
+
+
+KerrOsculatingOrbitalElementsTPVecLessArg[\[Eta]_, a_, p0_, e0_,x0_, \[Psi]r0_, \[Psi]\[Theta]0_, OptionsPattern[]] := Module[{ft, fr, f\[Theta], f\[Phi], \[Lambda], En, L, k, \[Psi]r, \[Psi]\[Theta],t,\[Phi], En0, L0, K0, Q0, ICs, Ensol,Lsol, Ksol, Qsol, \[Psi]rsol,\[Psi]\[Theta]sol,tsol, \[Phi]sol, r1sol, r2sol, psol, esol, rsol,\[Theta]sol,\[Iota]sol,zmsol, xsol, zsol, Equations, p, e,\[Theta]inc,\[Theta]incsol, progress = 0, limit},
+(*Load in Kerr Geodesics Package*)
+Needs["KerrGeodesics`"];
+(*Determine that Initial Conditions are stable*)
+If[True(*KerrGeoBoundOrbitQ[a, p0, e0, x0]*),
+(*Determine the Initial Conditions*)
+{En0, L0, Q0} = Values[KerrGeoConstantsOfMotion[a, p0, e0, x0]];
+K0 = Q0 + (L0 - a En0)^2 ;
+
+ICs = {
+En[0] == En0, 
+L[0] == L0, 
+k[0] == K0, 
+\[Psi]r[0] == \[Psi]r0, 
+\[Psi]\[Theta][0] == \[Psi]\[Theta]0,
+\[Phi][0] == 0
+};
+ (*Assign the force components*)
+ Switch[OptionValue["Force"],
+			{_,_,_}, 
+			{fr, f\[Theta], f\[Phi]} = OptionValue["Force"];,
+			
+			KerrGasDragVec, 
+			fr[ a1_, En_, L_, K_, \[Psi]r_, \[Psi]\[Theta]_] := KerrGasDrag[a1, En, L, K, \[Psi]r, \[Psi]\[Theta]]["fr"];
+			f\[Theta][ a1_, En_, L_, K_, \[Psi]r_, \[Psi]\[Theta]_] := KerrGasDrag[a1, En, L, K, \[Psi]r, \[Psi]\[Theta]]["f\[Theta]"];
+			f\[Phi][a1_, En_, L_, K_, \[Psi]r_, \[Psi]\[Theta]_] := KerrGasDrag[a1, En, L, K, \[Psi]r, \[Psi]\[Theta]]["f\[Phi]"];,
+			
+			_, (*Any other input*)
+			Message[KerrOsculatingOrbitalElements::InvalidForce];  Return[]];
+(*Define the Evolution Equaitons*)
+Equations = Join[ICs, KerrOscGeoEqsTPVecLessArg[\[Eta], a, En[t], L[t], k[t], \[Psi]r[t], \[Psi]\[Theta][t], \[Phi][t], fr, f\[Theta], f\[Phi], t]];
+
+Print["Starting NDSolve..."];
+limit = OptionValue["IntegrationLimit"];
+(*Solve the Evolution Equations*)
+{{Ensol, Lsol, Ksol, \[Psi]rsol, \[Psi]\[Theta]sol, \[Phi]sol}} = Monitor[{En, L, k, \[Psi]r, \[Psi]\[Theta], \[Phi]} /. NDSolve[Equations, {En,L,k,\[Psi]r,\[Psi]\[Theta], \[Phi]}, 
+	{t,0,limit}, Method->{"EquationSimplification"->"Solve"}, AccuracyGoal->OptionValue["AccuracyGoal"], 
+	PrecisionGoal->OptionValue["PrecisionGoal"], StepMonitor :> (progress = t)],  "t = "<> ToString[progress]]//Quiet;
+	
+(*If orbit plunges or escapes*)	
+If[Ensol["Domain"][[1,2]] < limit, Print["Unbound orbit encountered."];];
+	
+(*Funcitons for Useful Properties of the Orbit*)
+Qsol[t_] := Ksol[t] - (Lsol[t] - a Ensol[t])^2;
+
+(*Using Numeric versions of the roots to avoid the roots flipping*)
+r1sol[t_] := NumRoot1[a, Ensol[t], Lsol[t], Ksol[t]];
+r2sol[t_] := NumRoot2[a, Ensol[t], Lsol[t], Ksol[t]];
+
+psol[t_] := (2 r1sol[t] r2sol[t]  )/(r1sol[t] + r2sol[t]);
+esol[t_] := (r1sol[t] - r2sol[t])/(r1sol[t] + r2sol[t]);
+rsol[t_] := psol[t]/(1 + esol[t] Cos[\[Psi]rsol[t]]); 
+
+zmsol[t_]:= 1/(2 a^2 (1 - Ensol[t]^2)) ((Lsol[t]^2+ Qsol[t] + a^2 (1 - Ensol[t]^2)) - Sqrt[(Lsol[t]^2 + Qsol[t] + a^2 (1 - Ensol[t]^2))^2 - 4 (a^2) (1 - Ensol[t]^2) Qsol[t] ] ); 
+xsol[t_]:= Sqrt[1 - zmsol[t]];
+
+\[Theta]sol[t_] :=  ArcCos[Sqrt[zmsol[t]]Cos[\[Psi]\[Theta]sol[t]]];
+\[Iota]sol[t_] := ArcCos[Lsol[t]/Sqrt[Ksol[t] + 2 a Lsol[t] Ensol[t] - a^2 Ensol[t]^2]];
+
+(*Retrun the results*)
+<|"r" -> rsol, "\[Theta]" -> \[Theta]sol, "\[Phi]"-> \[Phi]sol, 
+"En"-> Ensol, "L"-> Lsol, "K" -> Ksol, "Q" -> Qsol, 
+"p"-> psol, "e"-> esol, "x" -> xsol, "\[Iota]" -> \[Iota]sol,
+"\[Psi]r" -> \[Psi]rsol, "\[Psi]\[Theta]" -> \[Psi]\[Theta]sol, 
+"r1"-> r1sol, "r2" -> r2sol, "z1"-> zmsol, "limit" -> Ensol["Domain"][[1,2]]|>
+ ,
+Message[KerrOsculatingOrbitalElements::ICs];]
+]
+
+
+
 
 
 (* ::Subsection:: *)
