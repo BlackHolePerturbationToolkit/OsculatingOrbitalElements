@@ -1,0 +1,2938 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Wolfram 14.3' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       154,          7]
+NotebookDataLength[    155382,       2930]
+NotebookOptionsPosition[    149868,       2836]
+NotebookOutlinePosition[    150260,       2852]
+CellTagsIndexPosition[    150217,       2849]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell["Data generation file", "Title",
+ CellChangeTimes->{{3.980240305131666*^9, 
+  3.9802403148629932`*^9}},ExpressionUUID->"616297d1-37a7-4d82-9387-\
+fdf1e01247b4"],
+
+Cell[CellGroupData[{
+
+Cell["defining all functions we need:", "Section",
+ CellChangeTimes->{{3.98024032743145*^9, 
+  3.980240339436109*^9}},ExpressionUUID->"eec7cf09-7d25-4f25-8380-\
+1437792c2bdd"],
+
+Cell[CellGroupData[{
+
+Cell["package setup ", "Subsection",
+ CellChangeTimes->{{3.980240360259297*^9, 
+  3.980240386615013*^9}},ExpressionUUID->"5e11981d-0d10-4fdb-a3dc-\
+35cefd65eae1"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{"SetDirectory", "[", 
+  RowBox[{"NotebookDirectory", "[", "]"}], "]"}], "\[IndentingNewLine]", 
+ RowBox[{"<<", "OsculatingOrbitalElements`"}]}], "Input",
+ CellChangeTimes->{{3.980240298367447*^9, 3.980240298850027*^9}},
+ CellLabel->"In[1]:=",ExpressionUUID->"2b4d2c88-5b8e-461b-84b8-1dd944d2d3d4"],
+
+Cell[BoxData["\<\"/Users/oleksii/MEGA/OsculatingOrbitalElements\"\>"], \
+"Output",
+ CellChangeTimes->{
+  3.9802410880898523`*^9, 3.9802411242424498`*^9, 3.9802421695718737`*^9, 
+   3.9802422073350163`*^9, 3.980244215409527*^9, 3.9802547356931*^9, 
+   3.980327760636241*^9, {3.9803316840248528`*^9, 3.9803316939849653`*^9}, 
+   3.9803321297412367`*^9, 3.980332307875882*^9, 3.980332361956739*^9},
+ CellLabel->"Out[1]=",ExpressionUUID->"960f1053-f372-4d43-816a-6590461116b2"],
+
+Cell[BoxData[
+ TemplateBox[{
+  "SetDirectory", "cdir", 
+   "\"Cannot set current directory to \
+\\!\\(\\*RowBox[{\\\"\\\\\\\"/Users/oleksii/Library/Wolfram/Applications/\
+OsculatingOrbitalElements/DataFiles\\\\\\\"\\\"}]\\).\"", 2, 2, 1, 
+   18347946299064968973, "Local"},
+  "MessageTemplate",
+  BaseStyle->"MSG"]], "Message",
+ CellChangeTimes->{
+  3.98024108806536*^9, 3.980241124266321*^9, 3.980242169577759*^9, 
+   3.980242207359399*^9, 3.980244215411089*^9, 3.980254735698226*^9, 
+   3.980327760658091*^9, {3.980331684029873*^9, 3.9803316940124187`*^9}, 
+   3.9803321297714567`*^9, 3.980332307903812*^9, 3.980332361985405*^9},
+ CellLabel->
+  "During evaluation of \
+In[1]:=",ExpressionUUID->"0634cb92-2933-4f02-b124-855a41e71fc3"],
+
+Cell[BoxData[
+ TemplateBox[{
+  "Import", "nffil", 
+   "\"File \\!\\(\\*RowBox[{\\\"\\\\\\\"a_n_jk\\\\\\\"\\\"}]\\) not found \
+during \\!\\(\\*RowBox[{\\\"Import\\\"}]\\).\"", 2, 2, 2, 
+   18347946299064968973, "Local"},
+  "MessageTemplate",
+  BaseStyle->"MSG"]], "Message",
+ CellChangeTimes->{
+  3.98024108806536*^9, 3.980241124266321*^9, 3.980242169577759*^9, 
+   3.980242207359399*^9, 3.980244215411089*^9, 3.980254735698226*^9, 
+   3.980327760658091*^9, {3.980331684029873*^9, 3.9803316940124187`*^9}, 
+   3.9803321297714567`*^9, 3.980332307903812*^9, 3.980332362022798*^9},
+ CellLabel->
+  "During evaluation of \
+In[1]:=",ExpressionUUID->"c741f936-9a09-42f8-9571-4dcc46f6f9e8"],
+
+Cell[BoxData[
+ TemplateBox[{
+  "Import", "nffil", 
+   "\"File \\!\\(\\*RowBox[{\\\"\\\\\\\"b_n_jk\\\\\\\"\\\"}]\\) not found \
+during \\!\\(\\*RowBox[{\\\"Import\\\"}]\\).\"", 2, 2, 3, 
+   18347946299064968973, "Local"},
+  "MessageTemplate",
+  BaseStyle->"MSG"]], "Message",
+ CellChangeTimes->{
+  3.98024108806536*^9, 3.980241124266321*^9, 3.980242169577759*^9, 
+   3.980242207359399*^9, 3.980244215411089*^9, 3.980254735698226*^9, 
+   3.980327760658091*^9, {3.980331684029873*^9, 3.9803316940124187`*^9}, 
+   3.9803321297714567`*^9, 3.980332307903812*^9, 3.980332362024673*^9},
+ CellLabel->
+  "During evaluation of \
+In[1]:=",ExpressionUUID->"3b516033-61a2-4018-8aee-603adfac3e01"],
+
+Cell[BoxData[
+ TemplateBox[{
+  "Import", "nffil", 
+   "\"File \\!\\(\\*RowBox[{\\\"\\\\\\\"c_n_jk\\\\\\\"\\\"}]\\) not found \
+during \\!\\(\\*RowBox[{\\\"Import\\\"}]\\).\"", 2, 2, 4, 
+   18347946299064968973, "Local"},
+  "MessageTemplate",
+  BaseStyle->"MSG"]], "Message",
+ CellChangeTimes->{
+  3.98024108806536*^9, 3.980241124266321*^9, 3.980242169577759*^9, 
+   3.980242207359399*^9, 3.980244215411089*^9, 3.980254735698226*^9, 
+   3.980327760658091*^9, {3.980331684029873*^9, 3.9803316940124187`*^9}, 
+   3.9803321297714567`*^9, 3.980332307903812*^9, 3.980332362025971*^9},
+ CellLabel->
+  "During evaluation of \
+In[1]:=",ExpressionUUID->"45285034-478c-41a5-a3e4-e4647f4cdfde"],
+
+Cell[BoxData[
+ TemplateBox[{
+  "General", "stop", 
+   "\"Further output of \\!\\(\\*StyleBox[RowBox[{\\\"Import\\\", \\\"::\\\", \
+\\\"nffil\\\"}], \\\"MessageName\\\"]\\) will be suppressed during this \
+calculation.\"", 2, 2, 5, 18347946299064968973, "Local"},
+  "MessageTemplate",
+  BaseStyle->"MSG"]], "Message",
+ CellChangeTimes->{
+  3.98024108806536*^9, 3.980241124266321*^9, 3.980242169577759*^9, 
+   3.980242207359399*^9, 3.980244215411089*^9, 3.980254735698226*^9, 
+   3.980327760658091*^9, {3.980331684029873*^9, 3.9803316940124187`*^9}, 
+   3.9803321297714567`*^9, 3.980332307903812*^9, 3.9803323620369*^9},
+ CellLabel->
+  "During evaluation of \
+In[1]:=",ExpressionUUID->"7f5bb32b-35b3-4fca-b91f-ac976370e642"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["forces definitions Kerr", "Subsection",
+ CellChangeTimes->{{3.980240420764295*^9, 
+  3.980240429293644*^9}},ExpressionUUID->"21b4e32d-047d-4961-b1a1-\
+bf2d70f804c7"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   RowBox[{"fr2", "[", " ", 
+    RowBox[{
+    "a_", ",", " ", "En_", ",", " ", "L_", ",", " ", "K_", ",", " ", 
+     "\[Psi]r_", ",", " ", "\[Psi]\[Theta]_"}], "]"}], " ", ":=", " ", 
+   RowBox[{
+    RowBox[{"KerrGasDragVec2", "[", 
+     RowBox[{
+     "a", ",", " ", "En", ",", " ", "L", ",", " ", "K", ",", " ", "\[Psi]r", ",",
+       " ", "\[Psi]\[Theta]"}], "]"}], "[", "\"\<fr\>\"", "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"f\[Theta]2", "[", " ", 
+    RowBox[{
+    "a_", ",", " ", "En_", ",", " ", "L_", ",", " ", "K_", ",", " ", 
+     "\[Psi]r_", ",", " ", "\[Psi]\[Theta]_"}], "]"}], " ", ":=", " ", 
+   RowBox[{
+    RowBox[{"KerrGasDragVec2", "[", 
+     RowBox[{
+     "a", ",", " ", "En", ",", " ", "L", ",", " ", "K", ",", " ", "\[Psi]r", ",",
+       " ", "\[Psi]\[Theta]"}], "]"}], "[", "\"\<f\[Theta]\>\"", "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"f\[Phi]2", "[", 
+    RowBox[{
+    "a_", ",", " ", "En_", ",", " ", "L_", ",", " ", "K_", ",", " ", 
+     "\[Psi]r_", ",", " ", "\[Psi]\[Theta]_"}], "]"}], " ", ":=", " ", 
+   RowBox[{
+    RowBox[{"KerrGasDragVec2", "[", 
+     RowBox[{
+     "a", ",", " ", "En", ",", " ", "L", ",", " ", "K", ",", " ", "\[Psi]r", ",",
+       " ", "\[Psi]\[Theta]"}], "]"}], "[", "\"\<f\[Phi]\>\"", "]"}]}], 
+  ";"}]}], "Input",
+ CellLabel->"In[3]:=",ExpressionUUID->"6d369751-a876-4a57-b047-e90a6f796cd3"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["forces definition Schwarzschild", "Subsection",
+ CellChangeTimes->{{3.9802404468784323`*^9, 
+  3.980240476109568*^9}},ExpressionUUID->"a786f4be-fe1f-48da-bc40-\
+95cf29675057"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"Fr", "[", 
+     RowBox[{"p_", ",", " ", "e_", ",", " ", "\[Xi]_"}], "]"}], " ", ":=", 
+    RowBox[{
+     RowBox[{"-", "e"}], " ", 
+     RowBox[{"Sin", "[", "\[Xi]", "]"}], 
+     SqrtBox[
+      FractionBox[
+       RowBox[{
+        RowBox[{"-", "6"}], "+", "p", "-", 
+        RowBox[{"2", " ", "e", " ", 
+         RowBox[{"Cos", "[", "\[Xi]", "]"}]}]}], 
+       RowBox[{"p", " ", 
+        RowBox[{"(", 
+         RowBox[{
+          RowBox[{"-", "3"}], "-", 
+          SuperscriptBox["e", "2"], "+", "p"}], ")"}]}]]]}]}], " ", ";"}], 
+  RowBox[{"(*", 
+   RowBox[{
+    RowBox[{"Fr", "[", 
+     RowBox[{"p_", ",", " ", "e_", ",", " ", "\[Xi]_"}], "]"}], " ", ":=", 
+    RowBox[{
+     RowBox[{"-", "e"}], " ", 
+     SqrtBox[
+      FractionBox[
+       RowBox[{
+        RowBox[{"-", "6"}], "+", "p", "-", 
+        RowBox[{"2", " ", "e", 
+         FractionBox[
+          RowBox[{"p", "-", "r"}], 
+          RowBox[{"e", " ", "r"}]]}]}], 
+       RowBox[{"p", " ", 
+        RowBox[{"(", 
+         RowBox[{
+          RowBox[{"-", "3"}], "-", 
+          SuperscriptBox["e", "2"], "+", "p"}], ")"}]}]]]}]}], "*)"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"F\[Phi]", "[", 
+    RowBox[{"p_", ",", " ", "e_", ",", " ", "\[Xi]_"}], "]"}], " ", ":=", " ", 
+   RowBox[{"-", 
+    FractionBox[
+     SuperscriptBox[
+      RowBox[{"(", 
+       RowBox[{"1", "+", 
+        RowBox[{"e", " ", 
+         RowBox[{"Cos", "[", "\[Xi]", "]"}]}]}], ")"}], "2"], 
+     RowBox[{"p", " ", 
+      SqrtBox[
+       RowBox[{
+        RowBox[{"-", "3"}], "-", 
+        SuperscriptBox["e", "2"], "+", "p"}]]}]]}]}], ";"}]}], "Input",
+ CellLabel->"In[6]:=",ExpressionUUID->"3c82e0f4-f26e-465c-954c-bd5714f3c1a9"],
+
+Cell[CellGroupData[{
+
+Cell["\<\
+data generation functions (it will create a folder data Kerr or data \
+Schwarzschild in your UserDocumentsDirectory)\
+\>", "Subsubsection",
+ CellChangeTimes->{{3.980240548186166*^9, 3.9802405576677923`*^9}, {
+  3.980241002934536*^9, 
+  3.980241073185025*^9}},ExpressionUUID->"f8969b65-7a9d-43a6-988d-\
+b72349db9d1c"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"datagenerationKerr", "[", 
+   RowBox[{
+   "\[Eta]_", ",", "a0_", " ", ",", "p0_", " ", ",", "e0_", ",", "x0_", ",", 
+    "\[Psi]r0_", ",", "\[Psi]\[Theta]0_"}], "]"}], ":=", 
+  RowBox[{"Module", "[", 
+   RowBox[{
+    RowBox[{"{", 
+     RowBox[{"time1", ",", "kerrOrbitTPVecLessArg2", ",", "data"}], "}"}], ",", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{"time1", ",", "kerrOrbitTPVecLessArg2"}], "}"}], "=", 
+      RowBox[{"(", " ", 
+       RowBox[{
+        RowBox[{"KerrOsculatingOrbitalElementsTPVecLessArg1", "[", 
+         RowBox[{
+         "\[Eta]", ",", "a0", ",", " ", "p0", ",", " ", "e0", ",", " ", "x0", 
+          ",", " ", "\[Psi]r0", ",", " ", "\[Psi]\[Theta]0", ",", " ", 
+          RowBox[{"Force", " ", "\[Rule]", " ", 
+           RowBox[{"{", 
+            RowBox[{"fr2", ",", "f\[Theta]2", ",", "f\[Phi]2"}], "}"}]}]}], 
+         "]"}], "//", "Timing"}], ")"}]}], ";", "\[IndentingNewLine]", 
+     RowBox[{"data", "=", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{"#", ",", " ", 
+          RowBox[{
+           RowBox[{"kerrOrbitTPVecLessArg2", "[", "\"\<p\>\"", "]"}], "[", 
+           "#", "]"}], ",", 
+          RowBox[{
+           RowBox[{"kerrOrbitTPVecLessArg2", "[", "\"\<e\>\"", "]"}], "[", 
+           "#", "]"}], ",", 
+          RowBox[{
+           RowBox[{"kerrOrbitTPVecLessArg2", "[", "\"\<x\>\"", "]"}], "[", 
+           "#", "]"}], ",", 
+          RowBox[{
+           RowBox[{"kerrOrbitTPVecLessArg2", "[", "\"\<En\>\"", "]"}], "[", 
+           "#", "]"}], ",", " ", 
+          RowBox[{
+           RowBox[{"kerrOrbitTPVecLessArg2", "[", "\"\<L\>\"", "]"}], "[", 
+           "#", "]"}], ",", 
+          RowBox[{
+           RowBox[{"kerrOrbitTPVecLessArg2", "[", "\"\<Q\>\"", "]"}], "[", 
+           "#", "]"}], ",", " ", 
+          RowBox[{
+           RowBox[{"kerrOrbitTPVecLessArg2", "[", "\"\<\[Psi]r\>\"", "]"}], "[",
+            "#", "]"}], ",", 
+          RowBox[{
+           RowBox[{
+           "kerrOrbitTPVecLessArg2", "[", "\"\<\[Psi]\[Theta]\>\"", "]"}], "[",
+            "#", "]"}], ",", 
+          RowBox[{
+           RowBox[{"kerrOrbitTPVecLessArg2", "[", "\"\<\[Phi]\>\"", "]"}], "[",
+            "#", "]"}]}], "}"}], "&"}], "/@", 
+       RowBox[{"First", "[", 
+        RowBox[{
+         RowBox[{"kerrOrbitTPVecLessArg2", "[", "\"\<En\>\"", "]"}], 
+         "@", "\"\<Coordinates\>\""}], "]"}]}]}], ";", "\[IndentingNewLine]", 
+     
+     RowBox[{"Export", "[", 
+      RowBox[{
+       RowBox[{"FileNameJoin", "[", 
+        RowBox[{"{", 
+         RowBox[{"$UserDocumentsDirectory", ",", "\"\<Kerr\>\"", ",", 
+          RowBox[{"DateString", "[", "Today", "]"}], ",", 
+          RowBox[{"\"\<Kerr_sol\>\"", "<>", "\"\<_a=\>\"", "<>", 
+           RowBox[{"ToString", "[", "a0", "]"}], "<>", "\"\<_e=\>\"", "<>", 
+           RowBox[{"ToString", "[", "e0", "]"}], "<>", "\"\<_p=\>\"", "<>", 
+           RowBox[{"ToString", "[", "p0", "]"}], "<>", "\"\<_x=\>\"", "<>", 
+           RowBox[{"ToString", "[", "x0", "]"}], "<>", "\"\<_\[Psi]r0=\>\"", "<>", 
+           RowBox[{"ToString", "[", "\[Psi]r0", "]"}], 
+           "<>", "\"\<_\[Psi]\[Theta]0=\>\"", "<>", 
+           RowBox[{"ToString", "[", "\[Psi]\[Theta]0", "]"}], 
+           "<>", "\"\<_evaluation_time=\>\"", "<>", 
+           RowBox[{"ToString", "[", "time1", "]"}], "<>", "\"\<c_\>\"", "<>", 
+           
+           RowBox[{"ToString", "[", "$SystemID", "]"}], "<>", 
+           " ", "\"\<.dat\>\""}]}], "}"}], "]"}], ",", "data"}], "]"}]}]}], 
+   "]"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"datagenerationSchwarzschild", "[", 
+   RowBox[{"\[Eta]_", ",", " ", "p0_", " ", ",", "e0_", ",", "\[Xi]0_"}], 
+   "]"}], ":=", 
+  RowBox[{"Module", "[", 
+   RowBox[{
+    RowBox[{"{", 
+     RowBox[{"time1", ",", "SchwOrbitTP", ",", "data"}], "}"}], ",", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{"time1", ",", "SchwOrbitTP"}], "}"}], "=", 
+      RowBox[{"(", " ", 
+       RowBox[{
+        RowBox[{"SchwarzOsculatingOrbitalElementsTP", "[", 
+         RowBox[{
+         "\[Eta]", ",", " ", "p0", ",", " ", "e0", ",", " ", "\[Xi]0", ",", 
+          " ", 
+          RowBox[{"Force", " ", "\[Rule]", " ", 
+           RowBox[{"{", 
+            RowBox[{"Fr", ",", " ", "F\[Phi]"}], "}"}]}]}], "]"}], "//", 
+        "Timing"}], ")"}]}], ";", "\[IndentingNewLine]", 
+     RowBox[{"data", "=", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{"#", ",", " ", 
+          RowBox[{
+           RowBox[{"SchwOrbitTP", "[", "\"\<p\>\"", "]"}], "[", "#", "]"}], ",", 
+          RowBox[{
+           RowBox[{"SchwOrbitTP", "[", "\"\<e\>\"", "]"}], "[", "#", "]"}], ",", 
+          RowBox[{
+           RowBox[{"SchwOrbitTP", "[", "\"\<\[Xi]\>\"", "]"}], "[", "#", 
+           "]"}], ",", 
+          RowBox[{
+           RowBox[{"SchwOrbitTP", "[", "\"\<\[Phi]\>\"", "]"}], "[", "#", 
+           "]"}]}], "}"}], "&"}], "/@", 
+       RowBox[{"First", "[", 
+        RowBox[{
+         RowBox[{"SchwOrbitTP", "[", "\"\<p\>\"", "]"}], 
+         "@", "\"\<Coordinates\>\""}], "]"}]}]}], ";", "\[IndentingNewLine]", 
+     
+     RowBox[{"Export", "[", 
+      RowBox[{
+       RowBox[{"FileNameJoin", "[", 
+        RowBox[{"{", 
+         RowBox[{"$UserDocumentsDirectory", ",", "\"\<Schwarzschild\>\"", ",", 
+          RowBox[{"DateString", "[", "Today", "]"}], ",", 
+          RowBox[{"\"\<Schwarzschild\>\"", "<>", "\"\<_e=\>\"", "<>", 
+           RowBox[{"ToString", "[", "e0", "]"}], "<>", "\"\<_p=\>\"", "<>", 
+           RowBox[{"ToString", "[", "p0", "]"}], "<>", "\"\<_\[Xi]0=\>\"", "<>", 
+           RowBox[{"ToString", "[", "\[Xi]0", "]"}], 
+           "<>", "\"\<_evaluation_time=\>\"", "<>", 
+           RowBox[{"ToString", "[", "time1", "]"}], "<>", "\"\<c_\>\"", "<>", 
+           
+           RowBox[{"ToString", "[", "$SystemID", "]"}], "<>", 
+           " ", "\"\<.dat\>\""}]}], "}"}], "]"}], ",", "data"}], "]"}]}]}], 
+   "]"}]}]}], "Input",
+ CellChangeTimes->{{3.980240584149042*^9, 3.98024058486012*^9}, {
+  3.9802406194262257`*^9, 3.9802407148038273`*^9}, {3.9802408634505*^9, 
+  3.980240865587019*^9}, {3.9802409643881197`*^9, 3.980240968109242*^9}, {
+  3.9802412548206673`*^9, 3.980241269004899*^9}, {3.980241304631401*^9, 
+  3.9802413337110147`*^9}, {3.9802414154828463`*^9, 3.980241419028824*^9}, {
+  3.980241549483341*^9, 3.980241566941148*^9}, {3.980242220367298*^9, 
+  3.9802422264710903`*^9}, {3.980331165804591*^9, 3.9803312107574778`*^9}, {
+  3.9803315745837193`*^9, 3.980331602828154*^9}},
+ CellLabel->"In[6]:=",ExpressionUUID->"953dc4da-adc3-4b21-a470-699946afee7c"]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Initial conditions:", "Title",
+ CellChangeTimes->{{3.9802411869038067`*^9, 
+  3.9802412052945147`*^9}},ExpressionUUID->"8f330a3e-e249-4cbd-ac94-\
+5b40a40b78c2"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"\[Eta]", " ", "=", " ", 
+   SuperscriptBox["10", 
+    RowBox[{"-", "3"}]]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"a0", " ", "=", " ", "0.9"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"p0", " ", "=", " ", "25"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"e0", " ", "=", " ", "0.5"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"x0", " ", "=", " ", "0.5"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"\[Psi]r0", " ", "=", " ", "0"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"\[Psi]\[Theta]0", " ", "=", "0"}], ";"}]}], "Input",
+ CellChangeTimes->{3.980327792315959*^9},
+ CellLabel->"In[8]:=",ExpressionUUID->"1a0081c4-d346-4735-bec6-1cc7725e0240"],
+
+Cell[BoxData[""], "Input",
+ CellChangeTimes->{{3.980331714319422*^9, 
+  3.980331716775816*^9}},ExpressionUUID->"3289efb4-d90d-4315-8331-\
+baeeb043c91b"],
+
+Cell[CellGroupData[{
+
+Cell["necessary definitions for  ParallelTable[]", "Subsection",
+ CellChangeTimes->{{3.980331727304072*^9, 
+  3.980331748252062*^9}},ExpressionUUID->"670b64de-1311-4655-bad8-\
+5983afef1088"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"DistributeDefinitions", "[", 
+    RowBox[{
+    "datagenerationKerr", ",", "KerrOsculatingOrbitalElementsTPVecLessArg1", ",",
+      "fr2", ",", "f\[Theta]2", ",", "f\[Phi]2"}], "]"}], ";"}], 
+  "\n"}]], "Input",
+ CellChangeTimes->{{3.980242770128841*^9, 3.980242770131732*^9}, {
+   3.980244002849354*^9, 3.980244006436084*^9}, {3.9803319107744083`*^9, 
+   3.980331925825519*^9}, {3.9803321512708273`*^9, 3.9803321518354588`*^9}, {
+   3.980332271147316*^9, 3.980332289471305*^9}, 3.9803325927881937`*^9},
+ CellLabel->"In[18]:=",ExpressionUUID->"30d7281f-e18a-4878-8b9b-6bcb92ef6292"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"ParallelTable", "[", 
+   RowBox[{
+    RowBox[{"datagenerationKerr", "[", 
+     RowBox[{
+     "\[Eta]", ",", "a0", " ", ",", "p0", " ", ",", "i", ",", "x0", ",", 
+      "\[Psi]r0", ",", "\[Psi]\[Theta]0"}], "]"}], ",", 
+    RowBox[{"{", 
+     RowBox[{"i", ",", "0.0001", ",", "1", ",", 
+      RowBox[{"1", "/", "60"}]}], "}"}]}], "]"}], ";"}]], "Input",
+ CellChangeTimes->{{3.980241210490361*^9, 3.9802412432601624`*^9}, {
+  3.980241614482033*^9, 3.9802416397738647`*^9}, {3.98024167946078*^9, 
+  3.980241686013836*^9}, {3.980241769902548*^9, 3.9802417768374357`*^9}, {
+  3.980241902714691*^9, 3.9802419067971563`*^9}, {3.980242325668524*^9, 
+  3.980242336394895*^9}},
+ CellLabel->"In[24]:=",ExpressionUUID->"adb935c7-4c8f-40c3-9634-1fbf88b29df4"],
+
+Cell[BoxData[
+ TemplateBox[{
+  "LinkRead", "time", 
+   "\"Operation \\!\\(\\*RowBox[{\\\"LinkRead\\\"}]\\) timed out after \\!\\(\
+\\*RowBox[{\\\"3.`\\\"}]\\) seconds.\"", 2, 24, 12, 18347355464792234580, 
+   "Local"},
+  "MessageTemplate",
+  BaseStyle->"MSG"]], "Message",
+ CellChangeTimes->{3.9802441048616867`*^9},
+ CellLabel->
+  "During evaluation of \
+In[24]:=",ExpressionUUID->"89424a57-8e35-4edc-a1bf-af24f53fceef"],
+
+Cell[BoxData[
+ TemplateBox[{
+  "KernelObject", "rdead", 
+   "\"Discarding \\!\\(\\*RowBox[{\\\"\\\\\\\"kernel 1 \
+(Local)\\\\\\\"\\\"}]\\).\"", 2, 24, 13, 18347355464792234580, "Local"},
+  "MessageTemplate",
+  BaseStyle->"MSG"]], "Message",
+ CellChangeTimes->{3.980244105006756*^9},
+ CellLabel->
+  "During evaluation of \
+In[24]:=",ExpressionUUID->"26725e38-56c8-4a74-812c-bbafd1a754c6"],
+
+Cell[BoxData[
+ TemplateBox[{
+  "LinkRead", "time", 
+   "\"Operation \\!\\(\\*RowBox[{\\\"LinkRead\\\"}]\\) timed out after \\!\\(\
+\\*RowBox[{\\\"3.`\\\"}]\\) seconds.\"", 2, 24, 14, 18347355464792234580, 
+   "Local"},
+  "MessageTemplate",
+  BaseStyle->"MSG"]], "Message",
+ CellChangeTimes->{3.980244107847889*^9},
+ CellLabel->
+  "During evaluation of \
+In[24]:=",ExpressionUUID->"ab923f6b-d396-4edd-a287-e4ad58a5964c"],
+
+Cell[BoxData[
+ TemplateBox[{
+  "KernelObject", "rdead", 
+   "\"Discarding \\!\\(\\*RowBox[{\\\"\\\\\\\"kernel 2 \
+(Local)\\\\\\\"\\\"}]\\).\"", 2, 24, 15, 18347355464792234580, "Local"},
+  "MessageTemplate",
+  BaseStyle->"MSG"]], "Message",
+ CellChangeTimes->{3.980244107853335*^9},
+ CellLabel->
+  "During evaluation of \
+In[24]:=",ExpressionUUID->"7890fd01-b7cd-434f-bc5e-4574b4f5459c"],
+
+Cell[BoxData[
+ TemplateBox[{
+  "LinkRead", "time", 
+   "\"Operation \\!\\(\\*RowBox[{\\\"LinkRead\\\"}]\\) timed out after \\!\\(\
+\\*RowBox[{\\\"3.`\\\"}]\\) seconds.\"", 2, 24, 16, 18347355464792234580, 
+   "Local"},
+  "MessageTemplate",
+  BaseStyle->"MSG"]], "Message",
+ CellChangeTimes->{3.980244110870903*^9},
+ CellLabel->
+  "During evaluation of \
+In[24]:=",ExpressionUUID->"8b14b026-2474-4b1a-8dc9-7b964f24f820"],
+
+Cell[BoxData[
+ TemplateBox[{
+  "General", "stop", 
+   "\"Further output of \\!\\(\\*StyleBox[RowBox[{\\\"LinkRead\\\", \
+\\\"::\\\", \\\"time\\\"}], \\\"MessageName\\\"]\\) will be suppressed during \
+this calculation.\"", 2, 24, 17, 18347355464792234580, "Local"},
+  "MessageTemplate",
+  BaseStyle->"MSG"]], "Message",
+ CellChangeTimes->{3.980244110883671*^9},
+ CellLabel->
+  "During evaluation of \
+In[24]:=",ExpressionUUID->"310fc846-2a00-4d69-a732-32d83215cfc8"],
+
+Cell[BoxData[
+ TemplateBox[{
+  "KernelObject", "rdead", 
+   "\"Discarding \\!\\(\\*RowBox[{\\\"\\\\\\\"kernel 3 \
+(Local)\\\\\\\"\\\"}]\\).\"", 2, 24, 18, 18347355464792234580, "Local"},
+  "MessageTemplate",
+  BaseStyle->"MSG"]], "Message",
+ CellChangeTimes->{3.980244110890112*^9},
+ CellLabel->
+  "During evaluation of \
+In[24]:=",ExpressionUUID->"e63b8805-1ea5-4332-a2e4-7deaaa6488b4"],
+
+Cell[BoxData[
+ TemplateBox[{
+  "General", "stop", 
+   "\"Further output of \\!\\(\\*StyleBox[RowBox[{\\\"KernelObject\\\", \
+\\\"::\\\", \\\"rdead\\\"}], \\\"MessageName\\\"]\\) will be suppressed \
+during this calculation.\"", 2, 24, 19, 18347355464792234580, "Local"},
+  "MessageTemplate",
+  BaseStyle->"MSG"]], "Message",
+ CellChangeTimes->{3.980244110943508*^9},
+ CellLabel->
+  "During evaluation of \
+In[24]:=",ExpressionUUID->"86867dbe-c257-421e-92d7-d219c347fa77"],
+
+Cell[BoxData[
+ TemplateBox[{
+  "LaunchKernels", "clone", 
+   "\"\\!\\(\\*RowBox[{\\\"\\\\\\\"dead kernel 1 (Local)\\\\\\\"\\\"}]\\) \
+resurrected as \\!\\(\\*RowBox[{\\\"\\\\\\\"kernel 11 \
+(Local)\\\\\\\"\\\"}]\\).\"", 2, 24, 20, 18347355464792234580, "Local"},
+  "MessageTemplate",
+  BaseStyle->"MSG"]], "Message",
+ CellChangeTimes->{3.980244121122961*^9},
+ CellLabel->
+  "During evaluation of \
+In[24]:=",ExpressionUUID->"87dcaf16-1d44-40d9-9a14-f3e27676bb6e"],
+
+Cell[BoxData[
+ TemplateBox[{
+  "LaunchKernels", "clone", 
+   "\"\\!\\(\\*RowBox[{\\\"\\\\\\\"dead kernel 2 (Local)\\\\\\\"\\\"}]\\) \
+resurrected as \\!\\(\\*RowBox[{\\\"\\\\\\\"kernel 12 \
+(Local)\\\\\\\"\\\"}]\\).\"", 2, 24, 21, 18347355464792234580, "Local"},
+  "MessageTemplate",
+  BaseStyle->"MSG"]], "Message",
+ CellChangeTimes->{3.980244124348221*^9},
+ CellLabel->
+  "During evaluation of \
+In[24]:=",ExpressionUUID->"9d572160-51cd-4e9a-9600-55f69fe58cfd"],
+
+Cell[BoxData[
+ TemplateBox[{
+  "LaunchKernels", "clone", 
+   "\"\\!\\(\\*RowBox[{\\\"\\\\\\\"dead kernel 3 (Local)\\\\\\\"\\\"}]\\) \
+resurrected as \\!\\(\\*RowBox[{\\\"\\\\\\\"kernel 13 \
+(Local)\\\\\\\"\\\"}]\\).\"", 2, 24, 22, 18347355464792234580, "Local"},
+  "MessageTemplate",
+  BaseStyle->"MSG"]], "Message",
+ CellChangeTimes->{3.9802441279281483`*^9},
+ CellLabel->
+  "During evaluation of \
+In[24]:=",ExpressionUUID->"37392be2-4a92-4745-a32b-1da7070a6980"],
+
+Cell[BoxData[
+ TemplateBox[{
+  "General", "stop", 
+   "\"Further output of \\!\\(\\*StyleBox[RowBox[{\\\"LaunchKernels\\\", \
+\\\"::\\\", \\\"clone\\\"}], \\\"MessageName\\\"]\\) will be suppressed \
+during this calculation.\"", 2, 24, 23, 18347355464792234580, "Local"},
+  "MessageTemplate",
+  BaseStyle->"MSG"]], "Message",
+ CellChangeTimes->{3.9802441279310217`*^9},
+ CellLabel->
+  "During evaluation of \
+In[24]:=",ExpressionUUID->"cca8013b-1970-41b5-9f5f-83f355e84218"],
+
+Cell[BoxData["$Aborted"], "Output",
+ CellChangeTimes->{3.9802441313327303`*^9},
+ CellLabel->"Out[24]=",ExpressionUUID->"ddb2454e-cac4-4719-a311-849864b00580"]
+}, Open  ]],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"Table", "[", 
+   RowBox[{
+    RowBox[{"datagenerationKerr", "[", 
+     RowBox[{
+     "\[Eta]", ",", "a0", " ", ",", "p0", " ", ",", "i", ",", "x0", ",", 
+      "\[Psi]r0", ",", "\[Psi]\[Theta]0"}], "]"}], ",", 
+    RowBox[{"{", 
+     RowBox[{"i", ",", "0.0001", ",", "1", ",", 
+      RowBox[{"1", "/", "60"}]}], "}"}]}], "]"}], ";"}]], "Input",
+ CellLabel->"In[27]:=",ExpressionUUID->"6abb03ce-0c57-409a-9dfb-ca3a0441172c"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"datagenerationKerr", "[", 
+  RowBox[{
+  "\[Eta]", ",", "a0", " ", ",", "p0", " ", ",", "e0", ",", "x0", ",", 
+   "\[Psi]r0", ",", "\[Psi]\[Theta]0"}], "]"}]], "Input",
+ CellChangeTimes->{{3.980241481873321*^9, 3.980241482402527*^9}, 
+   3.980241540240713*^9, 3.9802416764157953`*^9, {3.980249673636891*^9, 
+   3.980249682988234*^9}, 3.98032780398102*^9, {3.9803310732475023`*^9, 
+   3.98033111213588*^9}, {3.980332391135538*^9, 3.980332396844874*^9}},
+ CellLabel->"In[16]:=",ExpressionUUID->"bd7d0b19-87a2-40c3-afed-39957ca9a33a"],
+
+Cell[BoxData["\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_evaluation_\
+time=25.8814c_MacOSX-ARM64.dat\"\>"], "Output",
+ CellChangeTimes->{3.980332425013673*^9},
+ CellLabel->"Out[16]=",ExpressionUUID->"9b24878d-388d-45f9-beb9-3924c2a6a20b"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"ParallelTable", "[", 
+  RowBox[{
+   RowBox[{"datagenerationKerr", "[", 
+    RowBox[{
+    "\[Eta]", ",", "a0", " ", ",", "p0", " ", ",", "e0", ",", "x0", ",", "i", 
+     ",", "\[Psi]\[Theta]0"}], "]"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"i", ",", "0.0001", ",", "Pi", ",", 
+     RowBox[{"1", "/", "50"}]}], "}"}]}], "]"}]], "Input",
+ CellChangeTimes->{
+  3.9802497029427967`*^9, {3.980327824463552*^9, 3.980327845363565*^9}, {
+   3.980331053427635*^9, 3.980331071059791*^9}, {3.9803316301607637`*^9, 
+   3.980331635938796*^9}, 3.980331950673473*^9, 3.980332164010569*^9, 
+   3.9803321963481817`*^9, {3.9803328734261312`*^9, 3.9803328740450287`*^9}},
+ CellLabel->"In[20]:=",ExpressionUUID->"dbfdc532-8fd5-41e3-95da-9c539b722749"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{"\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0.0001_\[Psi]\[Theta]0=0_\
+evaluation_time=56.6596c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0.0201_\[Psi]\[Theta]0=0_\
+evaluation_time=68.4178c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0.0401_\[Psi]\[Theta]0=0_\
+evaluation_time=79.9308c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0.0601_\[Psi]\[Theta]0=0_\
+evaluation_time=85.0283c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0.0801_\[Psi]\[Theta]0=0_\
+evaluation_time=78.8559c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0.1001_\[Psi]\[Theta]0=0_\
+evaluation_time=78.0324c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0.1201_\[Psi]\[Theta]0=0_\
+evaluation_time=48.7473c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0.1401_\[Psi]\[Theta]0=0_\
+evaluation_time=72.1053c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0.1601_\[Psi]\[Theta]0=0_\
+evaluation_time=64.437c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0.1801_\[Psi]\[Theta]0=0_\
+evaluation_time=84.7694c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0.2001_\[Psi]\[Theta]0=0_\
+evaluation_time=73.4942c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0.2201_\[Psi]\[Theta]0=0_\
+evaluation_time=90.0833c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0.2401_\[Psi]\[Theta]0=0_\
+evaluation_time=56.808c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0.2601_\[Psi]\[Theta]0=0_\
+evaluation_time=63.8051c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0.2801_\[Psi]\[Theta]0=0_\
+evaluation_time=67.2329c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0.3001_\[Psi]\[Theta]0=0_\
+evaluation_time=89.1491c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0.3201_\[Psi]\[Theta]0=0_\
+evaluation_time=78.175c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0.3401_\[Psi]\[Theta]0=0_\
+evaluation_time=82.418c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0.3601_\[Psi]\[Theta]0=0_\
+evaluation_time=48.5208c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0.3801_\[Psi]\[Theta]0=0_\
+evaluation_time=66.6577c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0.4001_\[Psi]\[Theta]0=0_\
+evaluation_time=69.7065c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0.4201_\[Psi]\[Theta]0=0_\
+evaluation_time=81.5887c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0.4401_\[Psi]\[Theta]0=0_\
+evaluation_time=74.8518c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0.4601_\[Psi]\[Theta]0=0_\
+evaluation_time=88.8012c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0.4801_\[Psi]\[Theta]0=0_\
+evaluation_time=51.0242c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0.5001_\[Psi]\[Theta]0=0_\
+evaluation_time=60.4449c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0.5201_\[Psi]\[Theta]0=0_\
+evaluation_time=76.1341c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0.5401_\[Psi]\[Theta]0=0_\
+evaluation_time=77.3849c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0.5601_\[Psi]\[Theta]0=0_\
+evaluation_time=66.6762c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0.5801_\[Psi]\[Theta]0=0_\
+evaluation_time=92.9032c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0.6001_\[Psi]\[Theta]0=0_\
+evaluation_time=57.267c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0.6201_\[Psi]\[Theta]0=0_\
+evaluation_time=57.5214c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0.6401_\[Psi]\[Theta]0=0_\
+evaluation_time=71.9248c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0.6601_\[Psi]\[Theta]0=0_\
+evaluation_time=79.4386c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0.6801_\[Psi]\[Theta]0=0_\
+evaluation_time=88.8589c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0.7001_\[Psi]\[Theta]0=0_\
+evaluation_time=74.3411c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0.7201_\[Psi]\[Theta]0=0_\
+evaluation_time=56.592c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0.7401_\[Psi]\[Theta]0=0_\
+evaluation_time=67.3216c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0.7601_\[Psi]\[Theta]0=0_\
+evaluation_time=72.6322c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0.7801_\[Psi]\[Theta]0=0_\
+evaluation_time=79.0534c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0.8001_\[Psi]\[Theta]0=0_\
+evaluation_time=78.8769c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0.8201_\[Psi]\[Theta]0=0_\
+evaluation_time=80.8264c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0.8401_\[Psi]\[Theta]0=0_\
+evaluation_time=48.3224c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0.8601_\[Psi]\[Theta]0=0_\
+evaluation_time=65.5057c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0.8801_\[Psi]\[Theta]0=0_\
+evaluation_time=56.7941c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0.9001_\[Psi]\[Theta]0=0_\
+evaluation_time=79.6028c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0.9201_\[Psi]\[Theta]0=0_\
+evaluation_time=78.7287c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0.9401_\[Psi]\[Theta]0=0_\
+evaluation_time=91.8652c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0.9601_\[Psi]\[Theta]0=0_\
+evaluation_time=55.2979c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0.9801_\[Psi]\[Theta]0=0_\
+evaluation_time=64.2094c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=1.0001_\[Psi]\[Theta]0=0_\
+evaluation_time=57.6781c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=1.0201_\[Psi]\[Theta]0=0_\
+evaluation_time=79.3896c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=1.0401_\[Psi]\[Theta]0=0_\
+evaluation_time=75.2805c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=1.0601_\[Psi]\[Theta]0=0_\
+evaluation_time=50.5265c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=1.0801_\[Psi]\[Theta]0=0_\
+evaluation_time=62.0408c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=1.1001_\[Psi]\[Theta]0=0_\
+evaluation_time=58.5434c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=1.1201_\[Psi]\[Theta]0=0_\
+evaluation_time=77.516c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=1.1401_\[Psi]\[Theta]0=0_\
+evaluation_time=70.3174c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=1.1601_\[Psi]\[Theta]0=0_\
+evaluation_time=80.8493c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=1.1801_\[Psi]\[Theta]0=0_\
+evaluation_time=84.022c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=1.2001_\[Psi]\[Theta]0=0_\
+evaluation_time=68.8256c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=1.2201_\[Psi]\[Theta]0=0_\
+evaluation_time=84.5074c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=1.2401_\[Psi]\[Theta]0=0_\
+evaluation_time=87.3489c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=1.2601_\[Psi]\[Theta]0=0_\
+evaluation_time=82.8339c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=1.2801_\[Psi]\[Theta]0=0_\
+evaluation_time=78.434c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=1.3001_\[Psi]\[Theta]0=0_\
+evaluation_time=82.5957c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=1.3201_\[Psi]\[Theta]0=0_\
+evaluation_time=67.35c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=1.3401_\[Psi]\[Theta]0=0_\
+evaluation_time=78.4608c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=1.3601_\[Psi]\[Theta]0=0_\
+evaluation_time=78.781c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=1.3801_\[Psi]\[Theta]0=0_\
+evaluation_time=83.1254c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=1.4001_\[Psi]\[Theta]0=0_\
+evaluation_time=85.5282c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=1.4201_\[Psi]\[Theta]0=0_\
+evaluation_time=78.2407c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=1.4401_\[Psi]\[Theta]0=0_\
+evaluation_time=77.3209c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=1.4601_\[Psi]\[Theta]0=0_\
+evaluation_time=84.5394c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=1.4801_\[Psi]\[Theta]0=0_\
+evaluation_time=85.7818c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=1.5001_\[Psi]\[Theta]0=0_\
+evaluation_time=80.455c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=1.5201_\[Psi]\[Theta]0=0_\
+evaluation_time=77.8267c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=1.5401_\[Psi]\[Theta]0=0_\
+evaluation_time=57.8753c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=1.5601_\[Psi]\[Theta]0=0_\
+evaluation_time=71.9585c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=1.5801_\[Psi]\[Theta]0=0_\
+evaluation_time=86.8616c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=1.6001_\[Psi]\[Theta]0=0_\
+evaluation_time=84.0573c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=1.6201_\[Psi]\[Theta]0=0_\
+evaluation_time=79.9731c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=1.6401_\[Psi]\[Theta]0=0_\
+evaluation_time=57.3901c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=1.6601_\[Psi]\[Theta]0=0_\
+evaluation_time=72.2999c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=1.6801_\[Psi]\[Theta]0=0_\
+evaluation_time=85.2927c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=1.7001_\[Psi]\[Theta]0=0_\
+evaluation_time=84.694c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=1.7201_\[Psi]\[Theta]0=0_\
+evaluation_time=59.1683c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=1.7401_\[Psi]\[Theta]0=0_\
+evaluation_time=81.5858c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=1.7601_\[Psi]\[Theta]0=0_\
+evaluation_time=82.4935c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=1.7801_\[Psi]\[Theta]0=0_\
+evaluation_time=82.3634c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=1.8001_\[Psi]\[Theta]0=0_\
+evaluation_time=94.4676c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=1.8201_\[Psi]\[Theta]0=0_\
+evaluation_time=73.7449c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=1.8401_\[Psi]\[Theta]0=0_\
+evaluation_time=80.1906c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=1.8601_\[Psi]\[Theta]0=0_\
+evaluation_time=93.4675c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=1.8801_\[Psi]\[Theta]0=0_\
+evaluation_time=81.0723c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=1.9001_\[Psi]\[Theta]0=0_\
+evaluation_time=83.8235c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=1.9201_\[Psi]\[Theta]0=0_\
+evaluation_time=75.9559c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=1.9401_\[Psi]\[Theta]0=0_\
+evaluation_time=78.3748c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=1.9601_\[Psi]\[Theta]0=0_\
+evaluation_time=80.5925c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=1.9801_\[Psi]\[Theta]0=0_\
+evaluation_time=80.5346c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=2.0001_\[Psi]\[Theta]0=0_\
+evaluation_time=79.5806c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=2.0201_\[Psi]\[Theta]0=0_\
+evaluation_time=74.6792c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=2.0401_\[Psi]\[Theta]0=0_\
+evaluation_time=72.3769c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=2.0601_\[Psi]\[Theta]0=0_\
+evaluation_time=91.8979c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=2.0801_\[Psi]\[Theta]0=0_\
+evaluation_time=94.8048c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=2.1001_\[Psi]\[Theta]0=0_\
+evaluation_time=83.6635c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=2.1201_\[Psi]\[Theta]0=0_\
+evaluation_time=77.5847c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=2.1401_\[Psi]\[Theta]0=0_\
+evaluation_time=79.1561c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=2.1601_\[Psi]\[Theta]0=0_\
+evaluation_time=88.3258c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=2.1801_\[Psi]\[Theta]0=0_\
+evaluation_time=71.0808c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=2.2001_\[Psi]\[Theta]0=0_\
+evaluation_time=77.6064c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=2.2201_\[Psi]\[Theta]0=0_\
+evaluation_time=84.0762c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=2.2401_\[Psi]\[Theta]0=0_\
+evaluation_time=90.1724c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=2.2601_\[Psi]\[Theta]0=0_\
+evaluation_time=72.3853c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=2.2801_\[Psi]\[Theta]0=0_\
+evaluation_time=77.9424c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=2.3001_\[Psi]\[Theta]0=0_\
+evaluation_time=87.8727c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=2.3201_\[Psi]\[Theta]0=0_\
+evaluation_time=84.7397c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=2.3401_\[Psi]\[Theta]0=0_\
+evaluation_time=95.325c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=2.3601_\[Psi]\[Theta]0=0_\
+evaluation_time=74.3288c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=2.3801_\[Psi]\[Theta]0=0_\
+evaluation_time=80.8403c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=2.4001_\[Psi]\[Theta]0=0_\
+evaluation_time=96.4193c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=2.4201_\[Psi]\[Theta]0=0_\
+evaluation_time=94.8506c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=2.4401_\[Psi]\[Theta]0=0_\
+evaluation_time=84.7292c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=2.4601_\[Psi]\[Theta]0=0_\
+evaluation_time=76.8833c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=2.4801_\[Psi]\[Theta]0=0_\
+evaluation_time=93.7642c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=2.5001_\[Psi]\[Theta]0=0_\
+evaluation_time=96.5353c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=2.5201_\[Psi]\[Theta]0=0_\
+evaluation_time=85.0347c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=2.5401_\[Psi]\[Theta]0=0_\
+evaluation_time=77.271c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=2.5601_\[Psi]\[Theta]0=0_\
+evaluation_time=71.0682c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=2.5801_\[Psi]\[Theta]0=0_\
+evaluation_time=87.7531c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=2.6001_\[Psi]\[Theta]0=0_\
+evaluation_time=90.9894c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=2.6201_\[Psi]\[Theta]0=0_\
+evaluation_time=106.842c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=2.6401_\[Psi]\[Theta]0=0_\
+evaluation_time=87.1101c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=2.6601_\[Psi]\[Theta]0=0_\
+evaluation_time=69.0205c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=2.6801_\[Psi]\[Theta]0=0_\
+evaluation_time=84.337c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=2.7001_\[Psi]\[Theta]0=0_\
+evaluation_time=110.237c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=2.7201_\[Psi]\[Theta]0=0_\
+evaluation_time=103.697c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=2.7401_\[Psi]\[Theta]0=0_\
+evaluation_time=88.3538c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=2.7601_\[Psi]\[Theta]0=0_\
+evaluation_time=75.4535c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=2.7801_\[Psi]\[Theta]0=0_\
+evaluation_time=83.1589c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=2.8001_\[Psi]\[Theta]0=0_\
+evaluation_time=107.544c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=2.8201_\[Psi]\[Theta]0=0_\
+evaluation_time=84.5392c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=2.8401_\[Psi]\[Theta]0=0_\
+evaluation_time=98.2521c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=2.8601_\[Psi]\[Theta]0=0_\
+evaluation_time=73.9454c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=2.8801_\[Psi]\[Theta]0=0_\
+evaluation_time=82.9502c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=2.9001_\[Psi]\[Theta]0=0_\
+evaluation_time=97.4511c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=2.9201_\[Psi]\[Theta]0=0_\
+evaluation_time=90.5816c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=2.9401_\[Psi]\[Theta]0=0_\
+evaluation_time=78.1122c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=2.9601_\[Psi]\[Theta]0=0_\
+evaluation_time=73.9037c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=2.9801_\[Psi]\[Theta]0=0_\
+evaluation_time=88.2703c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=3.0001_\[Psi]\[Theta]0=0_\
+evaluation_time=95.4504c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=3.0201_\[Psi]\[Theta]0=0_\
+evaluation_time=93.7402c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=3.0401_\[Psi]\[Theta]0=0_\
+evaluation_time=86.5923c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=3.0601_\[Psi]\[Theta]0=0_\
+evaluation_time=73.9711c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=3.0801_\[Psi]\[Theta]0=0_\
+evaluation_time=86.89c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=3.1001_\[Psi]\[Theta]0=0_\
+evaluation_time=94.1879c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=3.1201_\[Psi]\[Theta]0=0_\
+evaluation_time=98.3025c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=3.1401_\[Psi]\[Theta]0=0_\
+evaluation_time=100.079c_MacOSX-ARM64.dat\"\>"}], "}"}]], "Output",
+ CellChangeTimes->{
+  3.980254795682517*^9, 3.980330966558662*^9, 3.980331773968034*^9, {
+   3.9803318410197983`*^9, 3.980331856768415*^9}, {3.980331916206113*^9, 
+   3.980331929903311*^9}, 3.980332083346615*^9, {3.980332173212583*^9, 
+   3.9803321974343977`*^9}, {3.980332277260193*^9, 3.9803322939056063`*^9}, {
+   3.980332335572658*^9, 3.980332345363697*^9}, 3.980332451660677*^9, 
+   3.980332767972707*^9, 3.980339141207201*^9},
+ CellLabel->"Out[20]=",ExpressionUUID->"9033a99c-8022-40c1-982f-4d4e4968fcf3"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"ParallelTable", "[", 
+  RowBox[{
+   RowBox[{"datagenerationKerr", "[", 
+    RowBox[{
+    "\[Eta]", ",", "a0", " ", ",", "p0", " ", ",", "e0", ",", "x0", ",", 
+     "\[Psi]r0", ",", "i"}], "]"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"i", ",", "0.0001", ",", "Pi", ",", 
+     RowBox[{"1", "/", "50"}]}], "}"}]}], "]"}]], "Input",
+ CellChangeTimes->{{3.980346630869934*^9, 3.980346635178047*^9}},
+ CellLabel->"In[21]:=",ExpressionUUID->"7e8f07c0-7c4c-4326-835c-4dd0683c66d8"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{"\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0.0001_\
+evaluation_time=56.4222c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0.0201_\
+evaluation_time=55.6532c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0.0401_\
+evaluation_time=58.6785c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0.0601_\
+evaluation_time=57.8357c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0.0801_\
+evaluation_time=67.3397c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0.1001_\
+evaluation_time=92.3153c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0.1201_\
+evaluation_time=55.9253c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0.1401_\
+evaluation_time=49.9424c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0.1601_\
+evaluation_time=58.7708c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0.1801_\
+evaluation_time=49.598c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0.2001_\
+evaluation_time=65.5211c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0.2201_\
+evaluation_time=68.0853c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0.2401_\
+evaluation_time=62.3106c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0.2601_\
+evaluation_time=67.5806c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0.2801_\
+evaluation_time=52.5604c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0.3001_\
+evaluation_time=58.9344c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0.3201_\
+evaluation_time=69.8259c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0.3401_\
+evaluation_time=91.1241c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0.3601_\
+evaluation_time=57.3087c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0.3801_\
+evaluation_time=68.5099c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0.4001_\
+evaluation_time=65.8334c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0.4201_\
+evaluation_time=60.1229c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0.4401_\
+evaluation_time=95.305c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0.4601_\
+evaluation_time=62.6051c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0.4801_\
+evaluation_time=57.3424c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0.5001_\
+evaluation_time=53.1389c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0.5201_\
+evaluation_time=55.6545c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0.5401_\
+evaluation_time=59.5549c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0.5601_\
+evaluation_time=58.1075c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0.5801_\
+evaluation_time=68.6757c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0.6001_\
+evaluation_time=65.0492c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0.6201_\
+evaluation_time=57.6318c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0.6401_\
+evaluation_time=59.1792c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0.6601_\
+evaluation_time=62.8049c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0.6801_\
+evaluation_time=90.8054c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0.7001_\
+evaluation_time=81.7684c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0.7201_\
+evaluation_time=55.2777c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0.7401_\
+evaluation_time=66.1833c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0.7601_\
+evaluation_time=57.4891c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0.7801_\
+evaluation_time=58.8481c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0.8001_\
+evaluation_time=90.532c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0.8201_\
+evaluation_time=66.0794c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0.8401_\
+evaluation_time=57.0773c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0.8601_\
+evaluation_time=50.4252c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0.8801_\
+evaluation_time=60.4543c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0.9001_\
+evaluation_time=60.3825c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0.9201_\
+evaluation_time=56.598c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0.9401_\
+evaluation_time=64.8804c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0.9601_\
+evaluation_time=58.1478c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0.9801_\
+evaluation_time=68.6427c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=1.0001_\
+evaluation_time=57.9182c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=1.0201_\
+evaluation_time=58.5026c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=1.0401_\
+evaluation_time=88.9051c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=1.0601_\
+evaluation_time=57.8556c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=1.0801_\
+evaluation_time=55.5907c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=1.1001_\
+evaluation_time=67.1799c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=1.1201_\
+evaluation_time=60.3678c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=1.1401_\
+evaluation_time=74.955c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=1.1601_\
+evaluation_time=85.7238c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=1.1801_\
+evaluation_time=80.233c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=1.2001_\
+evaluation_time=80.7165c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=1.2201_\
+evaluation_time=74.0379c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=1.2401_\
+evaluation_time=74.1731c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=1.2601_\
+evaluation_time=63.8248c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=1.2801_\
+evaluation_time=62.2256c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=1.3001_\
+evaluation_time=87.065c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=1.3201_\
+evaluation_time=63.1655c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=1.3401_\
+evaluation_time=74.3599c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=1.3601_\
+evaluation_time=78.4205c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=1.3801_\
+evaluation_time=82.474c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=1.4001_\
+evaluation_time=76.4492c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=1.4201_\
+evaluation_time=69.8271c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=1.4401_\
+evaluation_time=73.8258c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=1.4601_\
+evaluation_time=65.6624c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=1.4801_\
+evaluation_time=81.4064c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=1.5001_\
+evaluation_time=71.8416c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=1.5201_\
+evaluation_time=82.055c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=1.5401_\
+evaluation_time=81.9954c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=1.5601_\
+evaluation_time=74.5259c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=1.5801_\
+evaluation_time=81.2352c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=1.6001_\
+evaluation_time=78.574c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=1.6201_\
+evaluation_time=72.7835c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=1.6401_\
+evaluation_time=70.9229c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=1.6601_\
+evaluation_time=63.9705c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=1.6801_\
+evaluation_time=80.718c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=1.7001_\
+evaluation_time=75.2582c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=1.7201_\
+evaluation_time=74.1063c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=1.7401_\
+evaluation_time=73.9512c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=1.7601_\
+evaluation_time=77.1763c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=1.7801_\
+evaluation_time=83.8044c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=1.8001_\
+evaluation_time=81.1577c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=1.8201_\
+evaluation_time=70.2457c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=1.8401_\
+evaluation_time=70.5971c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=1.8601_\
+evaluation_time=74.8816c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=1.8801_\
+evaluation_time=58.3679c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=1.9001_\
+evaluation_time=84.8063c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=1.9201_\
+evaluation_time=85.6818c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=1.9401_\
+evaluation_time=82.5971c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=1.9601_\
+evaluation_time=61.2921c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=1.9801_\
+evaluation_time=65.8447c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=2.0001_\
+evaluation_time=74.6262c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=2.0201_\
+evaluation_time=60.4942c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=2.0401_\
+evaluation_time=73.1451c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=2.0601_\
+evaluation_time=82.6013c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=2.0801_\
+evaluation_time=61.7651c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=2.1001_\
+evaluation_time=55.2245c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=2.1201_\
+evaluation_time=75.4987c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=2.1401_\
+evaluation_time=75.9578c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=2.1601_\
+evaluation_time=75.2638c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=2.1801_\
+evaluation_time=89.422c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=2.2001_\
+evaluation_time=85.8909c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=2.2201_\
+evaluation_time=79.9616c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=2.2401_\
+evaluation_time=72.1946c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=2.2601_\
+evaluation_time=82.3097c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=2.2801_\
+evaluation_time=75.9058c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=2.3001_\
+evaluation_time=83.9145c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=2.3201_\
+evaluation_time=71.7964c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=2.3401_\
+evaluation_time=71.939c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=2.3601_\
+evaluation_time=60.6688c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=2.3801_\
+evaluation_time=69.8725c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=2.4001_\
+evaluation_time=96.2804c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=2.4201_\
+evaluation_time=76.4468c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=2.4401_\
+evaluation_time=69.823c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=2.4601_\
+evaluation_time=85.1311c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=2.4801_\
+evaluation_time=57.0569c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=2.5001_\
+evaluation_time=82.4388c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=2.5201_\
+evaluation_time=91.893c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=2.5401_\
+evaluation_time=74.0329c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=2.5601_\
+evaluation_time=72.9183c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=2.5801_\
+evaluation_time=75.457c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=2.6001_\
+evaluation_time=78.5241c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=2.6201_\
+evaluation_time=65.306c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=2.6401_\
+evaluation_time=76.022c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=2.6601_\
+evaluation_time=72.0961c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=2.6801_\
+evaluation_time=75.9612c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=2.7001_\
+evaluation_time=84.0778c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=2.7201_\
+evaluation_time=89.5775c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=2.7401_\
+evaluation_time=82.5765c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=2.7601_\
+evaluation_time=71.9519c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=2.7801_\
+evaluation_time=83.8853c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=2.8001_\
+evaluation_time=77.5576c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=2.8201_\
+evaluation_time=82.4726c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=2.8401_\
+evaluation_time=59.1427c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=2.8601_\
+evaluation_time=84.3843c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=2.8801_\
+evaluation_time=91.976c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=2.9001_\
+evaluation_time=66.5772c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=2.9201_\
+evaluation_time=76.865c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=2.9401_\
+evaluation_time=62.9821c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=2.9601_\
+evaluation_time=84.5369c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=2.9801_\
+evaluation_time=71.2095c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=3.0001_\
+evaluation_time=80.9171c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=3.0201_\
+evaluation_time=73.9105c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=3.0401_\
+evaluation_time=59.221c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=3.0601_\
+evaluation_time=65.8732c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=3.0801_\
+evaluation_time=83.3001c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=3.1001_\
+evaluation_time=65.1318c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=3.1201_\
+evaluation_time=87.5856c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=3.1401_\
+evaluation_time=56.899c_MacOSX-ARM64.dat\"\>"}], "}"}]], "Output",
+ CellChangeTimes->{3.9803495097048073`*^9},
+ CellLabel->"Out[21]=",ExpressionUUID->"33e417d5-167c-47eb-8b89-7ef1cccfa0d8"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"ParallelTable", "[", 
+  RowBox[{
+   RowBox[{"datagenerationKerr", "[", 
+    RowBox[{
+    "\[Eta]", ",", "i", " ", ",", "p0", " ", ",", "e0", ",", "x0", ",", 
+     "\[Psi]r0", ",", "\[Psi]\[Theta]0"}], "]"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"i", ",", "0.0001", ",", "1", ",", 
+     RowBox[{"1", "/", "100"}]}], "}"}]}], "]"}]], "Input",
+ CellChangeTimes->{{3.9803502465633373`*^9, 3.9803502968373337`*^9}},
+ CellLabel->"In[23]:=",ExpressionUUID->"f1d74101-63e2-4f86-bd3f-8cde65e42777"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{"\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.0001_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=62.7274c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.0101_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=59.6454c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.0201_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=79.1817c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.0301_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=71.8522c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.0401_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=92.2116c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.0501_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=53.3989c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.0601_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=56.5314c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.0701_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=71.683c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.0801_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=72.3787c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.0901_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=77.9298c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.1001_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=51.7506c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.1101_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=65.4416c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.1201_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=64.61c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.1301_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=78.1818c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.1401_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=67.0728c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.1501_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=61.9846c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.1601_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=58.8196c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.1701_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=71.8806c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.1801_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=75.1633c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.1901_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=91.3705c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.2001_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=53.0302c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.2101_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=59.3138c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.2201_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=81.675c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.2301_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=71.5899c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.2401_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=46.7368c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.2501_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=55.1492c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.2601_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=71.4765c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.2701_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=71.556c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.2801_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=46.5012c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.2901_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=56.908c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.3001_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=62.5745c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.3101_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=71.7787c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.3201_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=52.5715c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.3301_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=58.8676c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.3401_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=71.3374c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.3501_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=71.3204c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.3601_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=64.685c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.3701_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=74.1414c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.3801_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=87.2789c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.3901_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=73.9233c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.4001_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=75.0484c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.4101_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=79.57c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.4201_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=73.644c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.4301_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=65.198c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.4401_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=90.3954c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.4501_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=77.0084c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.4601_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=86.4324c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.4701_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=73.2719c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.4801_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=76.7171c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.4901_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=74.9247c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.5001_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=76.7905c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.5101_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=77.463c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.5201_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=76.9882c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.5301_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=80.3732c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.5401_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=75.1418c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.5501_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=66.5177c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.5601_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=70.4509c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.5701_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=86.9856c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.5801_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=71.358c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.5901_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=74.2053c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.6001_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=73.381c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.6101_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=72.005c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.6201_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=71.0296c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.6301_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=73.9071c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.6401_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=67.2979c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.6501_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=68.3408c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.6601_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=73.8777c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.6701_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=66.506c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.6801_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=73.4002c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.6901_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=79.9036c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.7001_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=70.6625c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.7101_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=79.5065c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.7201_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=72.5235c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.7301_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=72.8721c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.7401_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=64.1587c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.7501_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=76.3373c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.7601_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=65.4474c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.7701_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=84.1659c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.7801_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=71.5227c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.7901_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=79.3811c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.8001_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=76.1907c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.8101_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=74.0482c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.8201_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=82.9318c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.8301_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=75.2953c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.8401_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=73.9607c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.8501_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=73.5948c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.8601_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=80.4042c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.8701_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=53.5837c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.8801_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=76.1884c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.8901_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=74.2216c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9001_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=77.9899c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9101_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=54.9149c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9201_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=83.2197c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9301_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=69.0195c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9401_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=85.4879c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9501_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=57.0293c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9601_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=74.2869c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9701_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=65.2466c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9801_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=77.1759c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9901_e=0.5_p=25_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=52.7895c_MacOSX-ARM64.dat\"\>"}], "}"}]], "Output",
+ CellChangeTimes->{3.9803503165047703`*^9, 3.980351830674584*^9},
+ CellLabel->"Out[23]=",ExpressionUUID->"9a4ddb4b-c1ec-47be-b5d8-3a90a2afa1da"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"ParallelTable", "[", 
+  RowBox[{
+   RowBox[{"datagenerationKerr", "[", 
+    RowBox[{"\[Eta]", ",", "a0", " ", ",", "p0", " ", ",", "e0", ",", 
+     RowBox[{"Cos", "[", "i", "]"}], ",", "\[Psi]r0", ",", 
+     "\[Psi]\[Theta]0"}], "]"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"i", ",", "0.0001", ",", "Pi", ",", 
+     RowBox[{"1", "/", "50"}]}], "}"}]}], "]"}]], "Input",
+ CellChangeTimes->{{3.980352163572568*^9, 3.9803521937396383`*^9}},
+ CellLabel->"In[24]:=",ExpressionUUID->"c16ce883-fd9b-4b8a-8eed-ada4c7c102cb"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{"\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=1._\[Psi]r0=0_\[Psi]\[Theta]0=0_evaluation_\
+time=63.5618c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.999798_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=68.3925c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.999196_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=85.3149c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.998195_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=71.4742c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.996794_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=89.1424c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.994994_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=83.3402c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.992797_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=84.5471c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.990202_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=62.8969c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.987211_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=59.5546c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.983826_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=87.7691c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.980047_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=71.2167c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.975876_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=83.6568c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.971314_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=85.8947c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.966364_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=75.2733c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.961028_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=57.4367c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.955307_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=59.9783c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.949204_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=68.9903c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.942721_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=73.7407c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.935862_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=77.2472c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.928628_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=87.0719c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.921022_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=73.9334c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.913048_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=60.3421c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.904709_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=60.1832c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.896008_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=78.2106c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.886949_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=79.4603c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.877535_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=75.1117c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.867769_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=77.8125c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.857657_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=79.5041c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.847202_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=57.5789c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.836408_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=69.0664c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.825279_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=77.706c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.81382_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=72.9935c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.802036_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=77.5556c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.789931_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=78.8623c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.77751_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=68.4766c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.764778_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=53.3129c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.75174_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=60.2338c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.738401_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=85.1117c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.724767_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=66.763c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.710843_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=77.1209c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.696635_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=78.512c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.682148_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=77.9139c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.667388_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=51.9797c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.652362_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=66.2447c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.637074_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=72.739c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.621532_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=73.199c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.605741_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=75.724c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.589707_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=68.3309c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.573438_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=85.8785c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.556939_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=61.4494c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.540218_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=65.506c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.523281_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=77.1766c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.506134_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=82.7218c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.488785_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=73.2291c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.47124_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=79.5568c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.453507_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=68.279c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.435592_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=71.0802c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.417504_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=81.1379c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.399248_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=85.2395c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.380832_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=80.7808c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.362265_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=78.0107c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.343552_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=78.9228c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.324702_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=77.6577c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.305722_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=91.408c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.286619_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=76.7854c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.267402_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=82.4016c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.248079_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=83.1626c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.228655_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=68.7521c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.209141_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=74.6323c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.189543_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=73.5034c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.169869_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=70.7941c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.150127_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=76.9646c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.130325_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=70.6695c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.11047_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=79.6592c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.090572_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=76.1735c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.0706375_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=84.7986c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.0506746_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=84.4546c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.0306915_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=79.9421c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=0.0106961_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=78.8406c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.00930354_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=73.4988c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.0292995_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=85.0713c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.0492837_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=69.635c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.0692482_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=76.794c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.089185_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=76.0718c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.109086_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=80.8207c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.128944_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=79.902c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.14875_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=85.237c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.168496_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=92.0366c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.188175_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=69.8331c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.207779_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=76.023c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.227299_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=75.2229c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.246729_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=87.9652c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.26606_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=76.2368c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.285285_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=79.8824c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.304395_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=71.6402c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.323384_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=86.067c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.342244_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=76.7875c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.360966_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=69.1536c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.379544_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=78.6727c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.397971_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=76.9316c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.416238_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=83.5965c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.434338_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=86.0982c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.452265_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=81.1601c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.470011_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=88.0696c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.487569_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=74.7789c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.504932_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=79.3184c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.522093_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=84.4298c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.539046_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=72.4303c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.555782_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=79.0512c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.572297_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=78.9677c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.588582_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=75.6878c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.604632_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=82.5269c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.62044_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=80.5889c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.636_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=80.2031c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.651306_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=78.0219c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.666351_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=82.6412c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.681129_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=76.5932c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.695635_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=80.408c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.709863_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=78.3985c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.723807_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=72.334c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.737461_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=91.6508c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.750821_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=92.8323c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.76388_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=83.8274c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.776633_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=77.7181c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.789076_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=80.1332c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.801203_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=80.2397c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.81301_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=73.7469c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.824492_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=64.3315c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.835644_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=86.432c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.846461_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=71.5625c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.85694_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=93.7347c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.867077_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=90.5839c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.876866_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=78.4125c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.886305_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=62.1264c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.895389_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=71.6815c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.904115_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=75.2266c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.912479_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=84.9818c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.920479_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=76.1854c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.92811_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=82.0068c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.93537_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=74.2792c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.942256_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=91.8953c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.948765_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=75.0731c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.954894_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=90.7132c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.960642_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=92.9624c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.966005_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=93.7389c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.970982_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=66.1112c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.975571_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=71.5382c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.979769_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=90.5166c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.983575_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=92.9472c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.986988_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=92.3978c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.990007_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=76.8786c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.992629_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=74.5314c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.994854_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=84.4237c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.996681_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=79.7447c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.99811_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=91.5272c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.999139_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=102.721c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.999769_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=92.0679c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Tue 17 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25_x=-0.999999_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=33.826c_MacOSX-ARM64.dat\"\>"}], "}"}]], "Output",
+ CellChangeTimes->{3.980354495687517*^9},
+ CellLabel->"Out[24]=",ExpressionUUID->"2f889ad5-9acd-4b8b-a47f-ac41a0d7cc25"]
+}, Open  ]],
+
+Cell[BoxData[""], "Input",
+ CellChangeTimes->{{3.980358332440786*^9, 3.9803583336066723`*^9}, 
+   3.980401757394134*^9},
+ CellLabel->"In[29]:=",ExpressionUUID->"85631fb7-241b-43e5-be69-fdfb5430864a"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"ParallelTable", "[", 
+  RowBox[{
+   RowBox[{"datagenerationKerr", "[", 
+    RowBox[{
+    "\[Eta]", ",", "a0", " ", ",", "i", " ", ",", "e0", ",", "x0", ",", 
+     "\[Psi]r0", ",", "\[Psi]\[Theta]0"}], "]"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"i", ",", "10", ",", "50", ",", "0.4"}], "}"}]}], "]"}]], "Input",\
+
+ CellChangeTimes->{{3.980354975848012*^9, 3.980355018322102*^9}, {
+  3.980358339119026*^9, 3.980358342026066*^9}, {3.980394320074601*^9, 
+  3.980394321650236*^9}},
+ CellLabel->"In[28]:=",ExpressionUUID->"677c2d62-be96-48bd-89f5-d792764ee253"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{"\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=10._x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_evaluation_\
+time=51.9301c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=10.4_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=45.1236c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=10.8_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=43.2548c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=11.2_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=47.8174c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=11.6_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=50.1306c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=12._x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_evaluation_\
+time=45.4374c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=12.4_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=50.6154c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=12.8_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=47.0917c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=13.2_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=51.5226c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=13.6_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=49.5425c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=14._x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_evaluation_\
+time=46.7425c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=14.4_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=46.7128c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=14.8_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=49.8287c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=15.2_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=49.5092c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=15.6_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=49.0318c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=16._x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_evaluation_\
+time=46.0884c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=16.4_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=52.2723c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=16.8_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=46.1354c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=17.2_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=53.9442c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=17.6_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=48.8039c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=18._x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_evaluation_\
+time=46.6825c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=18.4_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=45.0437c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=18.8_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=45.6232c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=19.2_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=54.5657c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=19.6_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=47.0945c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=20._x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_evaluation_\
+time=53.1502c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=20.4_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=42.3144c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=20.8_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=41.769c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=21.2_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=56.0685c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=21.6_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=49.9137c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=22._x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_evaluation_\
+time=53.4171c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=22.4_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=51.4488c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=22.8_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=46.6539c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=23.2_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=48.0723c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=23.6_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=55.7973c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=24._x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_evaluation_\
+time=50.057c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=24.4_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=56.3949c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=24.8_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=53.1952c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25.2_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=50.4149c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=25.6_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=54.3184c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=26._x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_evaluation_\
+time=44.3383c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=26.4_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=59.105c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=26.8_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=54.5472c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=27.2_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=57.4114c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=27.6_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=53.3237c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=28._x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_evaluation_\
+time=56.2525c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=28.4_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=59.4581c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=28.8_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=60.8359c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=29.2_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=52.2712c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=29.6_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=51.3774c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=30._x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_evaluation_\
+time=52.3808c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=30.4_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=55.8453c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=30.8_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=58.5625c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=31.2_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=57.7895c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=31.6_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=46.0369c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=32._x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_evaluation_\
+time=49.7009c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=32.4_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=53.6638c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=32.8_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=55.1538c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=33.2_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=48.4921c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=33.6_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=43.6312c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=34._x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_evaluation_\
+time=57.9981c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=34.4_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=60.8465c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=34.8_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=53.222c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=35.2_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=53.829c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=35.6_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=46.1465c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=36._x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_evaluation_\
+time=48.9045c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=36.4_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=59.4055c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=36.8_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=54.9013c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=37.2_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=45.0675c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=37.6_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=48.3442c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=38._x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_evaluation_\
+time=51.4091c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=38.4_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=59.7172c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=38.8_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=45.2364c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=39.2_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=53.2775c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=39.6_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=34.1672c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=40._x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_evaluation_\
+time=54.0759c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=40.4_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=57.1587c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=40.8_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=50.5555c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=41.2_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=58.0512c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=41.6_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=33.0672c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=42._x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_evaluation_\
+time=48.3097c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=42.4_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=44.6364c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=42.8_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=43.8415c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=43.2_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=59.0258c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=43.6_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=33.5622c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=44._x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_evaluation_\
+time=48.3152c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=44.4_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=55.2156c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=44.8_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=50.3271c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=45.2_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=51.1934c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=45.6_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=51.3936c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=46._x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_evaluation_\
+time=52.1783c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=46.4_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=51.1589c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=46.8_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=52.7502c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=47.2_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=50.8435c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=47.6_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=49.3865c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=48._x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_evaluation_\
+time=47.5179c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=48.4_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=57.7002c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=48.8_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=58.0077c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=49.2_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=49.8142c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=49.6_x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_\
+evaluation_time=50.1485c_MacOSX-ARM64.dat\"\>", 
+   ",", "\<\"/Users/oleksii/Documents/Kerr/Wed 18 Feb \
+2026/Kerr_sol_a=0.9_e=0.5_p=50._x=0.5_\[Psi]r0=0_\[Psi]\[Theta]0=0_evaluation_\
+time=53.8948c_MacOSX-ARM64.dat\"\>"}], "}"}]], "Output",
+ CellChangeTimes->{3.98035801101508*^9, 3.980394295158318*^9, 
+  3.980395583955324*^9},
+ CellLabel->"Out[28]=",ExpressionUUID->"102487aa-6ea1-446f-b35a-34934cc43901"]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]]
+},
+WindowSize->{808, 740},
+WindowMargins->{{Automatic, 324}, {Automatic, 9}},
+FrontEndVersion->"14.3 for Mac OS X ARM (64-bit) (July 8, 2025)",
+StyleDefinitions->"Default.nb",
+ExpressionUUID->"3234862f-4ddd-4c9c-9894-357f053237a1"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[576, 22, 165, 3, 96, "Title",ExpressionUUID->"616297d1-37a7-4d82-9387-fdf1e01247b4"],
+Cell[CellGroupData[{
+Cell[766, 29, 175, 3, 66, "Section",ExpressionUUID->"eec7cf09-7d25-4f25-8380-1437792c2bdd"],
+Cell[CellGroupData[{
+Cell[966, 36, 162, 3, 53, "Subsection",ExpressionUUID->"5e11981d-0d10-4fdb-a3dc-35cefd65eae1"],
+Cell[CellGroupData[{
+Cell[1153, 43, 321, 5, 49, "Input",ExpressionUUID->"2b4d2c88-5b8e-461b-84b8-1dd944d2d3d4"],
+Cell[1477, 50, 473, 7, 33, "Output",ExpressionUUID->"960f1053-f372-4d43-816a-6590461116b2"],
+Cell[1953, 59, 735, 16, 44, "Message",ExpressionUUID->"0634cb92-2933-4f02-b124-855a41e71fc3"],
+Cell[2691, 77, 682, 15, 26, "Message",ExpressionUUID->"c741f936-9a09-42f8-9571-4dcc46f6f9e8"],
+Cell[3376, 94, 682, 15, 26, "Message",ExpressionUUID->"3b516033-61a2-4018-8aee-603adfac3e01"],
+Cell[4061, 111, 682, 15, 26, "Message",ExpressionUUID->"45285034-478c-41a5-a3e4-e4647f4cdfde"],
+Cell[4746, 128, 722, 15, 26, "Message",ExpressionUUID->"7f5bb32b-35b3-4fca-b91f-ac976370e642"]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[5517, 149, 171, 3, 53, "Subsection",ExpressionUUID->"21b4e32d-047d-4961-b1a1-bf2d70f804c7"],
+Cell[5691, 154, 1448, 36, 70, "Input",ExpressionUUID->"6d369751-a876-4a57-b047-e90a6f796cd3"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[7176, 195, 181, 3, 53, "Subsection",ExpressionUUID->"a786f4be-fe1f-48da-bc40-95cf29675057"],
+Cell[7360, 200, 1746, 55, 112, "Input",ExpressionUUID->"3c82e0f4-f26e-465c-954c-bd5714f3c1a9"],
+Cell[CellGroupData[{
+Cell[9131, 259, 326, 7, 68, "Subsubsection",ExpressionUUID->"f8969b65-7a9d-43a6-988d-b72349db9d1c"],
+Cell[9460, 268, 6595, 148, 580, "Input",ExpressionUUID->"953dc4da-adc3-4b21-a470-699946afee7c"]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[16128, 424, 166, 3, 96, "Title",ExpressionUUID->"8f330a3e-e249-4cbd-ac94-5b40a40b78c2"],
+Cell[16297, 429, 745, 18, 151, "Input",ExpressionUUID->"1a0081c4-d346-4735-bec6-1cc7725e0240"],
+Cell[17045, 449, 152, 3, 29, "Input",ExpressionUUID->"3289efb4-d90d-4315-8331-baeeb043c91b"],
+Cell[CellGroupData[{
+Cell[17222, 456, 190, 3, 53, "Subsection",ExpressionUUID->"670b64de-1311-4655-bad8-5983afef1088"],
+Cell[17415, 461, 628, 12, 70, "Input",ExpressionUUID->"30d7281f-e18a-4878-8b9b-6bcb92ef6292"],
+Cell[CellGroupData[{
+Cell[18068, 477, 781, 16, 29, "Input",ExpressionUUID->"adb935c7-4c8f-40c3-9634-1fbf88b29df4"],
+Cell[18852, 495, 421, 11, 26, "Message",ExpressionUUID->"89424a57-8e35-4edc-a1bf-af24f53fceef"],
+Cell[19276, 508, 387, 10, 26, "Message",ExpressionUUID->"26725e38-56c8-4a74-812c-bbafd1a754c6"],
+Cell[19666, 520, 419, 11, 26, "Message",ExpressionUUID->"ab923f6b-d396-4edd-a287-e4ad58a5964c"],
+Cell[20088, 533, 387, 10, 26, "Message",ExpressionUUID->"7890fd01-b7cd-434f-bc5e-4574b4f5459c"],
+Cell[20478, 545, 419, 11, 26, "Message",ExpressionUUID->"8b14b026-2474-4b1a-8dc9-7b964f24f820"],
+Cell[20900, 558, 466, 11, 26, "Message",ExpressionUUID->"310fc846-2a00-4d69-a732-32d83215cfc8"],
+Cell[21369, 571, 387, 10, 26, "Message",ExpressionUUID->"e63b8805-1ea5-4332-a2e4-7deaaa6488b4"],
+Cell[21759, 583, 471, 11, 26, "Message",ExpressionUUID->"86867dbe-c257-421e-92d7-d219c347fa77"],
+Cell[22233, 596, 463, 11, 26, "Message",ExpressionUUID->"87dcaf16-1d44-40d9-9a14-f3e27676bb6e"],
+Cell[22699, 609, 463, 11, 26, "Message",ExpressionUUID->"9d572160-51cd-4e9a-9600-55f69fe58cfd"],
+Cell[23165, 622, 465, 11, 26, "Message",ExpressionUUID->"37392be2-4a92-4745-a32b-1da7070a6980"],
+Cell[23633, 635, 474, 11, 26, "Message",ExpressionUUID->"cca8013b-1970-41b5-9f5f-83f355e84218"],
+Cell[24110, 648, 158, 2, 33, "Output",ExpressionUUID->"ddb2454e-cac4-4719-a311-849864b00580"]
+}, Open  ]],
+Cell[24283, 653, 458, 11, 29, "Input",ExpressionUUID->"6abb03ce-0c57-409a-9dfb-ca3a0441172c"],
+Cell[CellGroupData[{
+Cell[24766, 668, 554, 9, 29, "Input",ExpressionUUID->"bd7d0b19-87a2-40c3-afed-39957ca9a33a"],
+Cell[25323, 679, 308, 4, 74, "Output",ExpressionUUID->"9b24878d-388d-45f9-beb9-3924c2a6a20b"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[25668, 688, 752, 15, 29, "Input",ExpressionUUID->"dbfdc532-8fd5-41e3-95da-9c539b722749"],
+Cell[26423, 705, 28666, 483, 6487, "Output",ExpressionUUID->"9033a99c-8022-40c1-982f-4d4e4968fcf3"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[55126, 1193, 494, 11, 29, "Input",ExpressionUUID->"7e8f07c0-7c4c-4326-835c-4dd0683c66d8"],
+Cell[55623, 1206, 28274, 477, 6487, "Output",ExpressionUUID->"33e417d5-167c-47eb-8b89-7ef1cccfa0d8"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[83934, 1688, 511, 11, 29, "Input",ExpressionUUID->"f1d74101-63e2-4f86-bd3f-8cde65e42777"],
+Cell[84448, 1701, 17778, 303, 4118, "Output",ExpressionUUID->"9a4ddb4b-c1ec-47be-b5d8-3a90a2afa1da"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[102263, 2009, 537, 11, 29, "Input",ExpressionUUID->"c16ce883-fd9b-4b8a-8eed-ada4c7c102cb"],
+Cell[102803, 2022, 28340, 477, 6487, "Output",ExpressionUUID->"2f889ad5-9acd-4b8b-a47f-ac41a0d7cc25"]
+}, Open  ]],
+Cell[131158, 2502, 199, 3, 29, "Input",ExpressionUUID->"85631fb7-241b-43e5-be69-fdfb5430864a"],
+Cell[CellGroupData[{
+Cell[131382, 2509, 578, 13, 29, "Input",ExpressionUUID->"677c2d62-be96-48bd-89f5-d792764ee253"],
+Cell[131963, 2524, 17865, 307, 4178, "Output",ExpressionUUID->"102487aa-6ea1-446f-b35a-34934cc43901"]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]]
+}
+]
+*)
+
