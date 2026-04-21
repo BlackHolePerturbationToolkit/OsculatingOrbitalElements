@@ -102,11 +102,11 @@ Begin["`Private`"]
 (*Schwarzschild Spacetime*)
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Private Functions*)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Orbital Evolution: Version 1 *)
 
 
@@ -192,7 +192,7 @@ rsol[t_] := (M psol[t])/(1-esol[t] Cos[\[Xi]sol[t]]);
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Orbital Evolution: Version 2*)
 
 
@@ -463,7 +463,7 @@ F = (r^2+ a^2) En- a L;
 F1 = (r1^2+ a^2) En- a L;
 F2 = (r2^2+ a^2) En- a L;
 
-H = L - a En (1- zm Cos[\[Psi]\[Theta]]^2);
+H = L - a En (1- zm (*Cos[\[Psi]\[Theta]]^2*)); (* Fixed typo found by Lisa Drummond *)
 \[Theta] = ArcCos[Sqrt[zm]Cos[\[Psi]\[Theta]]];
 
 \[Kappa]1 = 4En F1 r1 - 2 r1 \[CapitalDelta]1 - 2(r1-1)(r1^2 + K);
@@ -548,7 +548,7 @@ F = (r^2+ a^2) En- a L;
 F1 = (r1^2+ a^2) En- a L;
 F2 = (r2^2+ a^2) En- a L;
 
-H = L - a En (1- zm Cos[\[Psi]\[Theta]]^2);
+H = L - a En (1- zm (*Cos[\[Psi]\[Theta]]^2*)); (* Fixed typo found by Lisa Drummond *)
 \[Theta] = ArcCos[Sqrt[zm]Cos[\[Psi]\[Theta]]];
 
 \[Kappa]1 = 4En F1 r1 - 2 r1 \[CapitalDelta]1 - 2(r1-1)(r1^2 + K);
@@ -634,7 +634,7 @@ F = (r^2+ a^2) En- a L;
 F1 = (r1^2+ a^2) En- a L;
 F2 = (r2^2+ a^2) En- a L;
 
-H = L - a En (1- zm Cos[\[Psi]\[Theta]]^2);
+H = L - a En (1- zm (*Cos[\[Psi]\[Theta]]^2*)); (* Fixed typo found by Lisa Drummond *)
 \[Theta] = ArcCos[Sqrt[zm]Cos[\[Psi]\[Theta]]];
 
 \[Kappa]1 = 4En F1 r1 - 2 r1 \[CapitalDelta]1 - 2(r1-1)(r1^2 + K);
@@ -690,7 +690,7 @@ Eqns
 (*Public Functions*)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Relativistic Gas Drag for Kerr*)
 
 
