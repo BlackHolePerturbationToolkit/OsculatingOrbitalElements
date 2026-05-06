@@ -86,14 +86,10 @@ SyntaxInformation[KerrOsculatingOrbitalElements] = {"ArgumentsPattern"-> {_, _, 
 Options[KerrOsculatingOrbitalElementsTP] = {IntegrationLimit-> 1000000, AccuracyGoal-> Automatic, PrecisionGoal -> Automatic, Force -> KerrGasDrag};
 SyntaxInformation[KerrOsculatingOrbitalElementsTP] = {"ArgumentsPattern"-> {_, _, _,_, _,_, OptionsPattern[]}};
 
-Options[KerrOsculatingOrbitalElementsTPVec] = {IntegrationLimit-> 1000000, AccuracyGoal-> Automatic, PrecisionGoal -> Automatic, Force -> KerrGasDrag};
+Options[KerrOsculatingOrbitalElementsTPVec] = {IntegrationLimit-> 1000000, AccuracyGoal-> Automatic, PrecisionGoal -> Automatic, Force -> KerrGasDrag, TimeMonitor->True};
 SyntaxInformation[KerrOsculatingOrbitalElementsTPVec] = {"ArgumentsPattern"-> {_, _, _,_, _,_, OptionsPattern[]}};
 
-Options[KerrOsculatingOrbitalElementsTPVecLessArg] = {IntegrationLimit-> 1000000, AccuracyGoal-> Automatic, PrecisionGoal -> Automatic, Force -> KerrGasDrag};
-SyntaxInformation[KerrOsculatingOrbitalElementsTPVecLessArg] = {"ArgumentsPattern"-> {_, _, _,_, _,_, OptionsPattern[]}};
 
-Options[KerrOsculatingOrbitalElementsTPVecLessArg1] = {IntegrationLimit-> 1000000, AccuracyGoal-> Automatic, PrecisionGoal -> Automatic, Force -> KerrGasDrag};
-SyntaxInformation[KerrOsculatingOrbitalElementsTPVecLessArg] = {"ArgumentsPattern"-> {_, _, _,_, _,_, OptionsPattern[]}};
 
 
 (* ::Input::Initialization:: *)
@@ -970,9 +966,14 @@ r2 = Min[Re[Root1[a, En, L, K]],Re[Root2[a, En, L, K]]];
 
 
 (*Assign the force components*)
- Switch[OptionValue["Force"],
+Switch[OptionValue["Force"],
 			{_,_,_}, 
-			{frVal, f\[Theta]Val, f\[Phi]Val} = OptionValue["Force"];,
+Module[{frFn, f\[Theta]Fn, f\[Phi]Fn},
+  {frFn, f\[Theta]Fn, f\[Phi]Fn} = OptionValue["Force"];
+  frVal     = frFn[a, En, L, K, \[Psi]r, \[Psi]\[Theta]];
+  f\[Theta]Val = f\[Theta]Fn[a, En, L, K, \[Psi]r, \[Psi]\[Theta]];
+  f\[Phi]Val   = f\[Phi]Fn[a, En, L, K, \[Psi]r, \[Psi]\[Theta]];
+];,
 			
 			KerrGasDrag, 
 			frVal = KerrGasDragVec[a, En, L, K, \[Psi]r, \[Psi]\[Theta]]["fr"];
@@ -981,6 +982,7 @@ r2 = Min[Re[Root1[a, En, L, K]],Re[Root2[a, En, L, K]]];
 			
 			_, (*Any other input*)
 			Message[KerrOsculatingOrbitalElements::InvalidForce];  Return[]];
+
 
 (*p and e*)
 e = (r1 - r2)/(r1 + r2); 
