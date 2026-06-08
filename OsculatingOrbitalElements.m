@@ -1095,7 +1095,7 @@ If[OptionValue["TimeMonitor"]==True, Print["Starting NDSolve..."];
           Method -> {"EquationSimplification" -> "Solve"},
           AccuracyGoal  -> OptionValue["AccuracyGoal"],
           PrecisionGoal -> OptionValue["PrecisionGoal"],
-          StepMonitor   :> (progress = En[t])
+          StepMonitor   :> (progress = t)
         ],
         "t = " <> ToString[progress]
       ] // Quiet;
