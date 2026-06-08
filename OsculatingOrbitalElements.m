@@ -244,7 +244,7 @@ esol[\[Chi]_] := (\[Alpha]sol[\[Chi]]^2 + \[Beta]sol[\[Chi]]^2)^(1/2);
 ]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Public Functions*)
 
 
@@ -391,7 +391,7 @@ Switch[OptionValue["Force"],
 (*Private Functions*)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Roots of the Radial Potential*)
 
 
@@ -423,7 +423,7 @@ Vr = (En(r^2 + a^2) - a L )^2 - (r^2 + a^2 - 2r) (r^2+ K);
 ];
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Evolution Equations*)
 
 
@@ -684,6 +684,13 @@ Eqns
 ]
 
 
+(* ::Subsubsection:: *)
+(*Separatrix equation*)
+
+
+SeparatrixEqELK[a_?NumericQ,En_?NumericQ,L_?NumericQ,k_?NumericQ]:=16 (-1+En) (1+En) (a^10 En^2-a^12 En^2-27 a^8 En^4+30 a^10 En^4+a^12 En^4-96 a^10 En^6+64 a^10 En^8-a^8 k+a^10 k+36 a^6 En^2 k-43 a^8 En^2 k+3 a^10 En^2 k+36 a^6 En^4 k+80 a^8 En^4 k-4 a^10 En^4 k+96 a^8 En^6 k-128 a^8 En^8 k-8 a^4 k^2+12 a^6 k^2-4 a^8 k^2-52 a^4 En^2 k^2+42 a^6 En^2 k^2-2 a^8 En^2 k^2-2 a^4 En^4 k^2-220 a^6 En^4 k^2+6 a^8 En^4 k^2+96 a^6 En^6 k^2+64 a^6 En^8 k^2-16 k^3+32 a^2 k^3-22 a^4 k^3+6 a^6 k^3-52 a^2 En^2 k^3+42 a^4 En^2 k^3-2 a^6 En^2 k^3+36 a^2 En^4 k^3+80 a^4 En^4 k^3-4 a^6 En^4 k^3-96 a^4 En^6 k^3-8 k^4+12 a^2 k^4-4 a^4 k^4+36 En^2 k^4-43 a^2 En^2 k^4+3 a^4 En^2 k^4-27 En^4 k^4+30 a^2 En^4 k^4+a^4 En^4 k^4-k^5+a^2 k^5+En^2 k^5-a^2 En^2 k^5-2 a^9 En L+2 a^11 En L+108 a^7 En^3 L-126 a^9 En^3 L+6 a^11 En^3 L+456 a^9 En^5 L-8 a^11 En^5 L-320 a^9 En^7 L-72 a^5 En k L+92 a^7 En k L-16 a^9 En k L-108 a^5 En^3 k L-188 a^7 En^3 k L-8 a^9 En^3 k L-440 a^7 En^5 k L+24 a^9 En^5 k L+512 a^7 En^7 k L+64 a^3 En k^2 L-88 a^5 En k^2 L+36 a^7 En k^2 L+4 a^3 En^3 k^2 L+440 a^5 En^3 k^2 L-12 a^7 En^3 k^2 L-136 a^5 En^5 k^2 L-24 a^7 En^5 k^2 L-192 a^5 En^7 k^2 L+40 a En k^3 L+4 a^3 En k^3 L-32 a^5 En k^3 L-36 a En^3 k^3 L-132 a^3 En^3 k^3 L+24 a^5 En^3 k^3 L+120 a^3 En^5 k^3 L+8 a^5 En^5 k^3 L-6 a En k^4 L+10 a^3 En k^4 L+6 a En^3 k^4 L-10 a^3 En^3 k^4 L+a^8 L^2-a^10 L^2-162 a^6 En^2 L^2+198 a^8 En^2 L^2-23 a^10 En^2 L^2-864 a^8 En^4 L^2+8 a^10 En^4 L^2+640 a^8 En^6 L^2+16 a^10 En^6 L^2+36 a^4 k L^2-49 a^6 k L^2+12 a^8 k L^2+108 a^4 En^2 k L^2+124 a^6 En^2 k L^2+68 a^8 En^2 k L^2+744 a^6 En^4 k L^2-48 a^8 En^4 k L^2-768 a^6 En^6 k L^2-32 a^8 En^6 k L^2-12 a^2 k^2 L^2+31 a^4 k^2 L^2-22 a^6 k^2 L^2-2 a^2 En^2 k^2 L^2-234 a^4 En^2 k^2 L^2-66 a^6 En^2 k^2 L^2-16 a^4 En^4 k^2 L^2+72 a^6 En^4 k^2 L^2+192 a^4 En^6 k^2 L^2+16 a^6 En^6 k^2 L^2-15 a^2 k^3 L^2+12 a^4 k^3 L^2+40 a^2 En^2 k^3 L^2+20 a^4 En^2 k^3 L^2-24 a^2 En^4 k^3 L^2-32 a^4 En^4 k^3 L^2-a^2 k^4 L^2+a^2 En^2 k^4 L^2+108 a^5 En L^3-138 a^7 En L^3+24 a^9 En L^3+816 a^7 En^3 L^3+40 a^9 En^3 L^3-640 a^7 En^5 L^3-64 a^9 En^5 L^3-36 a^3 En k L^3-4 a^5 En k L^3-88 a^7 En k L^3-552 a^5 En^3 k L^3-8 a^7 En^3 k L^3+512 a^5 En^5 k L^3+96 a^7 En^5 k L^3+14 a^3 En k^2 L^3+72 a^5 En k^2 L^3+56 a^3 En^3 k^2 L^3-40 a^5 En^3 k^2 L^3-64 a^3 En^5 k^2 L^3-32 a^5 En^5 k^2 L^3-8 a^3 En k^3 L^3+8 a^3 En^3 k^3 L^3-27 a^4 L^4+36 a^6 L^4-8 a^8 L^4-384 a^6 En^2 L^4-88 a^8 En^2 L^4+320 a^6 En^4 L^4+96 a^8 En^4 L^4-12 a^4 k L^4+32 a^6 k L^4+152 a^4 En^2 k L^4+64 a^6 En^2 k L^4-128 a^4 En^4 k L^4-96 a^6 En^4 k L^4-8 a^4 k^2 L^4-8 a^4 En^2 k^2 L^4+16 a^4 En^4 k^2 L^4+72 a^5 En L^5+64 a^7 En L^5-64 a^5 En^3 L^5-64 a^7 En^3 L^5-32 a^5 En k L^5+32 a^5 En^3 k L^5-16 a^6 L^6+16 a^6 En^2 L^6)
+
+
 (* ::Subsection:: *)
 (*Public Functions*)
 
@@ -939,7 +946,7 @@ Message[KerrOsculatingOrbitalElements::ICs];]
 
 
 KerrOsculatingOrbitalElementsTPVec[\[Eta]_, a_, p0_, e0_, x0_, \[Psi]r0_, \[Psi]\[Theta]0_, OptionsPattern[]] :=
-Module[{k, RHSE,RHSL,RHSK,RHSpsir,RHSpsi\[Theta],RHS\[Phi],ft, fr, f\[Theta], f\[Phi], \[Lambda], En, L, K, \[Psi]r, \[Psi]\[Theta], t, \[Phi],
+Module[{k, drag,RHSE,RHSL,RHSK,RHSpsir,RHSpsi\[Theta],RHS\[Phi],ft, fr, f\[Theta], f\[Phi], \[Lambda], En, L, K, \[Psi]r, \[Psi]\[Theta], t, \[Phi],
         En0, L0, K0, Q0, ICs, Ensol, Lsol, Ksol, Qsol, \[Psi]rsol, \[Psi]\[Theta]sol,
         tsol, \[Phi]sol, r1sol, r2sol, psol, esol, rsol, \[Theta]sol, \[Iota]sol,
         zmsol, xsol, zsol, Equations, p, e, \[Theta]inc, \[Theta]incsol,
@@ -950,12 +957,12 @@ If[True (* KerrGeoBoundOrbitQ[a, p0, e0, x0] *),
     {En0, L0, Q0} = Values[KerrGeoConstantsOfMotion[a, p0, e0, x0]];
     K0 = Q0 + (L0 - a En0)^2;
     ICs = {
-      En[0]             == En0,
-      L[0]              == L0,
-      k[0]              == K0,
-      \[Psi]r[0]        == \[Psi]r0,
+      En[0] == En0,
+      L[0] == L0,
+      k[0] == K0,
+      \[Psi]r[0] == \[Psi]r0,
       \[Psi]\[Theta][0] == \[Psi]\[Theta]0,
-      \[Phi][0]         == 0
+      \[Phi][0]  == 0
     };
 (*Have to compare which of these two values is bigger/smaller as the definition of the roots flip in certain areas of te parameter space*)
 r1 = Max[Re[Root1[a, En, L, K]],Re[Root2[a, En, L, K]]];
@@ -966,23 +973,21 @@ r2 = Min[Re[Root1[a, En, L, K]],Re[Root2[a, En, L, K]]];
 
 
 (*Assign the force components*)
-Switch[OptionValue["Force"],
+ Switch[OptionValue["Force"],
 			{_,_,_}, 
 Module[{frFn, f\[Theta]Fn, f\[Phi]Fn},
   {frFn, f\[Theta]Fn, f\[Phi]Fn} = OptionValue["Force"];
-  frVal     = frFn[a, En, L, K, \[Psi]r, \[Psi]\[Theta]];
+  frVal = frFn[a, En, L, K, \[Psi]r, \[Psi]\[Theta]];
   f\[Theta]Val = f\[Theta]Fn[a, En, L, K, \[Psi]r, \[Psi]\[Theta]];
-  f\[Phi]Val   = f\[Phi]Fn[a, En, L, K, \[Psi]r, \[Psi]\[Theta]];
+  f\[Phi]Val = f\[Phi]Fn[a, En, L, K, \[Psi]r, \[Psi]\[Theta]];
 ];,
 			
 			KerrGasDrag, 
-			frVal = KerrGasDragVec[a, En, L, K, \[Psi]r, \[Psi]\[Theta]]["fr"];
-			f\[Theta]Val = KerrGasDragVec[a, En, L, K, \[Psi]r, \[Psi]\[Theta]]["f\[Theta]"];
-			f\[Phi]Val = KerrGasDragVec[a, En, L, K, \[Psi]r, \[Psi]\[Theta]]["f\[Phi]"];,
+			{drag = KerrGasDragVec[a, En, L, K, \[Psi]r, \[Psi]\[Theta]]};
+  {frVal, f\[Theta]Val, f\[Phi]Val} = {drag["fr"], drag["f\[Theta]"], drag["f\[Phi]"]};,
 			
 			_, (*Any other input*)
 			Message[KerrOsculatingOrbitalElements::InvalidForce];  Return[]];
-
 
 (*p and e*)
 e = (r1 - r2)/(r1 + r2); 
@@ -1044,7 +1049,6 @@ A1 = \[Eta] (-(p^2/(1+e Cos[\[Psi]r])^2)-a^2 zm Cos[\[Psi]\[Theta]]^2) f\[Theta]
 A2 = (f\[Phi]Val (a^2 En-a L+En r^2) \[Eta] Sqrt[2-zm-zm Cos[2 \[Psi]\[Theta]]])/(Sqrt[2] En)+(a e frVal Sqrt[J] r^2 Sqrt[1-z] \[Eta] Sin[\[Psi]r])/((-1+e^2) En (a^2+(-2+r) r))-(a f\[Theta]Val Sqrt[zm] Sqrt[a^2 (-1+En^2) (z-zp)] \[Eta] Sin[\[Psi]\[Theta]])/En ;
 A3 = -((f\[Phi]Val (a^2 En-a L+En r^2) (L+a En (-1+z)) \[Eta])/(En \[CapitalSigma]))-(a e frVal Sqrt[J] r^2 (L+a En (-1+z)) \[Eta] Sin[\[Psi]r])/((-1+e^2) En (a^2+(-2+r) r) \[CapitalSigma])+(f\[Theta]Val \[Eta] (-u\[Theta] (r^2+a^2 z)+(a (L+a En (-1+z)) Sqrt[zm] Sqrt[a^2 (-1+En^2) (z-zp)] Sin[\[Psi]\[Theta]])/(En Sqrt[1-z])))/\[CapitalSigma];  
 
-(*ft[a, En, L, K, \[Psi]r, \[Psi]\[Theta]]=1/En (f\[Phi][a, En, L, K, \[Psi]r, \[Psi]\[Theta]] L-(e fr[a, En, L, K, \[Psi]r, \[Psi]\[Theta]] p^2 \[Sqrt]((-1+e^2) (-1+En^2)+(2 (-1+e^2+p-En^2 p) (1+e Cos[\[Psi]r]))/p+(((3+e^2) (-1+En^2))/(-1+e^2)+((1-e^2) (a^2 (1-2 En^2)+K+2 a En L))/p^2-4/p) (1+e Cos[\[Psi]r])^2) Sin[\[Psi]r])/((-1+e^2) (a^2+(-2+p) p+2 e (a^2-p) Cos[\[Psi]r]+a^2 e^2 Cos[\[Psi]r]^2))+(f\[Theta][a, En, L, K, \[Psi]r, \[Psi]\[Theta]] Sqrt[zm] Sqrt[a^2 (-1+En^2) (-zp+zm Cos[\[Psi]\[Theta]]^2)] Sin[\[Psi]\[Theta]])/Sqrt[1-zm Cos[\[Psi]\[Theta]]^2])*);
 
 dtd\[Lambda] = En(\[Omega]^4/\[CapitalDelta] - a^2 (1 - zm Cos[\[Psi]\[Theta]]^2)) + a L(1 - \[Omega]^2/\[CapitalDelta]);
 d\[Phi]d\[Lambda] = L/(1-zm Cos[\[Psi]\[Theta]]^2) + a En (\[Omega]^2/\[CapitalDelta]-1) - (a^2 L)/\[CapitalDelta];
@@ -1054,9 +1058,9 @@ d\[Phi]d\[Lambda] = L/(1-zm Cos[\[Psi]\[Theta]]^2) + a En (\[Omega]^2/\[CapitalD
 (*Using simpler equations for the evolution of E, L and K*)
 
 {RHSE, RHSL, RHSK, RHSpsir, RHSpsi\[Theta], RHS\[Phi]} =({
- -((f\[Phi]Val (L (-2+r) r-2 a En r (-1+z)+a^2 L z) \[Eta])/(dtd\[Lambda] En))+(e frVal Sqrt[J] r^2 (-2 r+r^2+a^2 z) \[Eta] Sin[\[Psi]r])/(dtd\[Lambda] (-1+e^2) En (a^2+(-2+r) r))-(f\[Theta]Val (-2 r+r^2+a^2 z) Sqrt[zm] Sqrt[a^2 (-1+En^2) (z-zp)] \[Eta] Sin[\[Psi]\[Theta]])/(dtd\[Lambda] En Sqrt[1-z]),
-(f\[Phi]Val (a^2+(-2+r) r) (-1+z) \[Eta])/En+(2 a e frVal Sqrt[J] r^3 (-1+z) \[Eta] Sin[\[Psi]r])/(dtd\[Lambda] (-1+e^2) En (a^2+(-2+r) r))+(2 a f\[Theta]Val r Sqrt[1-z] Sqrt[zm] Sqrt[a^2 (-1+En^2) (z-zp)] \[Eta] Sin[\[Psi]\[Theta]])/(dtd\[Lambda] En),    
- -((2 f\[Phi]Val (a^2 En-a L+En r^2) (L+a En (-1+z)) (r^2+a^2 z) \[Eta])/(dtd\[Lambda] En))+(frVal (r^2+a^2 z) \[Eta] ((-1+e^2) En (a^2+(-2+r) r) ur (r^2+2 a^2 z)+e Sqrt[J] r^2 (2 a^2 En-2 a L+En r^2) Sin[\[Psi]r]))/(dtd\[Lambda] (-1+e^2) En (a^2+(-2+r) r))-(f\[Theta]Val (r^2+a^2 z) \[Eta] (En r^2 u\[Theta] Sqrt[1-z]+(2 a^2 En-2 a L+En r^2) Sqrt[zm] Sqrt[a^2 (-1+En^2) (z-zp)] Sin[\[Psi]\[Theta]]))/(dtd\[Lambda] En Sqrt[1-z]),  
+ -((f\[Phi]Val (L (-2+r) r-2 a En r (-1+z)+a^2 L z) \[Eta])/(dtd\[Lambda] En))+(e frVal Sqrt[J] r^2 (-2 r+\[CapitalSigma]) \[Eta] Sin[\[Psi]r])/(dtd\[Lambda] (-1+e^2) En \[CapitalDelta])-(f\[Theta]Val (-2 r+\[CapitalSigma]) Sqrt[zm] Sqrt[a^2 (-1+En^2) (z-zp)] \[Eta] Sin[\[Psi]\[Theta]])/(dtd\[Lambda] En Sqrt[1-z]),
+(f\[Phi]Val \[CapitalDelta] (-1+z) \[Eta])/En+(2 a e frVal Sqrt[J] r^3 (-1+z) \[Eta] Sin[\[Psi]r])/(dtd\[Lambda] (-1+e^2) En \[CapitalDelta])+(2 a f\[Theta]Val r Sqrt[1-z] Sqrt[zm] Sqrt[a^2 (-1+En^2) (z-zp)] \[Eta] Sin[\[Psi]\[Theta]])/(dtd\[Lambda] En),    
+ -((2 f\[Phi]Val F (L+a En (-1+z)) \[CapitalSigma] \[Eta])/(dtd\[Lambda] En))+(frVal \[CapitalSigma] \[Eta] ((-1+e^2) En \[CapitalDelta] ur (r^2+2 a^2 z)+e Sqrt[J] r^2 (2 F - En r^2) Sin[\[Psi]r]))/(dtd\[Lambda] (-1+e^2) En \[CapitalDelta])-(f\[Theta]Val \[CapitalSigma] \[Eta] (En r^2 u\[Theta] Sqrt[1-z]+(2 F - En r^2) Sqrt[zm] Sqrt[a^2 (-1+En^2) (z-zp)] Sin[\[Psi]\[Theta]]))/(dtd\[Lambda] En Sqrt[1-z]),  
  1/dtd\[Lambda]  (P  +(C A3 Sin[\[Psi]r])/(2(1 + e Cos[\[Psi]r]) un) + (\[ScriptCapitalD] \[CapitalSigma] A3 P )/(2(1+ e Cos[\[Psi]r])^2 un) - (a \[Epsilon] Sin[\[Theta]]Sin[\[Psi]r] A2)/(1 + e Cos[\[Psi]r])  +  (P an)/(un ( 1 + e Cos[\[Psi]r])^2) ((1-e)^2 (1 - Cos[\[Psi]r]) ( \[CapitalSigma]1 F1)/\[Kappa]1  +(1+e)^2 (1+Cos[\[Psi]r]) (\[CapitalSigma]2 F2)/\[Kappa]2)),
  1/dtd\[Lambda]  (Sqrt[\[Beta](zp - z)]( 1 + ((1 - zm) \[CapitalSigma] A1 Cos[\[Psi]\[Theta]])/(\[Beta] Sqrt[zm](zp - zm) Sin[\[Theta]])) + (Cos[\[Psi]\[Theta]] Sin[\[Psi]\[Theta]] H a \[CapitalDelta] ( A3 - 2 ur an))/(2(zp - zm) \[Beta] un) + (Cos[\[Psi]\[Theta]] Sin[\[Psi]\[Theta]] G A2 )/(\[Beta](zp - zm))),
  1/dtd\[Lambda]  (L/(1-zm Cos[\[Psi]\[Theta]]^2) + a En (\[Omega]^2/\[CapitalDelta]-1) - (a^2 L)/\[CapitalDelta] )
@@ -1074,8 +1078,7 @@ D[\[Phi][t], t] == RHS\[Phi]
     
 
   
-  
-    Equations = Evaluate@Join[ICs,
+  Equations = Evaluate@Join[ICs,
       Eqns
     ];
     
@@ -1086,23 +1089,24 @@ If[OptionValue["TimeMonitor"]==True, Print["Starting NDSolve..."];
     {{Ensol, Lsol, Ksol, \[Psi]rsol, \[Psi]\[Theta]sol, \[Phi]sol}} =
       Monitor[
         {En, L, k, \[Psi]r, \[Psi]\[Theta], \[Phi]} /. NDSolve[
-          Equations,
+          {Equations,WhenEvent[SeparatrixEqELK[a,En[t],L[t],k[t]]== 0 ,Print["Separatrix reached."]; "StopIntegration"]}//Flatten,
           {En, L, k, \[Psi]r, \[Psi]\[Theta], \[Phi]},
           {t, 0, limit}, 
+          Method -> {"EquationSimplification" -> "Solve"},
           AccuracyGoal  -> OptionValue["AccuracyGoal"],
           PrecisionGoal -> OptionValue["PrecisionGoal"],
-          StepMonitor   :> (progress = t)
+          StepMonitor   :> (progress = En[t])
         ],
         "t = " <> ToString[progress]
       ] // Quiet;
 
-    If[Ensol["Domain"][[1, 2]] < limit, Print["Unbound orbit encountered."]];,
+    (*If[Ensol["Domain"][[1, 2]] < limit, Print["Unbound orbit encountered."]];*),
     limit = OptionValue["IntegrationLimit"];
 
     {{Ensol, Lsol, Ksol, \[Psi]rsol, \[Psi]\[Theta]sol, \[Phi]sol}} =
       
         {En, L, k, \[Psi]r, \[Psi]\[Theta], \[Phi]} /. NDSolve[
-          Equations,
+          {Equations, WhenEvent[SeparatrixEqELK[a,En[t],L[t],k[t]]== 0 , Print["Separatrix reached."]; "StopIntegration"]}//Flatten,
           {En, L, k, \[Psi]r, \[Psi]\[Theta], \[Phi]},
           {t, 0, limit},
           Method        -> {"EquationSimplification" -> "Solve"}, 
@@ -1110,42 +1114,41 @@ If[OptionValue["TimeMonitor"]==True, Print["Starting NDSolve..."];
           PrecisionGoal -> OptionValue["PrecisionGoal"]
         ]// Quiet;
 
-    If[Ensol["Domain"][[1, 2]] < limit, Print["Unbound orbit encountered."]]
+    (*If[Ensol["Domain"][[1, 2]] < limit, Print["Unbound orbit encountered."]]*)
         ];
-    
 
-    Qsol[t_]           := Ksol[t] - (Lsol[t] - a Ensol[t])^2;
-    r1sol[t_]          := NumRoot1[a, Ensol[t], Lsol[t], Ksol[t]];
-    r2sol[t_]          := NumRoot2[a, Ensol[t], Lsol[t], Ksol[t]];
-    psol[t_]           := (2 r1sol[t] r2sol[t]) / (r1sol[t] + r2sol[t]);
-    esol[t_]           := (r1sol[t] - r2sol[t]) / (r1sol[t] + r2sol[t]);
-    rsol[t_]           := psol[t] / (1 + esol[t] Cos[\[Psi]rsol[t]]);
-    zmsol[t_]          := 1/(2 a^2 (1-Ensol[t]^2)) (
+    Qsol[t_]:= Ksol[t] - (Lsol[t] - a Ensol[t])^2;
+    r1sol[t_]:= NumRoot1[a, Ensol[t], Lsol[t], Ksol[t]];
+    r2sol[t_]:= NumRoot2[a, Ensol[t], Lsol[t], Ksol[t]];
+    psol[t_]:= (2 r1sol[t] r2sol[t]) / (r1sol[t] + r2sol[t]);
+    esol[t_]:= (r1sol[t] - r2sol[t]) / (r1sol[t] + r2sol[t]);
+    rsol[t_]:= psol[t] / (1 + esol[t] Cos[\[Psi]rsol[t]]);
+    zmsol[t_]:= 1/(2 a^2 (1-Ensol[t]^2)) (
                             (Lsol[t]^2+Qsol[t]+a^2 (1-Ensol[t]^2))
                             - Sqrt[(Lsol[t]^2+Qsol[t]+a^2 (1-Ensol[t]^2))^2
                                    - 4 a^2 (1-Ensol[t]^2) Qsol[t]]
                           );
-    xsol[t_]           := Sign[Lsol[t]] Sqrt[1-zmsol[t]];
-    \[Theta]sol[t_]    := ArcCos[Sqrt[zmsol[t]] Cos[\[Psi]\[Theta]sol[t]]];
-    \[Iota]sol[t_]     := ArcCos[Lsol[t]/Sqrt[Ksol[t]+2 a Lsol[t] Ensol[t]-a^2 Ensol[t]^2]];
+    xsol[t_]:= Sign[Lsol[t]] Sqrt[1-zmsol[t]];
+    \[Theta]sol[t_]:= ArcCos[Sqrt[zmsol[t]] Cos[\[Psi]\[Theta]sol[t]]];
+    \[Iota]sol[t_]:= ArcCos[Lsol[t]/Sqrt[Ksol[t]+2 a Lsol[t] Ensol[t]-a^2 Ensol[t]^2]];
 
-    <|"r"              -> rsol,
-      "\[Theta]"       -> \[Theta]sol,
-      "\[Phi]"         -> \[Phi]sol,
-      "En"             -> Ensol,
-      "L"              -> Lsol,
-      "K"              -> Ksol,
-      "Q"              -> Qsol,
-      "p"              -> psol,
-      "e"              -> esol,
-      "x"              -> xsol,
-      "\[Iota]"        -> \[Iota]sol,
-      "\[Psi]r"        -> \[Psi]rsol,
-      "\[Psi]\[Theta]" -> \[Psi]\[Theta]sol,
-      "r1"             -> r1sol,
-      "r2"             -> r2sol,
-      "z1"             -> zmsol,
-      "limit"          -> Ensol["Domain"][[1, 2]]|>,
+    <|"r" -> rsol,
+      "\[Theta]" -> \[Theta]sol,
+      "\[Phi]" -> \[Phi]sol,
+      "En"-> Ensol,
+      "L" -> Lsol,
+      "K" -> Ksol,
+      "Q" -> Qsol,
+      "p" -> psol,
+      "e" -> esol,
+      "x" -> xsol,
+      "\[Iota]" -> \[Iota]sol,
+      "\[Psi]r"-> \[Psi]rsol,
+      "\[Psi]\[Theta]"-> \[Psi]\[Theta]sol,
+      "r1"-> r1sol,
+      "r2"-> r2sol,
+      "z1"-> zmsol,
+      "limit"-> Ensol["Domain"][[1, 2]]|>,
 
     Message[KerrOsculatingOrbitalElements::ICs]
   ]
