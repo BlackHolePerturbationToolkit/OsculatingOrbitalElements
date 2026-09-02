@@ -1166,7 +1166,7 @@ GenericKerrpexBL[ \[Eta]_, a_, p0_, e0_, x0_, \[Psi]r0_, \[Psi]\[Theta]0_, Optio
   {
     initialConditions, EoM, events, unknowns, minoQ, monitorQ,
     limit, pMin, pMinQ, progress = 0, solve, sol, rules, s,
-    p, e, x, \[Psi]r, \[Psi]\[Theta], \[Phi], t, \[Lambda], 
+    p, e, x, \[Psi]r, \[Psi]\[Theta], \[Phi], t, \[Lambda], aze0Q,
     En, L, Q, K, r1, r2, r, \[Beta], zm, \[Beta]zp, z,
     \[CapitalSigma], \[CapitalSigma]1, \[CapitalSigma]2,
     \[CapitalDelta], \[CapitalDelta]1, \[CapitalDelta]2,
@@ -1182,23 +1182,41 @@ GenericKerrpexBL[ \[Eta]_, a_, p0_, e0_, x0_, \[Psi]r0_, \[Psi]\[Theta]0_, Optio
     rsol, \[Theta]sol, Ensol, Lsol, Ksol, Qsol,
     r1sol, r2sol, zmsol, \[Iota]sol,
     \[CapitalUpsilon]tsol, \[CapitalUpsilon]rsol,
-    \[CapitalUpsilon]zsol, \[CapitalUpsilon]\[Phi]sol
+    \[CapitalUpsilon]zsol, \[CapitalUpsilon]\[Phi]sol,
+    smallEQ, smallERules, standardEoM, smallEEoM, sepExpr,deltaPSep, pSep,
+\[Alpha]p, \[Beta]p,
+d\[Alpha]d\[Lambda], d\[Beta]d\[Lambda],
+\[Alpha]psol, \[Beta]psol
   },
 
   Needs["KerrGeodesics`"];
 
   minoQ = MatchQ[OptionValue["Parametrisation"], "Mino"];
   monitorQ = MatchQ[OptionValue["TimeMonitor"], True | "True"];
+  smallEQ = e0 < 100 \[Eta];
 
   initialConditions = {
-    p[0] == p0,
-    e[0] == e0,
-    x[0] == x0,
-    \[Psi]r[0] == \[Psi]r0,
-    \[Psi]\[Theta][0] == \[Psi]\[Theta]0,
-    \[Phi][0] == 0,
-    If[minoQ, t[0] == 0, Nothing]
-  };
+  p[0] == p0,
+
+  If[
+    smallEQ,
+    \[Alpha]p[0] == e0 Sin[\[Psi]r0],
+    e[0] == e0
+  ],
+
+  x[0] == x0,
+
+  If[
+    smallEQ,
+    \[Beta]p[0] == e0 Cos[\[Psi]r0],
+    \[Psi]r[0] == \[Psi]r0
+  ],
+
+  \[Psi]\[Theta][0] == \[Psi]\[Theta]0,
+  \[Phi][0] == 0,
+
+  If[minoQ, t[0] == 0, Nothing]
+};
   
   
 
@@ -1274,7 +1292,7 @@ u\[Theta] = (Sqrt[zm]Sin[\[Psi]\[Theta][s]])/Sin[\[Theta]] Sqrt[\[Beta]zp - \[Be
 u\[Theta]up = u\[Theta]/\[CapitalSigma];
 un = -(F /(2\[CapitalSigma]))- \[CapitalDelta]/(2\[CapitalSigma]) ur; 
 
-
+  
 (* Assign the force components *)
 Switch[{OptionValue["Force"]},
 
@@ -1289,12 +1307,6 @@ Switch[{OptionValue["Force"]},
     ,_,
     Message[KerrOsculatingOrbitalElements::InvalidForce, OptionValue["Force"]];
     Return[$Failed]];
-
-
-
-
-
-
 
 
 (*Orbital Element Evolution*)
@@ -1327,48 +1339,80 @@ d\[Phi]d\[Lambda] = L/(1-zm Cos[\[Psi]\[Theta][s]]^2) + a En (\[Omega]^2/\[Capit
 dzmd\[Lambda] = 1/(\[Beta]zp - \[Beta] zm) ((1-zm)dKd\[Lambda] - 2(L - a(1-zm)En)(dLd\[Lambda] - a (1-zm)dEd\[Lambda]));  
 dxd\[Lambda] = -(1/(2x[s]))dzmd\[Lambda];
 
+
+If[smallEQ, 
+d\[Alpha]d\[Lambda] = ded\[Lambda] Sin[\[Psi]r[s]] +e[s] d\[Psi]rd\[Lambda] Cos[\[Psi]r[s]];
+d\[Beta]d\[Lambda] = ded\[Lambda] Cos[\[Psi]r[s]] -e[s] d\[Psi]rd\[Lambda] Sin[\[Psi]r[s]];,
+
+   Nothing];
+   
+smallERules = {
+  e[s] -> Sqrt[\[Alpha]p[s]^2 + \[Beta]p[s]^2],
+  \[Psi]r[s] -> ArcTan[\[Beta]p[s], \[Alpha]p[s]]
+};
+
   (* The first six equations use the selected parametrisation. *)
   EoM = {
     D[p[s], s] == If[minoQ, 1, 1/dtd\[Lambda]] dpd\[Lambda],
-    D[e[s], s] == If[minoQ, 1, 1/dtd\[Lambda]] ded\[Lambda],
+    If[smallEQ, D[\[Alpha]p[s], s] == If[minoQ, 1, 1/dtd\[Lambda]] d\[Alpha]d\[Lambda],
+    D[e[s], s] == If[minoQ, 1, 1/dtd\[Lambda]] ded\[Lambda]],
     D[x[s], s] == If[minoQ, 1, 1/dtd\[Lambda]] dxd\[Lambda],
-    D[\[Psi]r[s], s] == If[minoQ, 1, 1/dtd\[Lambda]] d\[Psi]rd\[Lambda],
+    If[smallEQ, D[\[Beta]p[s], s] == If[minoQ, 1, 1/dtd\[Lambda]] d\[Beta]d\[Lambda],
+    D[\[Psi]r[s], s] == If[minoQ, 1, 1/dtd\[Lambda]] d\[Psi]rd\[Lambda]],
     D[\[Psi]\[Theta][s], s] ==
       If[minoQ, 1, 1/dtd\[Lambda]] d\[Psi]\[Theta]d\[Lambda],
     D[\[Phi][s], s] == If[minoQ, 1, 1/dtd\[Lambda]] d\[Phi]d\[Lambda],
     If[minoQ, D[t[s], s] == dtd\[Lambda], Nothing]
-  };
+  }     /. If[smallEQ,  {e[s]-> Sqrt[\[Alpha]p[s]^2 + \[Beta]p[s]^2],
+\[Psi]r[s] -> ArcTan[\[Beta]p[s], \[Alpha]p[s]] }, {}] ;
 
   s = If[minoQ, \[Lambda], t];
-  unknowns = {
-    p, e, x, \[Psi]r, \[Psi]\[Theta], \[Phi],
-    If[minoQ, t, Nothing]
-  };
+unknowns = { 
+p,
+If[smallEQ, \[Alpha]p, e],
+x,
+If[smallEQ, \[Beta]p, \[Psi]r],
+\[Psi]\[Theta],
+\[Phi],
+If[minoQ, t, Nothing]
+};
 
   limit = OptionValue["IntegrationLimit"] If[minoQ, 1, 10^3];
   pMin = OptionValue["pMin"];
   pMinQ = NumericQ[pMin];
 
-  events = With[{u = s},
-    {
-      If[
-        pMinQ,
-        WhenEvent[
-          p[u] - pMin == 0,
-          Print["pMin reached."];
-          "StopIntegration"
-        ],
-        Nothing
-      ],
+deltaPSep = \[Eta];
+
+pSep[ee_?NumericQ, xx_?NumericQ] := Quiet[KerrGeoSeparatrix[a, ee, xx]];
+
+events = With[{u = s},
+  {
+    If[
+      pMinQ,
       WhenEvent[
-  Evaluate[
-    SeparatrixEqELK[a, En, L, K] == -10^-6
-  ],
-  Print["Separatrix reached."];
-  "StopIntegration"
-]
-    }
-  ];
+        p[u] - pMin == 0,
+        Print["pMin reached."];
+        "StopIntegration"],
+      Nothing
+    ],
+
+    If[
+      smallEQ,
+      WhenEvent[ p[u] - pSep[Sqrt[\[Alpha]p[u]^2 + \[Beta]p[u]^2],x[u]] - deltaPSep == 0,
+
+  Print["Separatrix safety boundary reached."];
+  "StopIntegration"],
+
+      WhenEvent[
+        Evaluate[
+          SeparatrixEqELK[a, En, L, K] == -10^-6
+        ],
+        Print["Separatrix reached."];
+        "StopIntegration"
+      ]
+    ]
+  }
+];
 
   Print["Starting NDSolve..."];
 
@@ -1398,8 +1442,8 @@ dxd\[Lambda] = -(1/(2x[s]))dzmd\[Lambda];
   ];
 
   rules = First[sol];
-  {psol, esol, xsol, \[Psi]rsol, \[Psi]\[Theta]sol, \[Phi]sol} =
-    {p, e, x, \[Psi]r, \[Psi]\[Theta], \[Phi]} /. rules;
+  {psol, xsol, \[Psi]\[Theta]sol, \[Phi]sol} =
+  {p, x, \[Psi]\[Theta], \[Phi]} /. rules;
 
   If[
     minoQ,
@@ -1408,6 +1452,24 @@ dxd\[Lambda] = -(1/(2x[s]))dzmd\[Lambda];
   ];
 
   If[psol["Domain"][[1, 2]] == limit, Print["Limit reached."]];
+  
+  
+
+If[
+  smallEQ,
+
+  {\[Alpha]psol, \[Beta]psol} =
+    {\[Alpha]p, \[Beta]p} /. rules;
+
+  esol[u_?NumericQ] :=
+    Sqrt[\[Alpha]psol[u]^2 + \[Beta]psol[u]^2];
+
+  \[Psi]rsol[u_?NumericQ] :=
+    ArcTan[\[Beta]psol[u], \[Alpha]psol[u]],
+
+  {esol, \[Psi]rsol} =
+    {e, \[Psi]r} /. rules
+];
 
   (* Derived quantities. *)
   zmsol[u_] := 1 - xsol[u]^2;
