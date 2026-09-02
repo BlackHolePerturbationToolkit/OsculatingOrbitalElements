@@ -871,7 +871,7 @@ a\[Phi] = -(u\[Phi]);
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Conservative forces (Electromagnetic Force)*)
 
 
@@ -911,7 +911,7 @@ a\[Phi] = 1/\[CapitalSigma]^3((1-z^2)(r^5+2r^3a^2+r a^4+2 a^2r^2-2 a^4+a^4(r-1)(
 ]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Kerr Osculating Geodesics Solver*)
 
 
@@ -1166,7 +1166,7 @@ GenericKerrpexBL[ \[Eta]_, a_, p0_, e0_, x0_, \[Psi]r0_, \[Psi]\[Theta]0_, Optio
   {
     initialConditions, EoM, events, unknowns, minoQ, monitorQ,
     limit, pMin, pMinQ, progress = 0, solve, sol, rules, s,
-    p, e, x, \[Psi]r, \[Psi]\[Theta], \[Phi], t, \[Lambda],
+    p, e, x, \[Psi]r, \[Psi]\[Theta], \[Phi], t, \[Lambda], 
     En, L, Q, K, r1, r2, r, \[Beta], zm, \[Beta]zp, z,
     \[CapitalSigma], \[CapitalSigma]1, \[CapitalSigma]2,
     \[CapitalDelta], \[CapitalDelta]1, \[CapitalDelta]2,
@@ -1274,12 +1274,28 @@ u\[Theta] = (Sqrt[zm]Sin[\[Psi]\[Theta][s]])/Sin[\[Theta]] Sqrt[\[Beta]zp - \[Be
 u\[Theta]up = u\[Theta]/\[CapitalSigma];
 un = -(F /(2\[CapitalSigma]))- \[CapitalDelta]/(2\[CapitalSigma]) ur; 
 
-  (* Force model. *)
-  {at, ar, a\[Theta], a\[Phi]} = \[Eta] Values[
+
+(* Assign the force components *)
+Switch[{OptionValue["Force"]},
+
+  {{_, _, _, _}},
+    {at, ar, a\[Theta], a\[Phi]} = \[Eta] Through[OptionValue["Force"][a, p[s], e[s], x[s], \[Psi]r[s], \[Psi]\[Theta][s]]];,
+
+  {KerrGasDrag},
+   {at, ar, a\[Theta], a\[Phi]} = \[Eta] Values[
     KerrGasDragapex[
       a, p[s], e[s], x[s], \[Psi]r[s], \[Psi]\[Theta][s]
-    ]
-  ];
+    ]];
+    ,_,
+    Message[KerrOsculatingOrbitalElements::InvalidForce, OptionValue["Force"]];
+    Return[$Failed]];
+
+
+
+
+
+
+
 
 (*Orbital Element Evolution*)
 dEd\[Lambda] = -\[CapitalSigma] at;
