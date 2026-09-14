@@ -41,6 +41,11 @@ MessageName[TimeMonitor, "usage"] = "TimeMonitor is an option for KerrOsculating
 MessageName[KerrOsculatingOrbitalElementsTP, "usage"] = 
 "KerrOsculatingOrbitalElements[\[Eta], a, p, e, x, \[Psi]r, \[Psi]\[Theta], Force->{at, ar, a\[Theta] a\[Phi]}] calculates En, L, K, \[Psi]r and \[Psi]\[Theta] as functions of proper time (t) using a given by covariant components of an acceleration (at, ar, a\[Theta], a\[Phi]) a mass ratio given by \[Eta]."
 
+MessageName[GenericKerrREGBL, "usage"] =
+"GenericKerrREGBL[\[Eta], a, p, e, x, \[Psi]r, \[Psi]\[Theta], opts] uses the exact regular eccentricity-component equations with the same arguments and options as GenericKerrpexBL. It also returns \"\[Alpha]p\"=e Sin[\[Psi]r] and \"\[Beta]p\"=e Cos[\[Psi]r]. The returned \"\[Psi]r\" is a principal-value phase and is Missing at e=0; its initial argument is ignored when e0=0. Custom covariant force callbacks retain the pex arguments and must be independent of the radial phase at e=0 (where the callback receives zero)."
+
+MessageName[GenericKerrREGBL, "nosol"] = "NDSolve did not return a solution."
+
 
 MessageName[KerrOsculatingOrbitalElements, "InvalidForce"] = 
 "Error: Invalid Expression for Force."
@@ -74,7 +79,7 @@ MessageName[KerrGasDragVec, "usage"]= "KerrGasDragVec[a,En,L,K, \[Psi]r, \[Psi]\
 MessageName[KerrEMCons, "usage"]= "KerrEMCons[a,p,e,x, \[Psi]r, \[Psi]\[Theta]] returns covarient components of a relativistic electromagnetic force, {at,ar,a\[Theta],a\[Phi]}, in terms of a, p, e and x."
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Options and Syntax Information*)
 
 
@@ -89,6 +94,9 @@ SyntaxInformation[KerrOsculatingOrbitalElements] = {"ArgumentsPattern"-> {_, _, 
 
 Options[GenericKerrpexBL] = {IntegrationLimit-> 10000, AccuracyGoal-> Automatic, PrecisionGoal -> Automatic, Force -> KerrGasDrag, Parametrisation ->CoordinateTime, ForceUpDown-> "Down",TimeMonitor->True,pMin -> None};
 SyntaxInformation[KerrOsculatingOrbitalElements] = {"ArgumentsPattern"-> {_, _, _,_, _,_, OptionsPattern[]}};
+
+Options[GenericKerrREGBL] = Options[GenericKerrpexBL];
+SyntaxInformation[GenericKerrREGBL] = {"ArgumentsPattern" -> {_, _, _, _, _, _, _, OptionsPattern[]}};
 
 
 
@@ -1511,6 +1519,247 @@ If[
     "r1" -> r1sol,
     "r2" -> r2sol,
     "z1" -> zmsol,
+    "limit" -> psol["Domain"][[1, 2]]
+  |>
+]
+
+
+GenericKerrREGBL[ \[Eta]_, a_, p0_, e0_, x0_, \[Psi]r0_, \[Psi]\[Theta]0_, OptionsPattern[]] := Module[
+  {
+    initialConditions, EoM, events, unknowns, minoQ, monitorQ,
+    limit, pMin, pMinQ, progress = 0, solve, sol, rules, s,
+    p, e, e2, x, \[Alpha]p, \[Beta]p, \[Psi]\[Theta], \[Phi], t, \[Lambda],
+    eccentricity, radialPhase, En, L, Q, K, V, r, w,
+    \[Beta], zm, \[Beta]zp, z, \[CapitalSigma], \[CapitalDelta],
+    \[Omega], F, H, \[Theta], Z, P, G, ur, u\[Theta], un,
+    at, ar, a\[Theta], a\[Phi], an, A1, A2, A3,
+    h0p, h1p, B0, B1, Dp, Zp, Ze2, Z\[Beta], ZK, ZQ,
+    dEd\[Lambda], dLd\[Lambda], dKd\[Lambda], dQd\[Lambda], dVd\[Lambda],
+    dpd\[Lambda], de2d\[Lambda], d\[Alpha]d\[Lambda], d\[Beta]d\[Lambda],
+    dzmd\[Lambda], dxd\[Lambda], dtd\[Lambda], d\[Phi]d\[Lambda], d\[Psi]\[Theta]d\[Lambda],
+    psol, esol, xsol, \[Alpha]psol, \[Beta]psol, \[Psi]rsol, \[Psi]\[Theta]sol, tsol, \[Phi]sol,
+    rsol, \[Theta]sol, Ensol, Lsol, Ksol, Qsol,
+    r1sol, r2sol, zmsol, \[Iota]sol, deltaPSep, pSep
+  },
+
+  Needs["KerrGeodesics`"];
+
+  minoQ = MatchQ[OptionValue["Parametrisation"], "Mino"];
+  monitorQ = MatchQ[OptionValue["TimeMonitor"], True | "True"];
+
+  initialConditions = {
+    p[0] == p0,
+    \[Alpha]p[0] == If[TrueQ[e0 == 0], 0, e0 Sin[\[Psi]r0]],
+    x[0] == x0,
+    \[Beta]p[0] == If[TrueQ[e0 == 0], 0, e0 Cos[\[Psi]r0]],
+    \[Psi]\[Theta][0] == \[Psi]\[Theta]0,
+    \[Phi][0] == 0,
+    If[minoQ, t[0] == 0, Nothing]
+  };
+
+  (* Canonical zero selects the existing circular constants-of-motion formulas. *)
+  eccentricity[aa_?NumericQ, bb_?NumericQ] :=
+    If[TrueQ[aa == 0 && bb == 0], 0, Sqrt[aa^2 + bb^2]];
+
+  (* Only legacy force callbacks need a phase. At e=0, zero is a callback
+     convention; a physical force must be independent of this undefined phase. *)
+  radialPhase[aa_?NumericQ, bb_?NumericQ] :=
+    If[TrueQ[aa == 0 && bb == 0], 0, ArcTan[bb, aa]];
+
+  (* Constants of motion and radial position. *)
+  e2 = \[Alpha]p[s]^2 + \[Beta]p[s]^2;
+  e = eccentricity[\[Alpha]p[s], \[Beta]p[s]];
+  {En, L, Q} = {
+    Energy[a, p[s], e, x[s]],
+    AngularMomentum[a, p[s], e, x[s]],
+    CarterConstant[a, p[s], e, x[s]]
+  };
+  K = Q + (L - a En)^2;
+  V = a^2 (1 - En^2) + L^2 + Q;
+  w = 1 + \[Beta]p[s];
+  r = p[s]/w;
+
+  \[Beta] = a^2 (1 - En^2);
+  zm = 1 - x[s]^2;
+  \[Beta]zp = \[Beta] + L^2/(1 - zm);
+  z = zm Cos[\[Psi]\[Theta][s]]^2;
+
+  (* Useful shorthand. Z = P^2 is polynomial in the eccentricity components. *)
+  \[CapitalSigma] = r^2 + a^2 z;
+  \[CapitalDelta] = r^2 + a^2 - 2 r;
+  \[Omega] = Sqrt[r^2 + a^2];
+  F = (r^2 + a^2) En - a L;
+  H = L - a En x[s]^2;
+  \[Theta] = ArcCos[Sqrt[zm] Cos[\[Psi]\[Theta][s]]];
+  Z = p[s] - K (3 - e2 + 2 \[Beta]p[s])/p[s] +
+    a^2 Q (4 - e2 + 4 \[Beta]p[s] + \[Beta]p[s]^2)/p[s]^2;
+  P = Sqrt[Z];
+  G = \[Omega]^2 L/Sin[\[Theta]] - a^3 (1 - zm) Sin[\[Theta]] En;
+
+  (* Particle velocities. *)
+  ur = p[s] \[Alpha]p[s] P/(\[CapitalDelta] w^2);
+  u\[Theta] = Sqrt[zm] Sin[\[Psi]\[Theta][s]]/Sin[\[Theta]] Sqrt[\[Beta]zp - \[Beta] z];
+  un = -(F + \[CapitalDelta] ur)/(2 \[CapitalSigma]);
+  dtd\[Lambda] = En (\[Omega]^4/\[CapitalDelta] - a^2 (1 - z)) + a L (1 - \[Omega]^2/\[CapitalDelta]);
+  d\[Phi]d\[Lambda] = L/(1 - z) + a En (\[Omega]^2/\[CapitalDelta] - 1) - a^2 L/\[CapitalDelta];
+
+  (* Assign covariant force components, with the same callback arguments as pex. *)
+  Switch[{OptionValue["Force"]},
+    {{_, _, _, _}},
+      {at, ar, a\[Theta], a\[Phi]} = \[Eta] Through[
+        OptionValue["Force"][a, p[s], e, x[s],
+          radialPhase[\[Alpha]p[s], \[Beta]p[s]], \[Psi]\[Theta][s]]],
+    {KerrGasDrag},
+      (* Same gas drag: u_t=-En, u_phi=L and u^t=(dt/dlambda)/Sigma.
+         Evaluate it directly, without reconstructing the radial anomaly. *)
+      {at, ar, a\[Theta], a\[Phi]} = \[Eta] {En - \[CapitalSigma]/dtd\[Lambda], -ur, -u\[Theta], -L},
+    _,
+      Message[KerrOsculatingOrbitalElements::InvalidForce, OptionValue["Force"]];
+      Return[$Failed]
+  ];
+
+  (* Integral rates and the exact regular p and e^2 equations. *)
+  dEd\[Lambda] = -\[CapitalSigma] at;
+  dLd\[Lambda] = \[CapitalSigma] a\[Phi];
+  dKd\[Lambda] = 2 \[CapitalSigma]/\[CapitalDelta] (-F (\[Omega]^2 at + a a\[Phi]) - \[CapitalDelta]^2 ur ar);
+  dQd\[Lambda] = dKd\[Lambda] - 2 (L - a En) (dLd\[Lambda] - a dEd\[Lambda]);
+  dVd\[Lambda] = -2 a^2 En dEd\[Lambda] + 2 L dLd\[Lambda] + dQd\[Lambda];
+
+  Dp = (p[s]^3 - K p[s] (3 - e2) + 4 a^2 Q)^2 - 4 e2 (K p[s] - 2 a^2 Q)^2;
+  dpd\[Lambda] = p[s]/Dp (
+    -2 p[s]^4 (K p[s] - 2 a^2 Q) En dEd\[Lambda] +
+    p[s]^2 (p[s]^3 - 2 (1 - e2) (K p[s] - a^2 Q)) dVd\[Lambda] -
+    p[s] (p[s]^3 (3 + e2) - (1 - e2) ((7 + e2) K p[s] - 8 a^2 Q)) dKd\[Lambda] +
+    a^2 (2 p[s]^3 (1 + e2) - (1 - e2) ((5 + 3 e2) K p[s] - 2 a^2 Q (3 + e2))) dQd\[Lambda]
+  );
+
+  h0p = -4 (1 - En^2) p[s]^3 + 6 p[s]^2 - 2 V p[s] (1 + e2) + 2 K (1 + 3 e2);
+  h1p = 6 p[s]^2 - 4 V p[s] + 2 K (3 + e2);
+  B0 = 2 p[s]^4 En dEd\[Lambda] - p[s]^2 (1 + e2) dVd\[Lambda] +
+    2 p[s] (1 + 3 e2) dKd\[Lambda] - a^2 (1 + 6 e2 + e2^2) dQd\[Lambda];
+  B1 = -2 p[s]^2 dVd\[Lambda] + 2 p[s] (3 + e2) dKd\[Lambda] - 4 a^2 (1 + e2) dQd\[Lambda];
+  de2d\[Lambda] = p[s] (h1p B0 - h0p B1)/(2 Dp);
+
+  (* Partial derivatives of Z with respect to p, e^2, beta_p, K and Q. *)
+  Zp = 1 + K (3 - e2 + 2 \[Beta]p[s])/p[s]^2 -
+    2 a^2 Q (4 - e2 + 4 \[Beta]p[s] + \[Beta]p[s]^2)/p[s]^3;
+  Ze2 = K/p[s] - a^2 Q/p[s]^2;
+  Z\[Beta] = -2 K/p[s] + a^2 Q (4 + 2 \[Beta]p[s])/p[s]^2;
+  ZK = -(3 - e2 + 2 \[Beta]p[s])/p[s];
+  ZQ = a^2 (4 - e2 + 4 \[Beta]p[s] + \[Beta]p[s]^2)/p[s]^2;
+
+  (* Component rates contain no division by e, alpha_p or beta_p. *)
+  d\[Beta]d\[Lambda] = w dpd\[Lambda]/p[s] - \[Alpha]p[s] P;
+  d\[Alpha]d\[Lambda] = \[Beta]p[s] P + \[CapitalSigma] \[CapitalDelta] w^2 ar/(p[s] P) +
+    \[Alpha]p[s] dpd\[Lambda]/p[s] - \[Alpha]p[s]/(2 Z) (
+      (Zp + w Z\[Beta]/p[s]) dpd\[Lambda] + Ze2 de2d\[Lambda] + ZK dKd\[Lambda] + ZQ dQd\[Lambda]
+    );
+
+  (* Convert from BL to null-tetrad components; retain the pex polar equations. *)
+  an = (\[Omega]^2 at - \[CapitalDelta] ar + a a\[Phi])/(2 \[CapitalSigma]);
+  A1 = a\[Theta];
+  A2 = -a Sin[\[Theta]] at - a\[Phi]/Sin[\[Theta]];
+  A3 = a (L - a En Sin[\[Theta]]^2) at/\[CapitalSigma] + u\[Theta] a\[Theta]/\[CapitalSigma] +
+    (L - a En Sin[\[Theta]]^2) a\[Phi]/(\[CapitalSigma] Sin[\[Theta]]^2);
+
+  d\[Psi]\[Theta]d\[Lambda] = Sqrt[\[Beta]zp - \[Beta] z] (
+      1 + (1 - zm) \[CapitalSigma] A1 Cos[\[Psi]\[Theta][s]]/(Sqrt[zm] (\[Beta]zp - \[Beta] zm) Sin[\[Theta]])) +
+    Cos[\[Psi]\[Theta][s]] Sin[\[Psi]\[Theta][s]] H a \[CapitalDelta] (A3 - 2 ur an)/(2 (\[Beta]zp - \[Beta] zm) un) +
+    Cos[\[Psi]\[Theta][s]] Sin[\[Psi]\[Theta][s]] G A2/(\[Beta]zp - \[Beta] zm);
+  dzmd\[Lambda] = ((1 - zm) dKd\[Lambda] - 2 (L - a (1 - zm) En) (dLd\[Lambda] - a (1 - zm) dEd\[Lambda]))/
+    (\[Beta]zp - \[Beta] zm);
+  dxd\[Lambda] = -dzmd\[Lambda]/(2 x[s]);
+
+  (* The first six equations use the selected parametrisation. *)
+  EoM = {
+    D[p[s], s] == If[minoQ, 1, 1/dtd\[Lambda]] dpd\[Lambda],
+    D[\[Alpha]p[s], s] == If[minoQ, 1, 1/dtd\[Lambda]] d\[Alpha]d\[Lambda],
+    D[x[s], s] == If[minoQ, 1, 1/dtd\[Lambda]] dxd\[Lambda],
+    D[\[Beta]p[s], s] == If[minoQ, 1, 1/dtd\[Lambda]] d\[Beta]d\[Lambda],
+    D[\[Psi]\[Theta][s], s] == If[minoQ, 1, 1/dtd\[Lambda]] d\[Psi]\[Theta]d\[Lambda],
+    D[\[Phi][s], s] == If[minoQ, 1, 1/dtd\[Lambda]] d\[Phi]d\[Lambda],
+    If[minoQ, D[t[s], s] == dtd\[Lambda], Nothing]
+  };
+
+  s = If[minoQ, \[Lambda], t];
+  unknowns = {p, \[Alpha]p, x, \[Beta]p, \[Psi]\[Theta], \[Phi], If[minoQ, t, Nothing]};
+  limit = OptionValue["IntegrationLimit"] If[minoQ, 1, 10^3];
+  pMin = OptionValue["pMin"];
+  pMinQ = NumericQ[pMin];
+  deltaPSep = \[Eta];
+  pSep[ee_?NumericQ, xx_?NumericQ] := Quiet[KerrGeoSeparatrix[a, ee, xx]];
+
+  (* Use the same separatrix buffer as the component branch of GenericKerrpexBL. *)
+  events = With[{u = s}, {
+    If[pMinQ,
+      WhenEvent[p[u] - pMin == 0, Print["pMin reached."]; "StopIntegration"],
+      Nothing],
+    WhenEvent[p[u] - pSep[eccentricity[\[Alpha]p[u], \[Beta]p[u]], x[u]] - deltaPSep == 0,
+      Print["Separatrix safety boundary reached."]; "StopIntegration"]
+  }];
+
+  Print["Starting NDSolve..."];
+  solve[] := NDSolve[
+    Evaluate@Join[initialConditions, EoM, events],
+    unknowns,
+    {s, 0, limit},
+    AccuracyGoal -> OptionValue["AccuracyGoal"],
+    PrecisionGoal -> OptionValue["PrecisionGoal"],
+    Method -> {"EquationSimplification" -> "Solve"},
+    StepMonitor :> (progress = s)
+  ];
+  sol = If[monitorQ,
+    Monitor[solve[], Row[{If[minoQ, "\[Lambda]", "t"], " = ", progress}]],
+    solve[]
+  ];
+  If[! MatchQ[sol, {{__Rule}}],
+    Message[GenericKerrREGBL::nosol];
+    Return[$Failed]
+  ];
+
+  rules = First[sol];
+  {psol, \[Alpha]psol, xsol, \[Beta]psol, \[Psi]\[Theta]sol, \[Phi]sol} =
+    {p, \[Alpha]p, x, \[Beta]p, \[Psi]\[Theta], \[Phi]} /. rules;
+  If[minoQ, tsol = t /. rules, tsol[\[Tau]_?NumericQ] := \[Tau]];
+  If[psol["Domain"][[1, 2]] == limit, Print["Limit reached."]];
+
+  esol[u_?NumericQ] := If[TrueQ[e0 == 0 && u == 0], 0,
+    eccentricity[\[Alpha]psol[u], \[Beta]psol[u]]];
+  \[Psi]rsol[u_?NumericQ] := If[TrueQ[esol[u] == 0],
+    Missing["UndefinedAtZeroEccentricity"], ArcTan[\[Beta]psol[u], \[Alpha]psol[u]]];
+
+  (* Derived quantities; r remains defined even when the radial anomaly is not. *)
+  zmsol[u_] := 1 - xsol[u]^2;
+  rsol[u_] := psol[u]/(1 + \[Beta]psol[u]);
+  \[Theta]sol[u_] := ArcCos[Sqrt[zmsol[u]] Cos[\[Psi]\[Theta]sol[u]]];
+  Ensol[u_] := Energy[a, psol[u], esol[u], xsol[u]];
+  Lsol[u_] := AngularMomentum[a, psol[u], esol[u], xsol[u]];
+  Qsol[u_] := CarterConstant[a, psol[u], esol[u], xsol[u]];
+  Ksol[u_] := Qsol[u] + (Lsol[u] - a Ensol[u])^2;
+  r1sol[u_] := psol[u]/(1 - esol[u]);
+  r2sol[u_] := psol[u]/(1 + esol[u]);
+  \[Iota]sol[u_] := ArcCos[Lsol[u]/Sqrt[Ksol[u] + 2 a Lsol[u] Ensol[u] - a^2 Ensol[u]^2]];
+
+  <|
+    "t" -> tsol,
+    "r" -> rsol,
+    "\[Theta]" -> \[Theta]sol,
+    "\[Phi]" -> \[Phi]sol,
+    "En" -> Ensol,
+    "L" -> Lsol,
+    "K" -> Ksol,
+    "Q" -> Qsol,
+    "p" -> psol,
+    "e" -> esol,
+    "x" -> xsol,
+    "\[Iota]" -> \[Iota]sol,
+    "\[Psi]r" -> \[Psi]rsol,
+    "\[Psi]\[Theta]" -> \[Psi]\[Theta]sol,
+    "r1" -> r1sol,
+    "r2" -> r2sol,
+    "z1" -> zmsol,
+    "\[Alpha]p" -> \[Alpha]psol,
+    "\[Beta]p" -> \[Beta]psol,
     "limit" -> psol["Domain"][[1, 2]]
   |>
 ]
