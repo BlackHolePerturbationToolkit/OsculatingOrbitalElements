@@ -882,7 +882,7 @@ a\[Phi] = -(u\[Phi]);
 ]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Conservative forces (Electromagnetic Force)*)
 
 
@@ -916,13 +916,13 @@ u\[Phi]up=a ((r^2+a^2)En-a L)/\[CapitalDelta]-(a En-L/(1-z^2));
 at =  a/\[CapitalSigma]^3((1+ z^2)(r^2-a^2z^2)\[CapitalDelta] ur+2r z Sqrt[(1-z^2)](r^2-a^2)u\[Theta]);
 ar = 1/\[CapitalSigma]^3( a(1+z^2)(a^2z^2-r^2)utup+u\[Phi]up(1-z^2)(r^5+2r^3a^2+r a^4+2 a^2r^2-2 a^4+a^4(r-1)(1-z^2)^2-a^2(2r a^2-3 a^2+2r^3+r^2)(1-z^2)));
 a\[Theta] = 1/\[CapitalSigma]^3z Sqrt[(1-z^2)](2 a r(a^2-r^2)utup+(r^6+a^2r^4-2a^4 r+2a^2r^2\[CapitalDelta] z^2+a^4\[CapitalDelta] z^4)u\[Phi]up);
-a\[Phi] = 1/\[CapitalSigma]^3((1-z^2)(r^5+2r^3a^2+r a^4+2 a^2r^2-2 a^4+a^4(r-1)(1-z^2)^2-a^2(2r a^2-3 a^2+2r^3+r^2)(1-z^2))\[CapitalDelta] ur+z Sqrt[(1-z^2)](r^6+a^2r^4-2a^4 r +2a^2r^2\[CapitalDelta] z^2+a^4\[CapitalDelta] z^4)u\[Theta]);
+a\[Phi] = -1/\[CapitalSigma]^3((1-z^2)(r^5+2r^3a^2+r a^4+2 a^2r^2-2 a^4+a^4(r-1)(1-z^2)^2-a^2(2r a^2-3 a^2+2r^3+r^2)(1-z^2))\[CapitalDelta] ur+z Sqrt[(1-z^2)](r^6+a^2r^4-2a^4 r +2a^2r^2\[CapitalDelta] z^2+a^4\[CapitalDelta] z^4)u\[Theta]);
 
 <|"at" -> at, "ar" -> ar, "a\[Theta]" -> a\[Theta], "a\[Phi]" ->   a\[Phi]|>
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Kerr Osculating Geodesics Solver*)
 
 
@@ -1624,6 +1624,8 @@ GenericKerrREGBL[ \[Eta]_, a_, p0_, e0_, x0_, \[Psi]r0_, \[Psi]\[Theta]0_, Optio
   dKd\[Lambda] = 2 \[CapitalSigma]/\[CapitalDelta] (-F (\[Omega]^2 at + a a\[Phi]) - \[CapitalDelta]^2 ur ar);
   dQd\[Lambda] = dKd\[Lambda] - 2 (L - a En) (dLd\[Lambda] - a dEd\[Lambda]);
   dVd\[Lambda] = -2 a^2 En dEd\[Lambda] + 2 L dLd\[Lambda] + dQd\[Lambda];
+
+(*Main result*)
 
   Dp = (p[s]^3 - K p[s] (3 - e2) + 4 a^2 Q)^2 - 4 e2 (K p[s] - 2 a^2 Q)^2;
   dpd\[Lambda] = p[s]/Dp (
