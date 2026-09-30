@@ -9013,7 +9013,7 @@ Cell[BoxData[
       RowBox[{"p0", "-", "6", "-", 
        RowBox[{"2", " ", "e0", " ", 
         RowBox[{"Cos", "[", 
-         RowBox[{"xi", "-", "\[Xi]0"}], "]"}]}]}], "]"}]], ",", 
+         RowBox[{"xi", "+", "\[Xi]0"}], "]"}]}]}], "]"}]], ",", 
     RowBox[{"{", 
      RowBox[{"xi", ",", "0", ",", "\[Chi]"}], "}"}]}], "]"}]}]], "Input",
  CellChangeTimes->{{3.975748379980269*^9, 3.975748483001369*^9}, 
@@ -9051,7 +9051,7 @@ Cell[BoxData[
           RowBox[{
            FractionBox[
             RowBox[{"p0", " "}], 
-            RowBox[{"1", "-", 
+            RowBox[{"1", "+", 
              RowBox[{"e0", " ", 
               RowBox[{"Cos", "[", 
                RowBox[{"\[Chi]", "+", "\[Xi]0"}], "]"}]}]}]], " ", 
@@ -9059,7 +9059,7 @@ Cell[BoxData[
             RowBox[{"phi", "[", "\[Chi]", "]"}], "]"}]}], ",", " ", 
           RowBox[{
            FractionBox["p0", 
-            RowBox[{"1", "-", 
+            RowBox[{"1", "+", 
              RowBox[{"e0", " ", 
               RowBox[{"Cos", "[", 
                RowBox[{"\[Chi]", "+", "\[Xi]0"}], "]"}]}]}]], 
