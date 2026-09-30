@@ -27,22 +27,28 @@ MessageName[SchwarzOsculatingOrbitalElements, "ICs"] =  "Error: The initial cond
 
 MessageName[SchwarzOsculatingOrbitalElements, "OutOfRange"] =  "Warning: FastGSF model only defined up to p<12 and e<0.2"
 
+MessageName[SchwarzOsculatingOrbitalElements, "sep"] = "Integration stopped at the separatrix at `1` = `2`."
+
+MessageName[SchwarzOsculatingOrbitalElements, "limit"] = "Integration reached IntegrationLimit (`1` = `2`) before the separatrix."
+
+MessageName[SchwarzOsculatingOrbitalElements, "early"] = "Warning: NDSolve stopped at `1` = `2`, before reaching IntegrationLimit or the separatrix."
+
 MessageName[KerrOsculatingOrbitalElements, "usage"] = 
 "KerrOsculatingOrbitalElements[\[Eta], a, p, e, x, \[Psi]r, \[Psi]\[Theta], Force->{at, ar, a\[Theta] a\[Phi]}] calculates En, L, K, \[Psi]r and \[Psi]\[Theta] as functions of Mino time (\[Lambda]) or coordinate time(t) using a given by covariant components of an acceleration (at, ar, a\[Theta], a\[Phi]) a mass ratio given by \[Eta]."
 
 MessageName[GenericKerrpexBL, "usage"] = 
-"GenericKerrpexBL[\[Eta], a, p, e, x, \[Psi]r, \[Psi]\[Theta], Force->{at, ar, a\[Theta] a\[Phi]}] calculates  p, e, x, \[Psi]r, and \[Psi]\[Theta] as functions of Mino time (\[Lambda]) or coordinate time(t) using a given by covariant components of an acceleration (at, ar, a\[Theta], a\[Phi]) a mass ratio given by \[Eta]."
+"GenericKerrpexBL[\[Eta], a, p, e, x, \[Psi]r, \[Psi]\[Theta], Force->{at, ar, a\[Theta] a\[Phi]}] calculates  p, e, x, \[Psi]r, and \[Psi]\[Theta] as functions of Mino time (\[Lambda]) or coordinate time(t) using a given by covariant components of an acceleration (at, ar, a\[Theta], a\[Phi]) a mass ratio given by \[Eta]. For equatorial orbits (x = \[PlusMinus]1), x is held fixed, the \[Psi]\[Theta] argument is ignored, \"\[Psi]\[Theta]\" is Missing, and force callbacks receive \[Psi]\[Theta] = 0; the force must have no \[Theta] component on the equatorial plane."
 
 MessageName[KerrOsculatingOrbitalElementsTPVec, "usage"] = 
 "KerrOsculatingOrbitalElementsTPVec[\[Eta], a, p, e, x, \[Psi]r, \[Psi]\[Theta], Force->{fr, f\[Theta] f\[Phi]}] calculates En, L, K, \[Psi]r and \[Psi]\[Theta] as functions of proper time (t) using a given by contravarient components of an acceleration (fr, f\[Theta], f\[Phi]) a mass ratio given by \[Eta]."
 
-MessageName[TimeMonitor, "usage"] = "TimeMonitor is an option for KerrOsculatingOrbitalElementsTPVec that controls whether a progress monitor showing elapsed computation time is displayed. Set to True to enable, False to disable."
+MessageName[TimeMonitor, "usage"] = "TimeMonitor is an option for KerrOsculatingOrbitalElementsTPVec that controls whether a progress monitor showing elapsed computation time is displayed. Set to True to enable, False to disable. The monitor is only shown when a notebook front end is available."
 
 MessageName[KerrOsculatingOrbitalElementsTP, "usage"] = 
 "KerrOsculatingOrbitalElements[\[Eta], a, p, e, x, \[Psi]r, \[Psi]\[Theta], Force->{at, ar, a\[Theta] a\[Phi]}] calculates En, L, K, \[Psi]r and \[Psi]\[Theta] as functions of proper time (t) using a given by covariant components of an acceleration (at, ar, a\[Theta], a\[Phi]) a mass ratio given by \[Eta]."
 
 MessageName[GenericKerrREGBL, "usage"] =
-"GenericKerrREGBL[\[Eta], a, p, e, x, \[Psi]r, \[Psi]\[Theta], opts] uses the exact regular eccentricity-component equations with the same arguments and options as GenericKerrpexBL. It also returns \"\[Alpha]p\"=e Sin[\[Psi]r] and \"\[Beta]p\"=e Cos[\[Psi]r]. The returned \"\[Psi]r\" is a principal-value phase and is Missing at e=0; its initial argument is ignored when e0=0. Custom covariant force callbacks retain the pex arguments and must be independent of the radial phase at e=0 (where the callback receives zero)."
+"GenericKerrREGBL[\[Eta], a, p, e, x, \[Psi]r, \[Psi]\[Theta], opts] uses the exact regular eccentricity-component equations with the same arguments and options as GenericKerrpexBL. It also returns \"\[Alpha]p\"=e Sin[\[Psi]r] and \"\[Beta]p\"=e Cos[\[Psi]r]. The returned \"\[Psi]r\" is a principal-value phase and is Missing at e=0; its initial argument is ignored when e0=0. Custom covariant force callbacks retain the pex arguments and must be independent of the radial phase at e=0 (where the callback receives zero). Equatorial orbits (x = \[PlusMinus]1) are handled as in GenericKerrpexBL."
 
 MessageName[GenericKerrREGBL, "nosol"] = "NDSolve did not return a solution."
 
@@ -58,10 +64,22 @@ MessageName[KerrOsculatingOrbitalElements, "nosol"] = "NDSolve did not return a 
 
 MessageName[KerrOsculatingOrbitalElements, "param"] = "Error: Invalid value `1` for Parametrisation. Use \"CoordinateTime\" or \"Mino\"."
 
+MessageName[KerrOsculatingOrbitalElements, "eqforce"] = "Error: The force has a nonzero \[Theta] component (`1`) on the equatorial plane, so the orbit would leave it. Equatorial orbits (x = \[PlusMinus]1) need a force with no \[Theta] component there."
+
+MessageName[KerrOsculatingOrbitalElements, "sep"] = "Integration stopped at the separatrix at `1` = `2`."
+
+MessageName[KerrOsculatingOrbitalElements, "sepbuf"] = "Integration stopped at the separatrix safety boundary (p = p_sep + \[Eta]) at `1` = `2`."
+
+MessageName[KerrOsculatingOrbitalElements, "pmin"] = "Integration stopped at p = pMin at `1` = `2`."
+
+MessageName[KerrOsculatingOrbitalElements, "limit"] = "Integration reached IntegrationLimit (`1` = `2`) before the separatrix."
+
+MessageName[KerrOsculatingOrbitalElements, "early"] = "Warning: NDSolve stopped at `1` = `2`, before reaching IntegrationLimit or a stopping condition."
+
 MessageName[IntegrationLimit, "usage"] = 
-"IntegrationLimit is an option for SchwarzOsculatingOrbitalElements and KerrOsculatingOrbitalElements which specifies the maximum value of \[Chi] or \[Lambda] to use when solving the equations of motion.
+"IntegrationLimit is an option which specifies the largest value of the independent variable to integrate to: \[Chi] for SchwarzOsculatingOrbitalElements, t for SchwarzOsculatingOrbitalElementsTP, and t or \[Lambda] (set by Parametrisation) for KerrOsculatingOrbitalElements, GenericKerrpexBL and GenericKerrREGBL.
 SchwarzOsculatingOrbitalElements Default: 1000000
-KerrOsculatingOrbitalElements Default: 10000"
+KerrOsculatingOrbitalElements Default: Automatic, which is 10^7 in coordinate time and 10^4 in Mino time"
 
 MessageName[Force, "usage"] = "Force is an option for SchwarzOsculatingOrbitalElements and KerrOsculatingOrbitalElements which specifies the model to use when solving the oscualting goedesic euqaitons. 
 By default, the appropriate Gas Drag model is used. 
@@ -95,10 +113,10 @@ SyntaxInformation[SchwarzOsculatingOrbitalElements] = {"ArgumentsPattern"-> {_, 
 Options[SchwarzOsculatingOrbitalElementsTP] = {IntegrationLimit-> 1000000, AccuracyGoal-> Automatic, PrecisionGoal -> Automatic, Force -> SchwarzGasDrag};
 SyntaxInformation[SchwarzOsculatingOrbitalElementsTP] = {"ArgumentsPattern"-> {_, _, _, _, OptionsPattern[]}};
 
-Options[KerrOsculatingOrbitalElements] = {IntegrationLimit-> 10000, AccuracyGoal-> Automatic, PrecisionGoal -> Automatic, Force -> KerrGasDrag, Parametrisation ->"CoordinateTime", ForceUpDown-> "Down",TimeMonitor->True};
+Options[KerrOsculatingOrbitalElements] = {IntegrationLimit-> Automatic, AccuracyGoal-> Automatic, PrecisionGoal -> Automatic, Force -> KerrGasDrag, Parametrisation ->"CoordinateTime", ForceUpDown-> "Down",TimeMonitor->True};
 SyntaxInformation[KerrOsculatingOrbitalElements] = {"ArgumentsPattern"-> {_, _, _,_, _,_, _, OptionsPattern[]}};
 
-Options[GenericKerrpexBL] = {IntegrationLimit-> 10000, AccuracyGoal-> Automatic, PrecisionGoal -> Automatic, Force -> KerrGasDrag, Parametrisation ->"CoordinateTime", ForceUpDown-> "Down",TimeMonitor->True,pMin -> None};
+Options[GenericKerrpexBL] = {IntegrationLimit-> Automatic, AccuracyGoal-> Automatic, PrecisionGoal -> Automatic, Force -> KerrGasDrag, Parametrisation ->"CoordinateTime", ForceUpDown-> "Down",TimeMonitor->True,pMin -> None};
 SyntaxInformation[GenericKerrpexBL] = {"ArgumentsPattern"-> {_, _, _,_, _,_, _, OptionsPattern[]}};
 
 Options[GenericKerrREGBL] = Options[GenericKerrpexBL];
@@ -108,6 +126,21 @@ SyntaxInformation[GenericKerrREGBL] = {"ArgumentsPattern" -> {_, _, _, _, _, _, 
 
 (* ::Input::Initialization:: *)
 Begin["`Private`"]
+
+
+(* ::Section:: *)
+(*Shared Functions*)
+
+
+(* ::Text:: *)
+(*Reports why an integration stopped. reason is set by the stopping event ("Separatrix", "SeparatrixBuffer" or "pMin"), or is None if no event fired.*)
+
+
+StopMessage[head_, var_, end_, limit_, reason_] := Switch[reason,
+	"Separatrix", Message[MessageName[head, "sep"], var, end],
+	"SeparatrixBuffer", Message[MessageName[head, "sepbuf"], var, end],
+	"pMin", Message[MessageName[head, "pmin"], var, end],
+	_, If[end == limit, Message[MessageName[head, "limit"], var, limit], Message[MessageName[head, "early"], var, end]]];
 
 
 (* ::Section:: *)
@@ -128,7 +161,7 @@ Begin["`Private`"]
 
 
 (* ::Input::Initialization:: *)
-SchwarzOscGeoEqs1[\[Eta]_,Fr_,F\[Phi]_, p0_, e0_, \[Xi]0_,IntegrationLimit_, Accuracy_, Precision_]:= Module[{M =1, \[Mu], f0,f1,f2,f3,\[Beta], evolutionEqns,initialConditions, psol,esol,\[Xi]sol,tsol, \[Phi]sol, p,e,\[Xi],t,\[Phi],\[Chi], rsol, \[Theta]sol, progress = 0}, 
+SchwarzOscGeoEqs1[\[Eta]_,Fr_,F\[Phi]_, p0_, e0_, \[Xi]0_,IntegrationLimit_, Accuracy_, Precision_]:= Module[{M =1, \[Mu], f0,f1,f2,f3,\[Beta], evolutionEqns,initialConditions, psol,esol,\[Xi]sol,tsol, \[Phi]sol, p,e,\[Xi],t,\[Phi],\[Chi], rsol, \[Theta]sol, progress = 0, stopReason = None}, 
 \[Mu] = \[Eta] M;
 
 
@@ -152,8 +185,10 @@ evolutionEqns = { t'[\[Chi]] == (M p[\[Chi]]^2 Sqrt[(p[\[Chi]]-2)^2 -4e[\[Chi]]^
 				\[Phi]'[\[Chi]] ==  Sqrt[p[\[Chi]]/(p[\[Chi]]-6-2e[\[Chi]] Cos[\[Xi][\[Chi]]])]};
 
 (*Solving the Evolution Equaitons*)
-Print["Starting NDSolve..."];
-{{psol,esol,\[Xi]sol,tsol, \[Phi]sol}}= Monitor[{p,e,\[Xi],t,\[Phi]}/.NDSolve[{Join[evolutionEqns,initialConditions],WhenEvent[p[\[Chi]]-6-2e[\[Chi]] -0.001 == 0, Print["Separatrix reached."]; "StopIntegration"]}, {p,e,\[Xi],t,\[Phi]},{\[Chi],0, IntegrationLimit}, AccuracyGoal->Accuracy,PrecisionGoal->Precision, StepMonitor :> (progress = \[Chi])],  "\[Chi] = "<> ToString[progress]]//Quiet;
+{{psol,esol,\[Xi]sol,tsol, \[Phi]sol}}= Monitor[{p,e,\[Xi],t,\[Phi]}/.NDSolve[{Join[evolutionEqns,initialConditions],WhenEvent[p[\[Chi]]-6-2e[\[Chi]] -0.001 == 0, stopReason = "Separatrix"; "StopIntegration"]}, {p,e,\[Xi],t,\[Phi]},{\[Chi],0, IntegrationLimit}, AccuracyGoal->Accuracy,PrecisionGoal->Precision, StepMonitor :> (progress = \[Chi])],  "\[Chi] = "<> ToString[progress]]//Quiet;
+
+(*Report why the integration stopped*)
+StopMessage[SchwarzOsculatingOrbitalElements, "\[Chi]", psol["Domain"][[1,2]], IntegrationLimit, stopReason];
 
 (*Return associations for p, e, \[Xi], t and \[Phi] as functions of \[Chi]*)
 rsol[\[Chi]_] := (M psol[\[Chi]])/(1+esol[\[Chi]] Cos[\[Xi]sol[\[Chi]]]);
@@ -163,7 +198,7 @@ rsol[\[Chi]_] := (M psol[\[Chi]])/(1+esol[\[Chi]] Cos[\[Xi]sol[\[Chi]]]);
 
 
 (* ::Input::Initialization:: *)
-SchwarzOscGeoEqsTP[\[Eta]_,Fr_,F\[Phi]_, p0_, e0_, \[Xi]0_,IntegrationLimit_, Accuracy_, Precision_]:= Module[{M =1, \[Mu], f0,f1,f2,f3,\[Beta], evolutionEqns,initialConditions, psol,esol,\[Xi]sol,tsol, \[Phi]sol, p,e,\[Xi],t,\[Phi],\[Chi], rsol, \[Theta]sol, progress = 0}, 
+SchwarzOscGeoEqsTP[\[Eta]_,Fr_,F\[Phi]_, p0_, e0_, \[Xi]0_,IntegrationLimit_, Accuracy_, Precision_]:= Module[{M =1, \[Mu], f0,f1,f2,f3,\[Beta], evolutionEqns,initialConditions, psol,esol,\[Xi]sol,tsol, \[Phi]sol, p,e,\[Xi],t,\[Phi],\[Chi], rsol, \[Theta]sol, progress = 0, stopReason = None}, 
 \[Mu] = \[Eta] M;
 
 
@@ -188,8 +223,10 @@ evolutionEqns = {
 				\[Phi]'[t] ==((p[t]-2-2e[t] Cos[\[Xi][t]])(1+e[t] Cos[\[Xi][t]])^2 Sqrt[p[t]-6-2e[t]Cos[\[Xi][t]]])/(M p[t]^2 Sqrt[(p[t]-2)^2 -4e[t]^2])  Sqrt[p[t]/(p[t]-6-2e[t] Cos[\[Xi][t]])]};
 
 (*Solving the Evolution Equaitons*)
-Print["Starting NDSolve..."];
-{{psol,esol,\[Xi]sol, \[Phi]sol}}= Monitor[{p,e,\[Xi],\[Phi]}/.NDSolve[{Join[evolutionEqns,initialConditions],WhenEvent[p[t]-6-2e[t] -0.001 == 0, Print["Separatrix reached."]; "StopIntegration"]}, {p,e,\[Xi],\[Phi]},{t,0, IntegrationLimit}, AccuracyGoal->Accuracy,PrecisionGoal->Precision, StepMonitor :> (progress = t)],  "t = "<> ToString[progress]]//Quiet;
+{{psol,esol,\[Xi]sol, \[Phi]sol}}= Monitor[{p,e,\[Xi],\[Phi]}/.NDSolve[{Join[evolutionEqns,initialConditions],WhenEvent[p[t]-6-2e[t] -0.001 == 0, stopReason = "Separatrix"; "StopIntegration"]}, {p,e,\[Xi],\[Phi]},{t,0, IntegrationLimit}, AccuracyGoal->Accuracy,PrecisionGoal->Precision, StepMonitor :> (progress = t)],  "t = "<> ToString[progress]]//Quiet;
+
+(*Report why the integration stopped*)
+StopMessage[SchwarzOsculatingOrbitalElements, "t", psol["Domain"][[1,2]], IntegrationLimit, stopReason];
 
 (*Return associations for p, e, \[Xi] and \[Phi] as functions of t*)
 rsol[t_] := (M psol[t])/(1+esol[t] Cos[\[Xi]sol[t]]);
@@ -207,7 +244,7 @@ rsol[t_] := (M psol[t])/(1+esol[t] Cos[\[Xi]sol[t]]);
 
 
 (* ::Input::Initialization:: *)
-SchwarzOscGeoEqs2[\[Eta]_,Fr_,F\[Phi]_, p0_, e0_, \[Xi]0_,IntegrationLimit_, Accuracy_, Precision_]:= Module[{M=1, \[Mu], evolutionEqns,initialConditions, \[CapitalPsi],\[CapitalOmega],\[Alpha]0,\[Beta]0,psol, \[Alpha]sol, \[Beta]sol, esol, \[Xi]sol, \[Phi]sol, tsol, rsol, \[Theta]sol,p,e,\[Xi],\[Alpha],\[Beta],t,\[Phi],\[Chi], progress = 0},
+SchwarzOscGeoEqs2[\[Eta]_,Fr_,F\[Phi]_, p0_, e0_, \[Xi]0_,IntegrationLimit_, Accuracy_, Precision_]:= Module[{M=1, \[Mu], evolutionEqns,initialConditions, \[CapitalPsi],\[CapitalOmega],\[Alpha]0,\[Beta]0,psol, \[Alpha]sol, \[Beta]sol, esol, \[Xi]sol, \[Phi]sol, tsol, rsol, \[Theta]sol,p,e,\[Xi],\[Alpha],\[Beta],t,\[Phi],\[Chi], progress = 0, stopReason = None},
 
 \[Mu] = \[Eta] M;
 (*Recast our initial conditions*)
@@ -236,8 +273,10 @@ t'[\[Chi]]== (p[\[Chi]]^2 M Sqrt[(p[\[Chi]]-2)^2-4(\[Alpha][\[Chi]]^2+\[Beta][\[
 
 
 (*Solving the evolution equations*)
-Print["Starting NDSolve..."];
-{{psol,\[Alpha]sol,\[Beta]sol,tsol,\[Phi]sol}}= Monitor[{p,\[Alpha],\[Beta],t, \[Phi]}/.NDSolve[{Join[evolutionEqns,initialConditions],WhenEvent[p[\[Chi]]-6-2(\[Alpha][\[Chi]]^2+\[Beta][\[Chi]]^2)^(1/2) -0.001 == 0, Print["Separatrix reached."]; "StopIntegration"]}, {p,\[Alpha],\[Beta],t,\[Phi]},{\[Chi],0,IntegrationLimit},AccuracyGoal->Accuracy,PrecisionGoal->Precision, Method->{"EquationSimplification"->"Solve"},StepMonitor :> (progress = \[Chi])],  "\[Chi] = "<> ToString[progress]]//Quiet;
+{{psol,\[Alpha]sol,\[Beta]sol,tsol,\[Phi]sol}}= Monitor[{p,\[Alpha],\[Beta],t, \[Phi]}/.NDSolve[{Join[evolutionEqns,initialConditions],WhenEvent[p[\[Chi]]-6-2(\[Alpha][\[Chi]]^2+\[Beta][\[Chi]]^2)^(1/2) -0.001 == 0, stopReason = "Separatrix"; "StopIntegration"]}, {p,\[Alpha],\[Beta],t,\[Phi]},{\[Chi],0,IntegrationLimit},AccuracyGoal->Accuracy,PrecisionGoal->Precision, Method->{"EquationSimplification"->"Solve"},StepMonitor :> (progress = \[Chi])],  "\[Chi] = "<> ToString[progress]]//Quiet;
+
+(*Report why the integration stopped*)
+StopMessage[SchwarzOsculatingOrbitalElements, "\[Chi]", psol["Domain"][[1,2]], IntegrationLimit, stopReason];
 
 rsol[\[Chi]_] := (M psol[\[Chi]] )/(1+ \[Alpha]sol[\[Chi]] Sin[\[Chi]]+ \[Beta]sol[\[Chi]]Cos[\[Chi]] ); 
 esol[\[Chi]_] := (\[Alpha]sol[\[Chi]]^2 + \[Beta]sol[\[Chi]]^2)^(1/2);
@@ -254,7 +293,7 @@ esol[\[Chi]_] := (\[Alpha]sol[\[Chi]]^2 + \[Beta]sol[\[Chi]]^2)^(1/2);
 
 
 (* ::Input::Initialization:: *)
-SchwarzOscGeoEqs2TP[\[Eta]_,Fr_,F\[Phi]_, p0_, e0_, \[Xi]0_,IntegrationLimit_, Accuracy_, Precision_]:= Module[{M=1, \[Mu], evolutionEqns,initialConditions, \[CapitalPsi],\[CapitalOmega],dtd\[Chi],\[Alpha]0,\[Beta]0,psol, \[Alpha]sol, \[Beta]sol, \[Chi]sol, esol, \[Xi]sol, \[Phi]sol, rsol, \[Theta]sol,p,e,\[Xi],\[Alpha],\[Beta],t,\[Phi],\[Chi], progress = 0},
+SchwarzOscGeoEqs2TP[\[Eta]_,Fr_,F\[Phi]_, p0_, e0_, \[Xi]0_,IntegrationLimit_, Accuracy_, Precision_]:= Module[{M=1, \[Mu], evolutionEqns,initialConditions, \[CapitalPsi],\[CapitalOmega],dtd\[Chi],\[Alpha]0,\[Beta]0,psol, \[Alpha]sol, \[Beta]sol, \[Chi]sol, esol, \[Xi]sol, \[Phi]sol, rsol, \[Theta]sol,p,e,\[Xi],\[Alpha],\[Beta],t,\[Phi],\[Chi], progress = 0, stopReason = None},
 
 \[Mu] = \[Eta] M;
 (*Recast our initial conditions*)
@@ -284,8 +323,10 @@ evolutionEqns = {p'[t] == 1/dtd\[Chi][t] (\[Eta] (2p[t]^(7/2) M Sqrt[p[t]-6-2(\[
 
 
 (*Solving the evolution equations*)
-Print["Starting NDSolve..."];
-{{psol,\[Alpha]sol,\[Beta]sol,\[Chi]sol,\[Phi]sol}}= Monitor[{p,\[Alpha],\[Beta],\[Chi], \[Phi]}/.NDSolve[{Join[evolutionEqns,initialConditions],WhenEvent[p[t]-6-2(\[Alpha][t]^2+\[Beta][t]^2)^(1/2) -0.001 == 0, Print["Separatrix reached."]; "StopIntegration"]}, {p,\[Alpha],\[Beta],\[Chi],\[Phi]},{t,0,IntegrationLimit},AccuracyGoal->Accuracy,PrecisionGoal->Precision, Method->{"EquationSimplification"->"Solve"},StepMonitor :> (progress = t)],  "t = "<> ToString[progress]]//Quiet;
+{{psol,\[Alpha]sol,\[Beta]sol,\[Chi]sol,\[Phi]sol}}= Monitor[{p,\[Alpha],\[Beta],\[Chi], \[Phi]}/.NDSolve[{Join[evolutionEqns,initialConditions],WhenEvent[p[t]-6-2(\[Alpha][t]^2+\[Beta][t]^2)^(1/2) -0.001 == 0, stopReason = "Separatrix"; "StopIntegration"]}, {p,\[Alpha],\[Beta],\[Chi],\[Phi]},{t,0,IntegrationLimit},AccuracyGoal->Accuracy,PrecisionGoal->Precision, Method->{"EquationSimplification"->"Solve"},StepMonitor :> (progress = t)],  "t = "<> ToString[progress]]//Quiet;
+
+(*Report why the integration stopped*)
+StopMessage[SchwarzOsculatingOrbitalElements, "t", psol["Domain"][[1,2]], IntegrationLimit, stopReason];
 
 rsol[t_] := (M psol[t] )/(1+ \[Alpha]sol[t] Sin[\[Chi]sol[t]]+ \[Beta]sol[t]Cos[\[Chi]sol[t]] ); 
 esol[t_] := (\[Alpha]sol[t]^2 + \[Beta]sol[t]^2)^(1/2);
@@ -316,6 +357,10 @@ dataB=Import["b_n_jk","Table"];
 dataC=Import["c_n_jk","Table"];
 dataD=Import["d_n_jk","Table"];
 
+(*Coefficient tables a, b, c and d, indexed as [[n+1, j+1, k+1]]. Built once here rather than on every call.*)
+fastGSFTables = With[{nmax = 7, kbar = 9},
+	Table[data[[4+n,3+j kbar+2j;;3+(j+1) kbar+2j]], {data, {dataA, dataB, dataC, dataD}}, {n,0,nmax}, {j,0,4}]];
+
 
 (* ::Input::Initialization:: *)
 SchwarzFastGSF[p_,e_,\[Xi]_, M_:1]:= Module[{FrCons, FrDiss,F\[Phi]Cons,F\[Phi]Diss, nmax,jbar,kbar,ki, a, b, c, d}, 
@@ -338,17 +383,14 @@ ki[2]=9/2;
 ki[3]=4;
 ki[4]=11/2;
 
-(*Calculating the tables a, b, c, and d*)
-Table[a[1][n]=Table[dataA[[4+n,3+j kbar+2j;;3+(j+1) kbar+2j]],{j,0,4}],{n,0,nmax}];
-Table[b[1][n]=Table[dataB[[4+n,3+j kbar+2j;;3+(j+1) kbar+2j]],{j,0,4}],{n,0,nmax}];
-Table[c[1][n]=Table[dataC[[4+n,3+j kbar+2j;;3+(j+1) kbar+2j]],{j,0,4}],{n,0,nmax}];
-Table[d[1][n]=Table[dataD[[4+n,3+j kbar+2j;;3+(j+1) kbar+2j]],{j,0,4}],{n,0,nmax}];
+(*The tables a, b, c, and d*)
+{a, b, c, d} = fastGSFTables;
 
 (*Calculating the companants of the graviational self force*)
-FrCons=1/p^ki[1] Sum[If[n==0,1/2,1]a[1][n][[j+1,k+1]]p^(-ki[1]-k) e^(n+2j) Cos[n \[Xi]],{n,0,nmax},{j,0,jbar},{k,0,kbar}];
-FrDiss=1/p^ki[2] Sum[If[n==0,1/2,1]b[1][n][[j+1,k+1]]p^(-ki[2]-k) e^(n+2j) Sin[n \[Xi]],{n,0,nmax},{j,0,jbar},{k,0,kbar}];
-F\[Phi]Cons=1/p^ki[3] Sum[If[n==0,1/2,1]c[1][n][[j+1,k+1]]p^(-ki[3]-k) e^(n+2j) Sin[n \[Xi]],{n,0,nmax},{j,0,jbar},{k,0,kbar}];
-F\[Phi]Diss=1/p^ki[4] Sum[If[n==0,1/2,1]d[1][n][[j+1,k+1]]p^(-ki[4]-k) e^(n+2j) Cos[n \[Xi]],{n,0,nmax},{j,0,jbar},{k,0,kbar}];
+FrCons=1/p^ki[1] Sum[If[n==0,1/2,1]a[[n+1,j+1,k+1]]p^(-ki[1]-k) e^(n+2j) Cos[n \[Xi]],{n,0,nmax},{j,0,jbar},{k,0,kbar}];
+FrDiss=1/p^ki[2] Sum[If[n==0,1/2,1]b[[n+1,j+1,k+1]]p^(-ki[2]-k) e^(n+2j) Sin[n \[Xi]],{n,0,nmax},{j,0,jbar},{k,0,kbar}];
+F\[Phi]Cons=1/p^ki[3] Sum[If[n==0,1/2,1]c[[n+1,j+1,k+1]]p^(-ki[3]-k) e^(n+2j) Sin[n \[Xi]],{n,0,nmax},{j,0,jbar},{k,0,kbar}];
+F\[Phi]Diss=1/p^ki[4] Sum[If[n==0,1/2,1]d[[n+1,j+1,k+1]]p^(-ki[4]-k) e^(n+2j) Cos[n \[Xi]],{n,0,nmax},{j,0,jbar},{k,0,kbar}];
 
 (*Retuning the componants as a 4 vector*)
 <|"Fr" -> (FrDiss + FrCons), "F\[Phi]" -> M(F\[Phi]Cons + F\[Phi]Diss)|>]
@@ -914,9 +956,8 @@ r2 = p/(1 + e) ;
 r = p/(1 + e Cos[\[Psi]r]) ;
 \[Beta]= a^2 (1 - En^2);
 
-(*Polar Roots*)
-zm = 1/(2\[Beta]) ((L^2+ Q + \[Beta]) - Sqrt[(L^2 + Q + \[Beta])^2 - 4\[Beta] Q ] ); 
-zp = 1/(2\[Beta]) ((L^2+ Q + \[Beta])+ Sqrt[(L^2+ Q + \[Beta])^2 - 4\[Beta] Q] );
+(*Polar root. zm = 1 - x^2 defines x; computing it from \[Beta] instead divides by zero when a = 0*)
+zm = 1 - x^2;
 z = zm Cos[\[Psi]\[Theta]]^2;
 
 (*Useful Shorthand*)
@@ -930,7 +971,7 @@ P = (p Sqrt[J])/(1 - e^2);
 
 (*Particle Velocities*)
 ur = (p e Sin[\[Psi]r] P)/(\[CapitalDelta] (1+ e Cos[\[Psi]r])^2); 
-u\[Theta] = (Sqrt[zm]Sin[\[Psi]\[Theta]])/Sin[\[Theta]] Sqrt[\[Beta](zp - z)];
+u\[Theta] = (Sqrt[zm]Sin[\[Psi]\[Theta]])/Sin[\[Theta]] Sqrt[\[Beta] + L^2/x^2 - \[Beta] z]; (*\[Beta] zp = \[Beta] + L^2/(1 - zm)*)
 u\[Phi]up =  1/\[CapitalSigma] (L/(1 - zm Cos[\[Psi]\[Theta]]^2) + a En (\[Omega]^2/\[CapitalDelta] -1) - (a^2 L)/\[CapitalDelta]);
 utup = 1/\[CapitalSigma] (En(\[Omega]^4/\[CapitalDelta] - a^2 (1 - zm Cos[\[Psi]\[Theta]]^2)) + a L (1 - \[Omega]^2/\[CapitalDelta])); 
 ut = -(1 - (2r)/\[CapitalSigma])utup -(2 a r(1-zm Cos[\[Psi]\[Theta]]^2))/\[CapitalSigma] u\[Phi]up; 
@@ -996,7 +1037,7 @@ a\[Phi] = -1/\[CapitalSigma]^3((1-z^2)(r^5+2r^3a^2+r a^4+2 a^2r^2-2 a^4+a^4(r-1)
 (*Kerr Osculating Geodesics Solver*)
 
 
-KerrOsculatingOrbitalElements[\[Eta]_, a_, p0_, e0_,x0_, \[Psi]r0_, \[Psi]\[Theta]0_, OptionsPattern[]] := Module[{atV, arV, a\[Theta]V, a\[Phi]V,solve,downQ,monitorQ, \[Lambda], En, L, k, \[Psi]r, \[Psi]\[Theta],t,\[Phi], En0, L0, K0, Q0, ICs, Ensol,Lsol, Ksol, Qsol, \[Psi]rsol,\[Psi]\[Theta]sol,tsol, \[Phi]sol, r1sol, r2sol, psol, esol, rsol,\[Theta]sol,\[Iota]sol,zmsol, xsol, zsol, Equations, p, e,\[Theta]inc,\[Theta]incsol, progress = 0, limit,frVal, f\[Theta]Val, f\[Phi]Val,drag,dragFn,dragArgs,dragVal, r1, r2, r, \[Beta], Q,C, zm, zp, z, \[CapitalSigma], \[CapitalSigma]1, \[CapitalSigma]2, \[CapitalDelta], \[CapitalDelta]1, \[CapitalDelta]2, \[Omega], F, F1, F2, H, \[Theta], \[Kappa]1, \[Kappa]2, Q1, Q2, \[ScriptCapitalD], \[Epsilon], J, P, G, ur, u\[Theta], un, an, A1, A2, A3, dtd\[Lambda], d\[Phi]d\[Lambda], minoQ, RHSE, RHSL, RHSK, RHSpsir, RHSpsi\[Theta], RHS\[Phi], Eqns, s, unknowns, sol, rules, K, tt},
+KerrOsculatingOrbitalElements[\[Eta]_, a_, p0_, e0_,x0_, \[Psi]r0_, \[Psi]\[Theta]0_, OptionsPattern[]] := Module[{atV, arV, a\[Theta]V, a\[Phi]V,solve,downQ,monitorQ, \[Lambda], En, L, k, \[Psi]r, \[Psi]\[Theta],t,\[Phi], En0, L0, K0, Q0, ICs, Ensol,Lsol, Ksol, Qsol, \[Psi]rsol,\[Psi]\[Theta]sol,tsol, \[Phi]sol, r1sol, r2sol, psol, esol, rsol,\[Theta]sol,\[Iota]sol,zmsol, xsol, zsol, Equations, p, e,\[Theta]inc,\[Theta]incsol, progress = 0, limit,frVal, f\[Theta]Val, f\[Phi]Val,drag,dragFn,dragArgs,dragVal, r1, r2, r, \[Beta], Q,C, zm, zp, z, \[CapitalSigma], \[CapitalSigma]1, \[CapitalSigma]2, \[CapitalDelta], \[CapitalDelta]1, \[CapitalDelta]2, \[Omega], F, F1, F2, H, \[Theta], \[Kappa]1, \[Kappa]2, Q1, Q2, \[ScriptCapitalD], \[Epsilon], J, P, G, ur, u\[Theta], un, an, A1, A2, A3, dtd\[Lambda], d\[Phi]d\[Lambda], minoQ, RHSE, RHSL, RHSK, RHSpsir, RHSpsi\[Theta], RHS\[Phi], Eqns, s, unknowns, sol, rules, K, tt, stopReason = None},
 (*Load in Kerr Geodesics Package*)
 Needs["KerrGeodesics`"];
 minoQ = MinoParametrisationQ[OptionValue["Parametrisation"]];
@@ -1162,11 +1203,10 @@ unknowns = {En, L, k, \[Psi]r, \[Psi]\[Theta], \[Phi], If[minoQ, t, Nothing]};
 
 
 
-Print["Starting NDSolve..."];
-limit = OptionValue["IntegrationLimit"]  If[minoQ, 1, 10^3];
+limit = Replace[OptionValue["IntegrationLimit"], Automatic -> If[minoQ, 10^4, 10^7]];
 
 (* Solve the Evolution Equations *)
-monitorQ = MatchQ[OptionValue["TimeMonitor"], "True"|True];
+monitorQ = MatchQ[OptionValue["TimeMonitor"], "True"|True] && $FrontEnd =!= Null;
 solve[] := NDSolve[
   Evaluate@Join[
     ICs,
@@ -1176,7 +1216,7 @@ solve[] := NDSolve[
         Evaluate[
           SeparatrixEqELK[a, En[s], L[s], k[s]] == -10^-6
         ],
-        Print["Separatrix reached."];
+        stopReason = "Separatrix";
         "StopIntegration"
       ]
     }
@@ -1212,8 +1252,8 @@ rules = First[sol];
 If[minoQ, tsol = t /. rules, tsol[\[Tau]_?NumericQ] := \[Tau]];
 
 
-(*If orbit plunges or escapes*)	
-If[Ensol["Domain"][[1,2]]  == limit, Print["Limit reached."]];
+(*Report why the integration stopped*)
+StopMessage[KerrOsculatingOrbitalElements, If[minoQ, "\[Lambda]", "t"], Ensol["Domain"][[1,2]], limit, stopReason];
 	
 (*Funcitons for Useful Properties of the Orbit*)
 
@@ -1268,15 +1308,18 @@ GenericKerrpexBL[ \[Eta]_, a_, p0_, e0_, x0_, \[Psi]r0_, \[Psi]\[Theta]0_, Optio
     smallEQ, smallERules, standardEoM, smallEEoM, sepExpr,deltaPSep, pSep,
 \[Alpha]p, \[Beta]p,
 d\[Alpha]d\[Lambda], d\[Beta]d\[Lambda],
-\[Alpha]psol, \[Beta]psol
+\[Alpha]psol, \[Beta]psol, equatorialQ, equatorialRules, icRules, forceAtStart, stopReason = None
   },
 
   Needs["KerrGeodesics`"];
 
   minoQ = MinoParametrisationQ[OptionValue["Parametrisation"]];
   If[FailureQ[minoQ], Return[$Failed]];
-  monitorQ = MatchQ[OptionValue["TimeMonitor"], True | "True"];
+  monitorQ = MatchQ[OptionValue["TimeMonitor"], True | "True"] && $FrontEnd =!= Null;
   smallEQ = e0 < 100 \[Eta];
+  (* Equatorial orbits (x = \[PlusMinus]1): x is held fixed and the polar equations are dropped. x is kept as an exact \[PlusMinus]1, since KerrGeoSeparatrix does not evaluate at x = \[PlusMinus]1. when a \[NotEqual] 0. *)
+  equatorialQ = TrueQ[Abs[x0] == 1];
+  equatorialRules = If[equatorialQ, {x[s] -> Sign[x0], \[Psi]\[Theta][s] -> 0}, {}];
 
   initialConditions = {
   p[0] == p0,
@@ -1287,7 +1330,7 @@ d\[Alpha]d\[Lambda], d\[Beta]d\[Lambda],
     e[0] == e0
   ],
 
-  x[0] == x0,
+  If[equatorialQ, Nothing, x[0] == x0],
 
   If[
     smallEQ,
@@ -1295,7 +1338,7 @@ d\[Alpha]d\[Lambda], d\[Beta]d\[Lambda],
     \[Psi]r[0] == \[Psi]r0
   ],
 
-  \[Psi]\[Theta][0] == \[Psi]\[Theta]0,
+  If[equatorialQ, Nothing, \[Psi]\[Theta][0] == \[Psi]\[Theta]0],
   \[Phi][0] == 0,
 
   If[minoQ, t[0] == 0, Nothing]
@@ -1439,28 +1482,37 @@ smallERules = {
     D[p[s], s] == If[minoQ, 1, 1/dtd\[Lambda]] dpd\[Lambda],
     If[smallEQ, D[\[Alpha]p[s], s] == If[minoQ, 1, 1/dtd\[Lambda]] d\[Alpha]d\[Lambda],
     D[e[s], s] == If[minoQ, 1, 1/dtd\[Lambda]] ded\[Lambda]],
-    D[x[s], s] == If[minoQ, 1, 1/dtd\[Lambda]] dxd\[Lambda],
+    If[equatorialQ, Nothing, D[x[s], s] == If[minoQ, 1, 1/dtd\[Lambda]] dxd\[Lambda]],
     If[smallEQ, D[\[Beta]p[s], s] == If[minoQ, 1, 1/dtd\[Lambda]] d\[Beta]d\[Lambda],
     D[\[Psi]r[s], s] == If[minoQ, 1, 1/dtd\[Lambda]] d\[Psi]rd\[Lambda]],
-    D[\[Psi]\[Theta][s], s] ==
-      If[minoQ, 1, 1/dtd\[Lambda]] d\[Psi]\[Theta]d\[Lambda],
+    If[equatorialQ, Nothing, D[\[Psi]\[Theta][s], s] ==
+      If[minoQ, 1, 1/dtd\[Lambda]] d\[Psi]\[Theta]d\[Lambda]],
     D[\[Phi][s], s] == If[minoQ, 1, 1/dtd\[Lambda]] d\[Phi]d\[Lambda],
     If[minoQ, D[t[s], s] == dtd\[Lambda], Nothing]
   }     /. If[smallEQ,  {e[s]-> Sqrt[\[Alpha]p[s]^2 + \[Beta]p[s]^2],
-\[Psi]r[s] -> ArcTan[\[Beta]p[s], \[Alpha]p[s]] }, {}] ;
+\[Psi]r[s] -> ArcTan[\[Beta]p[s], \[Alpha]p[s]] }, {}] /. equatorialRules;
+
+  (* Equatorial orbits only stay in the plane if the force has no \[Theta] component there. *)
+  If[equatorialQ,
+    icRules = Cases[initialConditions, (f_[0] == v_) :> (f[s] -> v)];
+    forceAtStart = Quiet[{at, ar, a\[Theta], a\[Phi]} /. If[smallEQ, smallERules, {}] /. equatorialRules /. icRules];
+    If[TrueQ[Abs[forceAtStart[[3]]] > 10^-10 Max[Abs[forceAtStart]]],
+      Message[KerrOsculatingOrbitalElements::eqforce, forceAtStart[[3]]/\[Eta]];
+      Return[$Failed]]
+  ];
 
   s = If[minoQ, \[Lambda], t];
 unknowns = { 
 p,
 If[smallEQ, \[Alpha]p, e],
-x,
+If[equatorialQ, Nothing, x],
 If[smallEQ, \[Beta]p, \[Psi]r],
-\[Psi]\[Theta],
+If[equatorialQ, Nothing, \[Psi]\[Theta]],
 \[Phi],
 If[minoQ, t, Nothing]
 };
 
-  limit = OptionValue["IntegrationLimit"] If[minoQ, 1, 10^3];
+  limit = Replace[OptionValue["IntegrationLimit"], Automatic -> If[minoQ, 10^4, 10^7]];
   pMin = OptionValue["pMin"];
   pMinQ = NumericQ[pMin];
 
@@ -1474,7 +1526,7 @@ events = With[{u = s},
       pMinQ,
       WhenEvent[
         p[u] - pMin == 0,
-        Print["pMin reached."];
+        stopReason = "pMin";
         "StopIntegration"],
       Nothing
     ],
@@ -1483,21 +1535,20 @@ events = With[{u = s},
       smallEQ,
       WhenEvent[ p[u] - pSep[Sqrt[\[Alpha]p[u]^2 + \[Beta]p[u]^2],x[u]] - deltaPSep == 0,
 
-  Print["Separatrix safety boundary reached."];
+  stopReason = "SeparatrixBuffer";
   "StopIntegration"],
 
       WhenEvent[
         Evaluate[
           SeparatrixEqELK[a, En, L, K] == -10^-6
         ],
-        Print["Separatrix reached."];
+        stopReason = "Separatrix";
         "StopIntegration"
       ]
     ]
   }
-];
+] /. equatorialRules;
 
-  Print["Starting NDSolve..."];
 
   solve[] := NDSolve[
     Evaluate@Join[initialConditions, EoM, events],
@@ -1525,8 +1576,12 @@ events = With[{u = s},
   ];
 
   rules = First[sol];
-  {psol, xsol, \[Psi]\[Theta]sol, \[Phi]sol} =
-  {p, x, \[Psi]\[Theta], \[Phi]} /. rules;
+  {psol, \[Phi]sol} = {p, \[Phi]} /. rules;
+  If[equatorialQ,
+    xsol[u_] := Sign[x0];
+    \[Psi]\[Theta]sol[u_] := Missing["UndefinedForEquatorialOrbit"],
+    {xsol, \[Psi]\[Theta]sol} = {x, \[Psi]\[Theta]} /. rules
+  ];
 
   If[
     minoQ,
@@ -1534,7 +1589,7 @@ events = With[{u = s},
     tsol[\[Tau]_?NumericQ] := \[Tau]
   ];
 
-  If[psol["Domain"][[1, 2]] == limit, Print["Limit reached."]];
+  StopMessage[KerrOsculatingOrbitalElements, If[minoQ, "\[Lambda]", "t"], psol["Domain"][[1, 2]], limit, stopReason];
   
   
 
@@ -1557,7 +1612,7 @@ If[
   (* Derived quantities. *)
   zmsol[u_] := 1 - xsol[u]^2;
   rsol[u_] := psol[u]/(1 + esol[u] Cos[\[Psi]rsol[u]]);
-  \[Theta]sol[u_] := ArcCos[Sqrt[zmsol[u]] Cos[\[Psi]\[Theta]sol[u]]];
+  \[Theta]sol[u_] := If[equatorialQ, \[Pi]/2, ArcCos[Sqrt[zmsol[u]] Cos[\[Psi]\[Theta]sol[u]]]];
 
   Ensol[u_] := Energy[a, psol[u], esol[u], xsol[u]];
   Lsol[u_] := AngularMomentum[a, psol[u], esol[u], xsol[u]];
@@ -1611,21 +1666,25 @@ GenericKerrREGBL[ \[Eta]_, a_, p0_, e0_, x0_, \[Psi]r0_, \[Psi]\[Theta]0_, Optio
     dzmd\[Lambda], dxd\[Lambda], dtd\[Lambda], d\[Phi]d\[Lambda], d\[Psi]\[Theta]d\[Lambda],
     psol, esol, xsol, \[Alpha]psol, \[Beta]psol, \[Psi]rsol, \[Psi]\[Theta]sol, tsol, \[Phi]sol,
     rsol, \[Theta]sol, Ensol, Lsol, Ksol, Qsol,
-    r1sol, r2sol, zmsol, \[Iota]sol, deltaPSep, pSep
+    r1sol, r2sol, zmsol, \[Iota]sol, deltaPSep, pSep,
+    equatorialQ, equatorialRules, icRules, forceAtStart, stopReason = None
   },
 
   Needs["KerrGeodesics`"];
 
   minoQ = MinoParametrisationQ[OptionValue["Parametrisation"]];
   If[FailureQ[minoQ], Return[$Failed]];
-  monitorQ = MatchQ[OptionValue["TimeMonitor"], True | "True"];
+  monitorQ = MatchQ[OptionValue["TimeMonitor"], True | "True"] && $FrontEnd =!= Null;
+  (* Equatorial orbits (x = \[PlusMinus]1): x is held fixed and the polar equations are dropped. x is kept as an exact \[PlusMinus]1, since KerrGeoSeparatrix does not evaluate at x = \[PlusMinus]1. when a \[NotEqual] 0. *)
+  equatorialQ = TrueQ[Abs[x0] == 1];
+  equatorialRules = If[equatorialQ, {x[s] -> Sign[x0], \[Psi]\[Theta][s] -> 0}, {}];
 
   initialConditions = {
     p[0] == p0,
     \[Alpha]p[0] == If[TrueQ[e0 == 0], 0, e0 Sin[\[Psi]r0]],
-    x[0] == x0,
+    If[equatorialQ, Nothing, x[0] == x0],
     \[Beta]p[0] == If[TrueQ[e0 == 0], 0, e0 Cos[\[Psi]r0]],
-    \[Psi]\[Theta][0] == \[Psi]\[Theta]0,
+    If[equatorialQ, Nothing, \[Psi]\[Theta][0] == \[Psi]\[Theta]0],
     \[Phi][0] == 0,
     If[minoQ, t[0] == 0, Nothing]
   };
@@ -1749,16 +1808,25 @@ GenericKerrREGBL[ \[Eta]_, a_, p0_, e0_, x0_, \[Psi]r0_, \[Psi]\[Theta]0_, Optio
   EoM = {
     D[p[s], s] == If[minoQ, 1, 1/dtd\[Lambda]] dpd\[Lambda],
     D[\[Alpha]p[s], s] == If[minoQ, 1, 1/dtd\[Lambda]] d\[Alpha]d\[Lambda],
-    D[x[s], s] == If[minoQ, 1, 1/dtd\[Lambda]] dxd\[Lambda],
+    If[equatorialQ, Nothing, D[x[s], s] == If[minoQ, 1, 1/dtd\[Lambda]] dxd\[Lambda]],
     D[\[Beta]p[s], s] == If[minoQ, 1, 1/dtd\[Lambda]] d\[Beta]d\[Lambda],
-    D[\[Psi]\[Theta][s], s] == If[minoQ, 1, 1/dtd\[Lambda]] d\[Psi]\[Theta]d\[Lambda],
+    If[equatorialQ, Nothing, D[\[Psi]\[Theta][s], s] == If[minoQ, 1, 1/dtd\[Lambda]] d\[Psi]\[Theta]d\[Lambda]],
     D[\[Phi][s], s] == If[minoQ, 1, 1/dtd\[Lambda]] d\[Phi]d\[Lambda],
     If[minoQ, D[t[s], s] == dtd\[Lambda], Nothing]
-  };
+  } /. equatorialRules;
+
+  (* Equatorial orbits only stay in the plane if the force has no \[Theta] component there. *)
+  If[equatorialQ,
+    icRules = Cases[initialConditions, (f_[0] == v_) :> (f[s] -> v)];
+    forceAtStart = Quiet[{at, ar, a\[Theta], a\[Phi]} /. equatorialRules /. icRules];
+    If[TrueQ[Abs[forceAtStart[[3]]] > 10^-10 Max[Abs[forceAtStart]]],
+      Message[KerrOsculatingOrbitalElements::eqforce, forceAtStart[[3]]/\[Eta]];
+      Return[$Failed]]
+  ];
 
   s = If[minoQ, \[Lambda], t];
-  unknowns = {p, \[Alpha]p, x, \[Beta]p, \[Psi]\[Theta], \[Phi], If[minoQ, t, Nothing]};
-  limit = OptionValue["IntegrationLimit"] If[minoQ, 1, 10^3];
+  unknowns = {p, \[Alpha]p, If[equatorialQ, Nothing, x], \[Beta]p, If[equatorialQ, Nothing, \[Psi]\[Theta]], \[Phi], If[minoQ, t, Nothing]};
+  limit = Replace[OptionValue["IntegrationLimit"], Automatic -> If[minoQ, 10^4, 10^7]];
   pMin = OptionValue["pMin"];
   pMinQ = NumericQ[pMin];
   deltaPSep = \[Eta];
@@ -1767,13 +1835,12 @@ GenericKerrREGBL[ \[Eta]_, a_, p0_, e0_, x0_, \[Psi]r0_, \[Psi]\[Theta]0_, Optio
   (* Use the same separatrix buffer as the component branch of GenericKerrpexBL. *)
   events = With[{u = s}, {
     If[pMinQ,
-      WhenEvent[p[u] - pMin == 0, Print["pMin reached."]; "StopIntegration"],
+      WhenEvent[p[u] - pMin == 0, stopReason = "pMin"; "StopIntegration"],
       Nothing],
     WhenEvent[p[u] - pSep[eccentricity[\[Alpha]p[u], \[Beta]p[u]], x[u]] - deltaPSep == 0,
-      Print["Separatrix safety boundary reached."]; "StopIntegration"]
-  }];
+      stopReason = "SeparatrixBuffer"; "StopIntegration"]
+  }] /. equatorialRules;
 
-  Print["Starting NDSolve..."];
   solve[] := NDSolve[
     Evaluate@Join[initialConditions, EoM, events],
     unknowns,
@@ -1793,10 +1860,14 @@ GenericKerrREGBL[ \[Eta]_, a_, p0_, e0_, x0_, \[Psi]r0_, \[Psi]\[Theta]0_, Optio
   ];
 
   rules = First[sol];
-  {psol, \[Alpha]psol, xsol, \[Beta]psol, \[Psi]\[Theta]sol, \[Phi]sol} =
-    {p, \[Alpha]p, x, \[Beta]p, \[Psi]\[Theta], \[Phi]} /. rules;
+  {psol, \[Alpha]psol, \[Beta]psol, \[Phi]sol} = {p, \[Alpha]p, \[Beta]p, \[Phi]} /. rules;
+  If[equatorialQ,
+    xsol[u_] := Sign[x0];
+    \[Psi]\[Theta]sol[u_] := Missing["UndefinedForEquatorialOrbit"],
+    {xsol, \[Psi]\[Theta]sol} = {x, \[Psi]\[Theta]} /. rules
+  ];
   If[minoQ, tsol = t /. rules, tsol[\[Tau]_?NumericQ] := \[Tau]];
-  If[psol["Domain"][[1, 2]] == limit, Print["Limit reached."]];
+  StopMessage[KerrOsculatingOrbitalElements, If[minoQ, "\[Lambda]", "t"], psol["Domain"][[1, 2]], limit, stopReason];
 
   esol[u_?NumericQ] := If[TrueQ[e0 == 0 && u == 0], 0,
     eccentricity[\[Alpha]psol[u], \[Beta]psol[u]]];
@@ -1806,7 +1877,7 @@ GenericKerrREGBL[ \[Eta]_, a_, p0_, e0_, x0_, \[Psi]r0_, \[Psi]\[Theta]0_, Optio
   (* Derived quantities; r remains defined even when the radial anomaly is not. *)
   zmsol[u_] := 1 - xsol[u]^2;
   rsol[u_] := psol[u]/(1 + \[Beta]psol[u]);
-  \[Theta]sol[u_] := ArcCos[Sqrt[zmsol[u]] Cos[\[Psi]\[Theta]sol[u]]];
+  \[Theta]sol[u_] := If[equatorialQ, \[Pi]/2, ArcCos[Sqrt[zmsol[u]] Cos[\[Psi]\[Theta]sol[u]]]];
   Ensol[u_] := Energy[a, psol[u], esol[u], xsol[u]];
   Lsol[u_] := AngularMomentum[a, psol[u], esol[u], xsol[u]];
   Qsol[u_] := CarterConstant[a, psol[u], esol[u], xsol[u]];

@@ -27,6 +27,54 @@ Here we will specify plans for refactoring the package and what new features we 
 
 - Having multiple forces/ fluxes driving an inspiral
 
+## Polar motion near the equator and the poles (for later)
+
+The pex polar variables (x, ψθ) are singular for equatorial orbits (x = ±1). There ψθ is undefined, and its equation contains a term proportional to F_θ / √(1 − x²), so in these variables a force with a θ component cannot lift an orbit out of the plane. The current code avoids this by holding equatorial orbits in the plane (see "Before Phase 0"), which rules out such forces.
+
+**Planned replacement:** evolve the 3-vector (αθ, βθ, x), which satisfies αθ² + βθ² + x² = 1, where
+
+```
+αθ = √zm sin ψθ,    βθ = √zm cos ψθ = cos θ,    zm = 1 − x²
+```
+
+Geometrically, this is a unit sphere with x as the height and ψθ as the longitude:
+
+- (x, ψθ) are spherical coordinates, so they fail at the sphere's poles, the equatorial orbits.
+- (αθ, βθ) alone fail at its equator, the polar orbits (x = 0), because they cannot tell prograde from retrograde.
+- The 3-vector is regular everywhere, including through prograde ↔ retrograde transitions.
+
+**Equations** (Mino time, covariant a_μ). The auxiliary quantities are:
+
+- W = √(βz₊ − β βθ²)
+- βz₊ = Q + L² + βx²
+- L/x = √(Q + L² − βzm)
+- sin θ = √(1 − βθ²)
+
+```
+dαθ/dλ = βθ W + Σ [ x² W a_θ / sin θ − αθ ( a²E x² a_t + L a_φ / sin²θ ) ] / (βz₊ − βzm)
+dβθ/dλ = −αθ W
+dx/dλ  = −Σ αθ [ x W a_θ / sin θ − αθ ( a²E x a_t + (L/x) a_φ / sin²θ ) ] / (βz₊ − βzm)
+```
+
+**Derivation outline:**
+
+1. βθ = cos θ is a coordinate, so its rate is the geodesic rate.
+2. Writing dQ/dλ in its polar form, 2Σ[u_θ a_θ + cos²θ (a²E a_t + L a_φ / sin²θ)], makes every term of dzm/dλ proportional to αθ. This factor cancels in dαθ/dλ, which follows from αθ² = zm − βθ².
+3. dx/dλ = −(dzm/dλ)/(2x), with the 1/x cancelled using 1 − zm = x² and L/x.
+4. The equations preserve αθ² + βθ² + x² = 1 exactly, so any drift measures the integration error.
+5. The derivation assumes u^μ a_μ = 0. The polar form of dQ and pex's radial form of dK agree only then.
+
+**Checked so far, at the level of the equations only, not yet in a solver:** they match pex's (x, ψθ) equations to 10⁻¹² or better for a = 0, 0.5 and 0.9, prograde and retrograde, and x from 0.999 down to ±0.01.
+
+**Open issues:**
+
+- `Energy`, `AngularMomentum` and `CarterConstant` give 0/0 at x = 0, and lose about half their digits near it (L is off by 2×10⁻⁸ at x = 10⁻⁸). They need forms that are safe at x = 0, for example KerrGeodesics' polar-orbit formulas.
+- **The Boyer–Lindquist axis.** Orbits with x ≈ 0 pass close to θ = 0, π, where the 1/sin θ terms grow and φ swings by nearly π. These terms stay bounded for smooth forces and are only 0/0 exactly on the axis.
+  - An inspiral crossing x = 0 generically misses the axis, so it only costs small steps.
+  - An exactly polar orbit (L held at 0) crosses the axis every half polar period. Treat exactly polar orbits as unsupported.
+- The current pex solver can already cross x = 0, because NDSolve steps over the 0/0 in its dx/dλ. Its accuracy there is limited by the constants-of-motion problem above.
+- This formulation does not seem to be in the literature, so it is worth writing up.
+
 ## Code layout
 
 The package moves from the single `OsculatingOrbitalElements.m` to a paclet with one file per responsibility. Source files use the `.wl` extension and keep the `(* ::Package:: *)` header, so they still open in the Mathematica package editor.
@@ -107,6 +155,15 @@ Legacy later: each current public function (`SchwarzOsculatingOrbitalElements`, 
 
 ## Checklist for improvements that should be made
 
+### Before Phase 0: fixes to the current code
+
+- [x] Equatorial orbits (x = ±1) in the pex and REG solvers: x is held at exactly ±1, the polar equations are dropped, and a force with a θ component on the plane is rejected. This is temporary until the regular polar formulation replaces it (see "Polar motion near the equator and the poles").
+- [x] pex gas drag at a = 0: `KerrGasDragapex` divided by a²(1 − E²) to get zm; it now uses zm = 1 − x²
+- [x] `IntegrationLimit` is in the units of the chosen time variable, with no hidden ×1000. The Kerr default is `Automatic`: 10⁷ in coordinate time and 10⁴ in Mino time.
+- [x] `Print` replaced by messages that say why the integration stopped, and `Monitor` only used when a front end is present (Kerr solvers)
+- [x] FastGSF coefficient tables built once at load
+- [ ] Report to KerrGeodesics: `KerrGeoSeparatrix[a, e, ±1.]` does not evaluate when a ≠ 0 (worked around here by holding x at exact ±1)
+
 ### Phase 0: Tests before any restructuring
 
 - [ ] Set up `Tests/` with `.wlt` files and an `AllTests.wls` runner, and run it against the current single-file package
@@ -132,11 +189,10 @@ Legacy later: each current public function (`SchwarzOsculatingOrbitalElements`, 
 
 - [ ] Define what each solver file provides: variables, initial conditions, equations, stop events, and derived quantities (r, θ, En, L, Q, …)
 - [ ] Write one NDSolve driver shared by all solvers:
-  - [ ] Stop conditions (separatrix, pMin, maximum time) in the units of the chosen time variable, removing the hidden ×1000 in `IntegrationLimit`
+  - [ ] Stop conditions (separatrix, pMin, maximum time) handled in one place
   - [ ] A configurable separatrix buffer (currently fixed at η)
-  - [ ] Record why the integration stopped
+  - [ ] Store why the integration stopped in the output (currently only reported as a message)
   - [ ] Pass NDSolve options straight through
-- [ ] Replace `Print` with messages or a `Verbose` option, and only use `Monitor` when a front end is present
 - [ ] Move the orbit geometry (Σ, Δ, roots, velocities), currently repeated in several functions, into `Utilities.wl`
 
 ### Phase 3: New interface and inspiral object
@@ -149,12 +205,13 @@ Legacy later: each current public function (`SchwarzOsculatingOrbitalElements`, 
 - [ ] Switch to p, α, β at small e:
   - [ ] Decide the criterion: based on the initial e₀ (as now), or switching during the integration
   - [ ] Merge the pex small-e branch with the REG equations
-- [ ] Support equatorial orbits (x = ±1). The pex and REG polar equations divide by √zm, so both currently fail there; REG only works when a = 0.
+- [ ] Replace the (x, ψθ) polar equations with the (αθ, βθ, x) formulation, and remove the equatorial safeguard (see "Polar motion near the equator and the poles")
+- [ ] Make the constants of motion safe at x = 0
 - [ ] Decide whether Schwarzschild stays a separate solver or becomes the a = 0 case of the Kerr solver (this needs the equatorial support above)
 - [ ] Build the inspiral object, modelled on `KerrGeoOrbitFunction`:
   - [ ] Properties: trajectory, orbital elements, constants of motion, phases, domain, stop reason, input parameters and force
   - [ ] Summary box
-- [ ] Later: offer ELK as an option. Its `"p"` and `"e"` outputs are slow because every evaluation solves the radial quartic.
+- [ ] Later: offer ELK as an option. Its `"p"` and `"e"` outputs are slow because every evaluation solves the radial quartic, and its gas drag (`KerrGasDrag`, `KerrGasDragVec`) still divides by zero at a = 0.
 
 ### Phase 4: Force objects
 
@@ -163,7 +220,7 @@ Legacy later: each current public function (`SchwarzOsculatingOrbitalElements`, 
 - [ ] Hold extra model parameters (such as a drag coefficient) in the object, and decide how they relate to η
 - [ ] Solvers accept only Force objects, and built-in models can be selected by name
 - [ ] Rewrite gas drag, conservative EM and FastGSF as Force objects, each returning all components from a single evaluation
-- [ ] Build the FastGSF coefficient tables once, rather than on every call
+- [ ] Vectorise the FastGSF sum. The tables are now built once, but the 1,600-term sum is about 94% of the 4 ms per call. Solves aren't affected today, because the solvers expand FastGSF symbolically once.
 
 ### Phase 5: Legacy
 
@@ -175,6 +232,7 @@ Legacy later: each current public function (`SchwarzOsculatingOrbitalElements`, 
 - [ ] Reference pages for every public symbol, a guide page, and tutorials with worked examples
 - [ ] Turn `tutorial.nb` into documentation, fixing its current bugs (undefined `ELKup`, and sin θ and cos θ swapped in the 3D plot)
 - [ ] Update the README: features, installation, links
+- [ ] Write up the regular polar formulation
 - [ ] Strip outputs from committed notebooks
 - [ ] Build the paclet and publish it to a paclet server
 - [ ] Optional: run the tests automatically on GitHub, as KerrGeodesics does
