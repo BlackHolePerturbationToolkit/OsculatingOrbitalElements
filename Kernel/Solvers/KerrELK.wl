@@ -12,7 +12,7 @@
 (*Kerr Osculating Geodesics Solver*)
 
 
-KerrOsculatingOrbitalElements[\[Eta]_, a_, p0_, e0_,x0_, \[Psi]r0_, \[Psi]\[Theta]0_, OptionsPattern[]] := Module[{atV, arV, a\[Theta]V, a\[Phi]V,solve,downQ,monitorQ, \[Lambda], En, L, k, \[Psi]r, \[Psi]\[Theta],t,\[Phi], En0, L0, K0, Q0, ICs, Ensol,Lsol, Ksol, Qsol, \[Psi]rsol,\[Psi]\[Theta]sol,tsol, \[Phi]sol, r1sol, r2sol, psol, esol, rsol,\[Theta]sol,\[Iota]sol,zmsol, xsol, zsol, Equations, p, e,\[Theta]inc,\[Theta]incsol, progress = 0, limit,frVal, f\[Theta]Val, f\[Phi]Val,drag,dragFn,dragArgs,dragVal, r1, r2, r, \[Beta], Q,C, zm, zp, z, \[CapitalSigma], \[CapitalSigma]1, \[CapitalSigma]2, \[CapitalDelta], \[CapitalDelta]1, \[CapitalDelta]2, \[Omega], F, F1, F2, H, \[Theta], \[Kappa]1, \[Kappa]2, Q1, Q2, \[ScriptCapitalD], \[Epsilon], J, P, G, ur, u\[Theta], un, an, A1, A2, A3, dtd\[Lambda], d\[Phi]d\[Lambda], minoQ, RHSE, RHSL, RHSK, RHSpsir, RHSpsi\[Theta], RHS\[Phi], Eqns, s, unknowns, sol, rules, K, tt, stopReason = None},
+KerrOsculatingOrbitalElements[\[Eta]_, a_, p0_, e0_,x0_, \[Psi]r0_, \[Psi]\[Theta]0_, opts:OptionsPattern[{KerrOsculatingOrbitalElements, NDSolve}]] := Module[{atV, arV, a\[Theta]V, a\[Phi]V,solve,downQ,monitorQ, \[Lambda], En, L, k, \[Psi]r, \[Psi]\[Theta],t,\[Phi], En0, L0, K0, Q0, ICs, Ensol,Lsol, Ksol, Qsol, \[Psi]rsol,\[Psi]\[Theta]sol,tsol, \[Phi]sol, r1sol, r2sol, psol, esol, rsol,\[Theta]sol,\[Iota]sol,zmsol, xsol, zsol, Equations, p, e,\[Theta]inc,\[Theta]incsol, progress = 0, limit,frVal, f\[Theta]Val, f\[Phi]Val,drag,dragFn,dragArgs,dragVal, r1, r2, r, \[Beta], Q,C, zm, zp, z, \[CapitalSigma], \[CapitalSigma]1, \[CapitalSigma]2, \[CapitalDelta], \[CapitalDelta]1, \[CapitalDelta]2, \[Omega], F, F1, F2, H, \[Theta], \[Kappa]1, \[Kappa]2, Q1, Q2, \[ScriptCapitalD], \[Epsilon], J, P, G, ur, u\[Theta], un, an, A1, A2, A3, dtd\[Lambda], d\[Phi]d\[Lambda], minoQ, RHSE, RHSL, RHSK, RHSpsir, RHSpsi\[Theta], RHS\[Phi], Eqns, s, unknowns, sol, rules, K, tt, integration},
 (*Load in Kerr Geodesics Package*)
 Needs["KerrGeodesics`"];
 minoQ = MinoParametrisationQ[OptionValue["Parametrisation"]];
@@ -178,57 +178,24 @@ unknowns = {En, L, k, \[Psi]r, \[Psi]\[Theta], \[Phi], If[minoQ, t, Nothing]};
 
 
 
-limit = Replace[OptionValue["IntegrationLimit"], Automatic -> If[minoQ, 10^4, 10^7]];
+limit = IntegrationLimitValue[OptionValue["IntegrationLimit"], minoQ];
 
 (* Solve the Evolution Equations *)
-monitorQ = MatchQ[OptionValue["TimeMonitor"], "True"|True] && $FrontEnd =!= Null;
-solve[] := NDSolve[
-  Evaluate@Join[
-    ICs,
-    Eqns,
-    {
-      WhenEvent[
-        Evaluate[
-          SeparatrixEqELK[a, En[s], L[s], k[s]] == -10^-6
-        ],
-        stopReason = "Separatrix";
-        "StopIntegration"
-      ]
-    }
-  ],
-  unknowns,
-  {s, 0, limit},
+integration = IntegrateSystem[
+    <|"Unknowns" -> unknowns, "Equations" -> Join[ICs, Eqns],
+      "Events" -> {stopEvent[Evaluate[SeparatrixEqELK[a, En[s], L[s], k[s]] == -10^-6], "Separatrix"]},
+      "Method" -> {"EquationSimplification" -> "Solve"}|>,
+    s, limit,
+    <|"Function" -> KerrOsculatingOrbitalElements, "MessageHead" -> KerrOsculatingOrbitalElements,
+      "VariableName" -> If[minoQ, "\[Lambda]", "t"], "AccuracyGoal" -> OptionValue["AccuracyGoal"],
+      "PrecisionGoal" -> OptionValue["PrecisionGoal"], "NDSolveOptions" -> NDSolveOptions[opts],
+      "Monitor" -> MonitorQ[OptionValue["TimeMonitor"]], "Quiet" -> False|>];
+If[FailureQ[integration], Return[$Failed]];
 
-  AccuracyGoal -> OptionValue["AccuracyGoal"],
-  PrecisionGoal -> OptionValue["PrecisionGoal"],
-  Method -> {"EquationSimplification" -> "Solve"},
-
-  StepMonitor :> (progress = s)
-];
-
-sol = If[
-  monitorQ, Monitor[
-    solve[],
-    Row[{
-      If[minoQ, "\[Lambda]", "t"],
-      " = ",
-      progress
-    }]
-  ],
-
-  solve[]
-];
-
-If[! MatchQ[sol, {{__Rule}}],
-   Message[KerrOsculatingOrbitalElements::nosol]; Return[$Failed]];
-
-rules = First[sol];
+rules = integration["Solution"];
 {Ensol, Lsol, Ksol, \[Psi]rsol, \[Psi]\[Theta]sol, \[Phi]sol} = {En, L, k, \[Psi]r, \[Psi]\[Theta], \[Phi]} /. rules;
 If[minoQ, tsol = t /. rules, tsol[\[Tau]_?NumericQ] := \[Tau]];
 
-
-(*Report why the integration stopped*)
-StopMessage[KerrOsculatingOrbitalElements, If[minoQ, "\[Lambda]", "t"], Ensol["Domain"][[1,2]], limit, stopReason];
 	
 (*Funcitons for Useful Properties of the Orbit*)
 
@@ -253,7 +220,7 @@ xsol[\[Lambda]_]:= Sign[Lsol[\[Lambda]]]Sqrt[1 - zmsol[\[Lambda]]];
 "En"-> Ensol, "L"-> Lsol, "K" -> Ksol, "Q" -> Qsol, 
 "p"-> psol, "e"-> esol, "x" -> xsol, "\[Iota]" -> \[Iota]sol,
 "\[Psi]r" -> \[Psi]rsol, "\[Psi]\[Theta]" -> \[Psi]\[Theta]sol, 
-"r1"-> r1sol, "r2" -> r2sol, "z1"-> zmsol, "limit" -> Ensol["Domain"][[1,2]]|>
+"r1"-> r1sol, "r2" -> r2sol, "z1"-> zmsol, "limit" -> Ensol["Domain"][[1,2]], "StopReason" -> integration["StopReason"]|>
  ,
 Message[KerrOsculatingOrbitalElements::ICs]; $Failed]
 ]

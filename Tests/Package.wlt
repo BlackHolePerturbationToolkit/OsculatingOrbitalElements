@@ -6,11 +6,10 @@
 VerificationTest[
 	Sort[$publicSymbolsAfterLoading]
 	,
-	(* pMin$ comes from Module renaming its local variable pMin, which shares its name with the pMin option. It should go
-	   when the options are reworked. *)
 	Sort[{"Force", "ForceUpDown", "GenericKerrpexBL", "GenericKerrREGBL", "IntegrationLimit", "KerrEMCons", "KerrGasDrag",
-		"KerrGasDragVec", "KerrOsculatingOrbitalElements", "Parametrisation", "pMin", "pMin$", "SchwarzFastGSF",
-		"SchwarzGasDrag", "SchwarzOsculatingOrbitalElements", "SchwarzOsculatingOrbitalElementsTP", "TimeMonitor"}]
+		"KerrGasDragVec", "KerrOsculatingOrbitalElements", "Parametrisation", "pMin", "SchwarzFastGSF",
+		"SchwarzGasDrag", "SchwarzOsculatingOrbitalElements", "SchwarzOsculatingOrbitalElementsTP", "SeparatrixBuffer",
+		"TimeMonitor"}]
 	,
 	TestID -> "The package exports exactly the expected public symbols"
 ]

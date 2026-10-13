@@ -20,10 +20,10 @@ BeginPackage["OsculatingOrbitalElements`",{"KerrGeodesics`","KerrGeodesics`Speci
 
 
 MessageName[SchwarzOsculatingOrbitalElements, "usage"] = 
-"SchwarzOsculatingOrbitalElements[\[Eta], p, e, \[Xi], Force-> {Fr, F\[Phi]}] calculates p, e, \[Xi], t and \[Phi] as functions of the Darwin Parameter (\[Chi]) using the contravarient components of an acceleration (Fr,F\[Phi]) and a mass ratio given by \[Eta]."
+"SchwarzOsculatingOrbitalElements[\[Eta], p, e, \[Xi], Force-> {Fr, F\[Phi]}] calculates p, e, \[Xi], t and \[Phi] as functions of the Darwin Parameter (\[Chi]) using the contravarient components of an acceleration (Fr,F\[Phi]) and a mass ratio given by \[Eta]. The result's \"StopReason\" says why the integration stopped: \"Separatrix\", \"SeparatrixBuffer\", \"pMin\", \"IntegrationLimit\", or \"Other\" if NDSolve stopped early. Options of NDSolve are passed to NDSolve."
 
 MessageName[SchwarzOsculatingOrbitalElementsTP, "usage"] = 
-"SchwarzOsculatingOrbitalElementsTP[\[Eta], p, e, \[Xi], Force-> {Fr, F\[Phi]}] calculates p, e, \[Xi], and \[Phi] as functions of the coordinate time (t) using the contravarient components of an acceleration (Fr,F\[Phi]) and a mass ratio given by \[Eta]."
+"SchwarzOsculatingOrbitalElementsTP[\[Eta], p, e, \[Xi], Force-> {Fr, F\[Phi]}] calculates p, e, \[Xi], and \[Phi] as functions of the coordinate time (t) using the contravarient components of an acceleration (Fr,F\[Phi]) and a mass ratio given by \[Eta]. The result's \"StopReason\" says why the integration stopped: \"Separatrix\", \"SeparatrixBuffer\", \"pMin\", \"IntegrationLimit\", or \"Other\" if NDSolve stopped early. Options of NDSolve are passed to NDSolve."
 
 MessageName[SchwarzOsculatingOrbitalElements, "InvalidForce"] =  "Error: Invalid Expression for Force."
 
@@ -35,18 +35,20 @@ MessageName[SchwarzOsculatingOrbitalElements, "sep"] = "Integration stopped at t
 
 MessageName[SchwarzOsculatingOrbitalElements, "limit"] = "Integration reached IntegrationLimit (`1` = `2`) before the separatrix."
 
+MessageName[SchwarzOsculatingOrbitalElements, "nosol"] = "NDSolve did not return a solution."
+
 MessageName[SchwarzOsculatingOrbitalElements, "early"] = "Warning: NDSolve stopped at `1` = `2`, before reaching IntegrationLimit or the separatrix."
 
 MessageName[KerrOsculatingOrbitalElements, "usage"] = 
-"KerrOsculatingOrbitalElements[\[Eta], a, p, e, x, \[Psi]r, \[Psi]\[Theta], Force->{at, ar, a\[Theta] a\[Phi]}] calculates En, L, K, \[Psi]r and \[Psi]\[Theta] as functions of Mino time (\[Lambda]) or coordinate time(t) using a given by covariant components of an acceleration (at, ar, a\[Theta], a\[Phi]) a mass ratio given by \[Eta]."
+"KerrOsculatingOrbitalElements[\[Eta], a, p, e, x, \[Psi]r, \[Psi]\[Theta], Force->{at, ar, a\[Theta] a\[Phi]}] calculates En, L, K, \[Psi]r and \[Psi]\[Theta] as functions of Mino time (\[Lambda]) or coordinate time(t) using a given by covariant components of an acceleration (at, ar, a\[Theta], a\[Phi]) a mass ratio given by \[Eta]. The result's \"StopReason\" says why the integration stopped: \"Separatrix\", \"SeparatrixBuffer\", \"pMin\", \"IntegrationLimit\", or \"Other\" if NDSolve stopped early. Options of NDSolve are passed to NDSolve."
 
 MessageName[GenericKerrpexBL, "usage"] = 
-"GenericKerrpexBL[\[Eta], a, p, e, x, \[Psi]r, \[Psi]\[Theta], Force->{at, ar, a\[Theta] a\[Phi]}] calculates  p, e, x, \[Psi]r, and \[Psi]\[Theta] as functions of Mino time (\[Lambda]) or coordinate time(t) using a given by covariant components of an acceleration (at, ar, a\[Theta], a\[Phi]) a mass ratio given by \[Eta]. For equatorial orbits (x = \[PlusMinus]1), x is held fixed, the \[Psi]\[Theta] argument is ignored, \"\[Psi]\[Theta]\" is Missing, and force callbacks receive \[Psi]\[Theta] = 0; the force must have no \[Theta] component on the equatorial plane."
+"GenericKerrpexBL[\[Eta], a, p, e, x, \[Psi]r, \[Psi]\[Theta], Force->{at, ar, a\[Theta] a\[Phi]}] calculates  p, e, x, \[Psi]r, and \[Psi]\[Theta] as functions of Mino time (\[Lambda]) or coordinate time(t) using a given by covariant components of an acceleration (at, ar, a\[Theta], a\[Phi]) a mass ratio given by \[Eta]. For equatorial orbits (x = \[PlusMinus]1), x is held fixed, the \[Psi]\[Theta] argument is ignored, \"\[Psi]\[Theta]\" is Missing, and force callbacks receive \[Psi]\[Theta] = 0; the force must have no \[Theta] component on the equatorial plane. The result's \"StopReason\" says why the integration stopped: \"Separatrix\", \"SeparatrixBuffer\", \"pMin\", \"IntegrationLimit\", or \"Other\" if NDSolve stopped early. Options of NDSolve are passed to NDSolve."
 
 MessageName[TimeMonitor, "usage"] = "TimeMonitor is an option for KerrOsculatingOrbitalElementsTPVec that controls whether a progress monitor showing elapsed computation time is displayed. Set to True to enable, False to disable. The monitor is only shown when a notebook front end is available."
 
 MessageName[GenericKerrREGBL, "usage"] =
-"GenericKerrREGBL[\[Eta], a, p, e, x, \[Psi]r, \[Psi]\[Theta], opts] uses the exact regular eccentricity-component equations with the same arguments and options as GenericKerrpexBL. It also returns \"\[Alpha]p\"=e Sin[\[Psi]r] and \"\[Beta]p\"=e Cos[\[Psi]r]. The returned \"\[Psi]r\" is a principal-value phase and is Missing at e=0; its initial argument is ignored when e0=0. Custom covariant force callbacks retain the pex arguments and must be independent of the radial phase at e=0 (where the callback receives zero). Equatorial orbits (x = \[PlusMinus]1) are handled as in GenericKerrpexBL."
+"GenericKerrREGBL[\[Eta], a, p, e, x, \[Psi]r, \[Psi]\[Theta], opts] uses the exact regular eccentricity-component equations with the same arguments and options as GenericKerrpexBL. It also returns \"\[Alpha]p\"=e Sin[\[Psi]r] and \"\[Beta]p\"=e Cos[\[Psi]r]. The returned \"\[Psi]r\" is a principal-value phase and is Missing at e=0; its initial argument is ignored when e0=0. Custom covariant force callbacks retain the pex arguments and must be independent of the radial phase at e=0 (where the callback receives zero). Equatorial orbits (x = \[PlusMinus]1), the result's \"StopReason\" and NDSolve options are handled as in GenericKerrpexBL."
 
 MessageName[GenericKerrREGBL, "nosol"] = "NDSolve did not return a solution."
 
@@ -66,13 +68,15 @@ MessageName[KerrOsculatingOrbitalElements, "eqforce"] = "Error: The force has a 
 
 MessageName[KerrOsculatingOrbitalElements, "sep"] = "Integration stopped at the separatrix at `1` = `2`."
 
-MessageName[KerrOsculatingOrbitalElements, "sepbuf"] = "Integration stopped at the separatrix safety boundary (p = p_sep + \[Eta]) at `1` = `2`."
+MessageName[KerrOsculatingOrbitalElements, "sepbuf"] = "Integration stopped at the separatrix buffer (see SeparatrixBuffer) at `1` = `2`."
 
 MessageName[KerrOsculatingOrbitalElements, "pmin"] = "Integration stopped at p = pMin at `1` = `2`."
 
 MessageName[KerrOsculatingOrbitalElements, "limit"] = "Integration reached IntegrationLimit (`1` = `2`) before the separatrix."
 
 MessageName[KerrOsculatingOrbitalElements, "early"] = "Warning: NDSolve stopped at `1` = `2`, before reaching IntegrationLimit or a stopping condition."
+
+MessageName[SeparatrixBuffer, "usage"] = "SeparatrixBuffer is an option for GenericKerrpexBL and GenericKerrREGBL which specifies how far outside the separatrix, in p, the integration stops. Automatic stops at p_sep + \[Eta] when the eccentricity components are evolved (always in GenericKerrREGBL), and at the separatrix itself otherwise. A number stops at p_sep plus that number in both cases."
 
 MessageName[IntegrationLimit, "usage"] = 
 "IntegrationLimit is an option which specifies the largest value of the independent variable to integrate to: \[Chi] for SchwarzOsculatingOrbitalElements, t for SchwarzOsculatingOrbitalElementsTP, and t or \[Lambda] (set by Parametrisation) for KerrOsculatingOrbitalElements, GenericKerrpexBL and GenericKerrREGBL.
@@ -106,19 +110,19 @@ MessageName[KerrEMCons, "usage"]= "KerrEMCons[a,p,e,x, \[Psi]r, \[Psi]\[Theta]] 
 
 
 Options[SchwarzOsculatingOrbitalElements] = {IntegrationLimit-> 1000000, AccuracyGoal-> Automatic, PrecisionGoal -> Automatic, Force -> SchwarzGasDrag};
-SyntaxInformation[SchwarzOsculatingOrbitalElements] = {"ArgumentsPattern"-> {_, _, _, _, OptionsPattern[]}};
+SyntaxInformation[SchwarzOsculatingOrbitalElements] = {"ArgumentsPattern"-> {_, _, _, _, OptionsPattern[]}, "OptionNames" -> ToString /@ Union[Keys[Options[SchwarzOsculatingOrbitalElements]], Keys[Options[NDSolve]]]};
 
 Options[SchwarzOsculatingOrbitalElementsTP] = {IntegrationLimit-> 1000000, AccuracyGoal-> Automatic, PrecisionGoal -> Automatic, Force -> SchwarzGasDrag};
-SyntaxInformation[SchwarzOsculatingOrbitalElementsTP] = {"ArgumentsPattern"-> {_, _, _, _, OptionsPattern[]}};
+SyntaxInformation[SchwarzOsculatingOrbitalElementsTP] = {"ArgumentsPattern"-> {_, _, _, _, OptionsPattern[]}, "OptionNames" -> ToString /@ Union[Keys[Options[SchwarzOsculatingOrbitalElementsTP]], Keys[Options[NDSolve]]]};
 
 Options[KerrOsculatingOrbitalElements] = {IntegrationLimit-> Automatic, AccuracyGoal-> Automatic, PrecisionGoal -> Automatic, Force -> KerrGasDrag, Parametrisation ->"CoordinateTime", ForceUpDown-> "Down",TimeMonitor->True};
-SyntaxInformation[KerrOsculatingOrbitalElements] = {"ArgumentsPattern"-> {_, _, _,_, _,_, _, OptionsPattern[]}};
+SyntaxInformation[KerrOsculatingOrbitalElements] = {"ArgumentsPattern"-> {_, _, _,_, _,_, _, OptionsPattern[]}, "OptionNames" -> ToString /@ Union[Keys[Options[KerrOsculatingOrbitalElements]], Keys[Options[NDSolve]]]};
 
-Options[GenericKerrpexBL] = {IntegrationLimit-> Automatic, AccuracyGoal-> Automatic, PrecisionGoal -> Automatic, Force -> KerrGasDrag, Parametrisation ->"CoordinateTime", ForceUpDown-> "Down",TimeMonitor->True,pMin -> None};
-SyntaxInformation[GenericKerrpexBL] = {"ArgumentsPattern"-> {_, _, _,_, _,_, _, OptionsPattern[]}};
+Options[GenericKerrpexBL] = {IntegrationLimit-> Automatic, AccuracyGoal-> Automatic, PrecisionGoal -> Automatic, Force -> KerrGasDrag, Parametrisation ->"CoordinateTime", ForceUpDown-> "Down",TimeMonitor->True,pMin -> None, SeparatrixBuffer -> Automatic};
+SyntaxInformation[GenericKerrpexBL] = {"ArgumentsPattern"-> {_, _, _,_, _,_, _, OptionsPattern[]}, "OptionNames" -> ToString /@ Union[Keys[Options[GenericKerrpexBL]], Keys[Options[NDSolve]]]};
 
 Options[GenericKerrREGBL] = Options[GenericKerrpexBL];
-SyntaxInformation[GenericKerrREGBL] = {"ArgumentsPattern" -> {_, _, _, _, _, _, _, OptionsPattern[]}};
+SyntaxInformation[GenericKerrREGBL] = {"ArgumentsPattern" -> {_, _, _, _, _, _, _, OptionsPattern[]}, "OptionNames" -> ToString /@ Union[Keys[Options[GenericKerrREGBL]], Keys[Options[NDSolve]]]};
 
 
 (* ::Subsection:: *)
@@ -143,6 +147,7 @@ Get[FileNameJoin[{$packageDirectory, "ForceModels", "FastGSF.wl"}]];
 Get[FileNameJoin[{$packageDirectory, "Solvers", "Schwarzschild.wl"}]];
 Get[FileNameJoin[{$packageDirectory, "Solvers", "KerrELK.wl"}]];
 Get[FileNameJoin[{$packageDirectory, "Solvers", "KerrPEX.wl"}]];
+Get[FileNameJoin[{$packageDirectory, "Interface.wl"}]];
 
 
 (* ::Subsection:: *)

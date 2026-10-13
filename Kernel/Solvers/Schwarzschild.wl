@@ -22,7 +22,7 @@
 
 
 (* ::Input::Initialization:: *)
-SchwarzOscGeoEqs1[\[Eta]_,Fr_,F\[Phi]_, p0_, e0_, \[Xi]0_,IntegrationLimit_, Accuracy_, Precision_]:= Module[{M =1, \[Mu], f0,f1,f2,f3,\[Beta], evolutionEqns,initialConditions, psol,esol,\[Xi]sol,tsol, \[Phi]sol, p,e,\[Xi],t,\[Phi],\[Chi], rsol, \[Theta]sol, progress = 0, stopReason = None}, 
+SchwarzOscGeoEqs1[\[Eta]_,Fr_,F\[Phi]_, p0_, e0_, \[Xi]0_,IntegrationLimit_, Accuracy_, Precision_, ndsolveOptions_ : {}]:= Module[{M =1, \[Mu], f0,f1,f2,f3,\[Beta], evolutionEqns,initialConditions, psol,esol,\[Xi]sol,tsol, \[Phi]sol, p,e,\[Xi],t,\[Phi],\[Chi], rsol, \[Theta]sol, integration}, 
 \[Mu] = \[Eta] M;
 
 
@@ -46,20 +46,25 @@ evolutionEqns = { t'[\[Chi]] == (M p[\[Chi]]^2 Sqrt[(p[\[Chi]]-2)^2 -4e[\[Chi]]^
 				\[Phi]'[\[Chi]] ==  Sqrt[p[\[Chi]]/(p[\[Chi]]-6-2e[\[Chi]] Cos[\[Xi][\[Chi]]])]};
 
 (*Solving the Evolution Equaitons*)
-{{psol,esol,\[Xi]sol,tsol, \[Phi]sol}}= Monitor[{p,e,\[Xi],t,\[Phi]}/.NDSolve[{Join[evolutionEqns,initialConditions],WhenEvent[p[\[Chi]]-6-2e[\[Chi]] -0.001 == 0, stopReason = "Separatrix"; "StopIntegration"]}, {p,e,\[Xi],t,\[Phi]},{\[Chi],0, IntegrationLimit}, AccuracyGoal->Accuracy,PrecisionGoal->Precision, StepMonitor :> (progress = \[Chi])],  "\[Chi] = "<> ToString[progress]]//Quiet;
-
-(*Report why the integration stopped*)
-StopMessage[SchwarzOsculatingOrbitalElements, "\[Chi]", psol["Domain"][[1,2]], IntegrationLimit, stopReason];
+integration = IntegrateSystem[
+	<|"Unknowns" -> {p,e,\[Xi],t,\[Phi]}, "Equations" -> Join[evolutionEqns, initialConditions],
+		"Events" -> {stopEvent[p[\[Chi]]-6-2e[\[Chi]] -0.001 == 0, "Separatrix"]}, "Method" -> Automatic|>,
+	\[Chi], IntegrationLimit,
+	<|"Function" -> SchwarzOsculatingOrbitalElements, "MessageHead" -> SchwarzOsculatingOrbitalElements,
+		"VariableName" -> "\[Chi]", "AccuracyGoal" -> Accuracy, "PrecisionGoal" -> Precision,
+		"NDSolveOptions" -> ndsolveOptions, "Monitor" -> MonitorQ[True], "Quiet" -> True|>];
+If[FailureQ[integration], Return[$Failed]];
+{psol,esol,\[Xi]sol,tsol, \[Phi]sol} = {p,e,\[Xi],t,\[Phi]} /. integration["Solution"];
 
 (*Return associations for p, e, \[Xi], t and \[Phi] as functions of \[Chi]*)
 rsol[\[Chi]_] := (M psol[\[Chi]])/(1+esol[\[Chi]] Cos[\[Xi]sol[\[Chi]]]);
 \[Theta]sol[\[Chi]_]:= \[Pi]/2;
-<|"t"-> tsol, "r"-> rsol, "\[Theta]" -> \[Theta]sol, "\[Phi]"-> \[Phi]sol,"p" -> psol, "e"-> esol,  "\[Xi]" -> \[Xi]sol, "limit" -> psol["Domain"][[1,2]] |>
+<|"t"-> tsol, "r"-> rsol, "\[Theta]" -> \[Theta]sol, "\[Phi]"-> \[Phi]sol,"p" -> psol, "e"-> esol,  "\[Xi]" -> \[Xi]sol, "limit" -> psol["Domain"][[1,2]], "StopReason" -> integration["StopReason"]|>
 ]
 
 
 (* ::Input::Initialization:: *)
-SchwarzOscGeoEqsTP[\[Eta]_,Fr_,F\[Phi]_, p0_, e0_, \[Xi]0_,IntegrationLimit_, Accuracy_, Precision_]:= Module[{M =1, \[Mu], f0,f1,f2,f3,\[Beta], evolutionEqns,initialConditions, psol,esol,\[Xi]sol,tsol, \[Phi]sol, p,e,\[Xi],t,\[Phi],\[Chi], rsol, \[Theta]sol, progress = 0, stopReason = None}, 
+SchwarzOscGeoEqsTP[\[Eta]_,Fr_,F\[Phi]_, p0_, e0_, \[Xi]0_,IntegrationLimit_, Accuracy_, Precision_, ndsolveOptions_ : {}]:= Module[{M =1, \[Mu], f0,f1,f2,f3,\[Beta], evolutionEqns,initialConditions, psol,esol,\[Xi]sol,tsol, \[Phi]sol, p,e,\[Xi],t,\[Phi],\[Chi], rsol, \[Theta]sol, integration}, 
 \[Mu] = \[Eta] M;
 
 
@@ -84,15 +89,20 @@ evolutionEqns = {
 				\[Phi]'[t] ==((p[t]-2-2e[t] Cos[\[Xi][t]])(1+e[t] Cos[\[Xi][t]])^2 Sqrt[p[t]-6-2e[t]Cos[\[Xi][t]]])/(M p[t]^2 Sqrt[(p[t]-2)^2 -4e[t]^2])  Sqrt[p[t]/(p[t]-6-2e[t] Cos[\[Xi][t]])]};
 
 (*Solving the Evolution Equaitons*)
-{{psol,esol,\[Xi]sol, \[Phi]sol}}= Monitor[{p,e,\[Xi],\[Phi]}/.NDSolve[{Join[evolutionEqns,initialConditions],WhenEvent[p[t]-6-2e[t] -0.001 == 0, stopReason = "Separatrix"; "StopIntegration"]}, {p,e,\[Xi],\[Phi]},{t,0, IntegrationLimit}, AccuracyGoal->Accuracy,PrecisionGoal->Precision, StepMonitor :> (progress = t)],  "t = "<> ToString[progress]]//Quiet;
-
-(*Report why the integration stopped*)
-StopMessage[SchwarzOsculatingOrbitalElements, "t", psol["Domain"][[1,2]], IntegrationLimit, stopReason];
+integration = IntegrateSystem[
+	<|"Unknowns" -> {p,e,\[Xi],\[Phi]}, "Equations" -> Join[evolutionEqns, initialConditions],
+		"Events" -> {stopEvent[p[t]-6-2e[t] -0.001 == 0, "Separatrix"]}, "Method" -> Automatic|>,
+	t, IntegrationLimit,
+	<|"Function" -> SchwarzOsculatingOrbitalElements, "MessageHead" -> SchwarzOsculatingOrbitalElements,
+		"VariableName" -> "t", "AccuracyGoal" -> Accuracy, "PrecisionGoal" -> Precision,
+		"NDSolveOptions" -> ndsolveOptions, "Monitor" -> MonitorQ[True], "Quiet" -> True|>];
+If[FailureQ[integration], Return[$Failed]];
+{psol,esol,\[Xi]sol, \[Phi]sol} = {p,e,\[Xi],\[Phi]} /. integration["Solution"];
 
 (*Return associations for p, e, \[Xi] and \[Phi] as functions of t*)
 rsol[t_] := (M psol[t])/(1+esol[t] Cos[\[Xi]sol[t]]);
 \[Theta]sol[t_]:= \[Pi]/2;
-<| "r"-> rsol, "\[Theta]" -> \[Theta]sol, "\[Phi]"-> \[Phi]sol,"p" -> psol, "e"-> esol,  "\[Xi]" -> \[Xi]sol, "limit" -> psol["Domain"][[1,2]] |>
+<| "r"-> rsol, "\[Theta]" -> \[Theta]sol, "\[Phi]"-> \[Phi]sol,"p" -> psol, "e"-> esol,  "\[Xi]" -> \[Xi]sol, "limit" -> psol["Domain"][[1,2]], "StopReason" -> integration["StopReason"]|>
 ]
 
 
@@ -105,7 +115,7 @@ rsol[t_] := (M psol[t])/(1+esol[t] Cos[\[Xi]sol[t]]);
 
 
 (* ::Input::Initialization:: *)
-SchwarzOscGeoEqs2[\[Eta]_,Fr_,F\[Phi]_, p0_, e0_, \[Xi]0_,IntegrationLimit_, Accuracy_, Precision_]:= Module[{M=1, \[Mu], evolutionEqns,initialConditions, \[CapitalPsi],\[CapitalOmega],\[Alpha]0,\[Beta]0,psol, \[Alpha]sol, \[Beta]sol, esol, \[Xi]sol, \[Phi]sol, tsol, rsol, \[Theta]sol,p,e,\[Xi],\[Alpha],\[Beta],t,\[Phi],\[Chi], progress = 0, stopReason = None},
+SchwarzOscGeoEqs2[\[Eta]_,Fr_,F\[Phi]_, p0_, e0_, \[Xi]0_,IntegrationLimit_, Accuracy_, Precision_, ndsolveOptions_ : {}]:= Module[{M=1, \[Mu], evolutionEqns,initialConditions, \[CapitalPsi],\[CapitalOmega],\[Alpha]0,\[Beta]0,psol, \[Alpha]sol, \[Beta]sol, esol, \[Xi]sol, \[Phi]sol, tsol, rsol, \[Theta]sol,p,e,\[Xi],\[Alpha],\[Beta],t,\[Phi],\[Chi], integration},
 
 \[Mu] = \[Eta] M;
 (*Recast our initial conditions*)
@@ -134,10 +144,15 @@ t'[\[Chi]]== (p[\[Chi]]^2 M Sqrt[(p[\[Chi]]-2)^2-4(\[Alpha][\[Chi]]^2+\[Beta][\[
 
 
 (*Solving the evolution equations*)
-{{psol,\[Alpha]sol,\[Beta]sol,tsol,\[Phi]sol}}= Monitor[{p,\[Alpha],\[Beta],t, \[Phi]}/.NDSolve[{Join[evolutionEqns,initialConditions],WhenEvent[p[\[Chi]]-6-2(\[Alpha][\[Chi]]^2+\[Beta][\[Chi]]^2)^(1/2) -0.001 == 0, stopReason = "Separatrix"; "StopIntegration"]}, {p,\[Alpha],\[Beta],t,\[Phi]},{\[Chi],0,IntegrationLimit},AccuracyGoal->Accuracy,PrecisionGoal->Precision, Method->{"EquationSimplification"->"Solve"},StepMonitor :> (progress = \[Chi])],  "\[Chi] = "<> ToString[progress]]//Quiet;
-
-(*Report why the integration stopped*)
-StopMessage[SchwarzOsculatingOrbitalElements, "\[Chi]", psol["Domain"][[1,2]], IntegrationLimit, stopReason];
+integration = IntegrateSystem[
+	<|"Unknowns" -> {p,\[Alpha],\[Beta],t,\[Phi]}, "Equations" -> Join[evolutionEqns, initialConditions],
+		"Events" -> {stopEvent[p[\[Chi]]-6-2(\[Alpha][\[Chi]]^2+\[Beta][\[Chi]]^2)^(1/2) -0.001 == 0, "Separatrix"]}, "Method" -> {"EquationSimplification" -> "Solve"}|>,
+	\[Chi], IntegrationLimit,
+	<|"Function" -> SchwarzOsculatingOrbitalElements, "MessageHead" -> SchwarzOsculatingOrbitalElements,
+		"VariableName" -> "\[Chi]", "AccuracyGoal" -> Accuracy, "PrecisionGoal" -> Precision,
+		"NDSolveOptions" -> ndsolveOptions, "Monitor" -> MonitorQ[True], "Quiet" -> True|>];
+If[FailureQ[integration], Return[$Failed]];
+{psol,\[Alpha]sol,\[Beta]sol,tsol,\[Phi]sol} = {p,\[Alpha],\[Beta],t, \[Phi]} /. integration["Solution"];
 
 rsol[\[Chi]_] := (M psol[\[Chi]] )/(1+ \[Alpha]sol[\[Chi]] Sin[\[Chi]]+ \[Beta]sol[\[Chi]]Cos[\[Chi]] ); 
 esol[\[Chi]_] := (\[Alpha]sol[\[Chi]]^2 + \[Beta]sol[\[Chi]]^2)^(1/2);
@@ -145,7 +160,7 @@ esol[\[Chi]_] := (\[Alpha]sol[\[Chi]]^2 + \[Beta]sol[\[Chi]]^2)^(1/2);
 \[Theta]sol[\[Chi]_] := \[Pi]/2;
 
 (*Return associations for the varibales as functions of \[Chi]*)
-<| "t"-> tsol, "r"-> rsol, "\[Theta]" -> \[Theta]sol, "\[Phi]"-> \[Phi]sol,"p" -> psol, "e"-> esol,  "\[Xi]" -> \[Xi]sol , "limit" -> tsol["Domain"][[1,2]]|>
+<| "t"-> tsol, "r"-> rsol, "\[Theta]" -> \[Theta]sol, "\[Phi]"-> \[Phi]sol,"p" -> psol, "e"-> esol,  "\[Xi]" -> \[Xi]sol , "limit" -> tsol["Domain"][[1,2]], "StopReason" -> integration["StopReason"]|>
 ]
 
 
@@ -154,7 +169,7 @@ esol[\[Chi]_] := (\[Alpha]sol[\[Chi]]^2 + \[Beta]sol[\[Chi]]^2)^(1/2);
 
 
 (* ::Input::Initialization:: *)
-SchwarzOscGeoEqs2TP[\[Eta]_,Fr_,F\[Phi]_, p0_, e0_, \[Xi]0_,IntegrationLimit_, Accuracy_, Precision_]:= Module[{M=1, \[Mu], evolutionEqns,initialConditions, \[CapitalPsi],\[CapitalOmega],dtd\[Chi],\[Alpha]0,\[Beta]0,psol, \[Alpha]sol, \[Beta]sol, \[Chi]sol, esol, \[Xi]sol, \[Phi]sol, rsol, \[Theta]sol,p,e,\[Xi],\[Alpha],\[Beta],t,\[Phi],\[Chi], progress = 0, stopReason = None},
+SchwarzOscGeoEqs2TP[\[Eta]_,Fr_,F\[Phi]_, p0_, e0_, \[Xi]0_,IntegrationLimit_, Accuracy_, Precision_, ndsolveOptions_ : {}]:= Module[{M=1, \[Mu], evolutionEqns,initialConditions, \[CapitalPsi],\[CapitalOmega],dtd\[Chi],\[Alpha]0,\[Beta]0,psol, \[Alpha]sol, \[Beta]sol, \[Chi]sol, esol, \[Xi]sol, \[Phi]sol, rsol, \[Theta]sol,p,e,\[Xi],\[Alpha],\[Beta],t,\[Phi],\[Chi], integration},
 
 \[Mu] = \[Eta] M;
 (*Recast our initial conditions*)
@@ -184,10 +199,15 @@ evolutionEqns = {p'[t] == 1/dtd\[Chi][t] (\[Eta] (2p[t]^(7/2) M Sqrt[p[t]-6-2(\[
 
 
 (*Solving the evolution equations*)
-{{psol,\[Alpha]sol,\[Beta]sol,\[Chi]sol,\[Phi]sol}}= Monitor[{p,\[Alpha],\[Beta],\[Chi], \[Phi]}/.NDSolve[{Join[evolutionEqns,initialConditions],WhenEvent[p[t]-6-2(\[Alpha][t]^2+\[Beta][t]^2)^(1/2) -0.001 == 0, stopReason = "Separatrix"; "StopIntegration"]}, {p,\[Alpha],\[Beta],\[Chi],\[Phi]},{t,0,IntegrationLimit},AccuracyGoal->Accuracy,PrecisionGoal->Precision, Method->{"EquationSimplification"->"Solve"},StepMonitor :> (progress = t)],  "t = "<> ToString[progress]]//Quiet;
-
-(*Report why the integration stopped*)
-StopMessage[SchwarzOsculatingOrbitalElements, "t", psol["Domain"][[1,2]], IntegrationLimit, stopReason];
+integration = IntegrateSystem[
+	<|"Unknowns" -> {p,\[Alpha],\[Beta],\[Chi],\[Phi]}, "Equations" -> Join[evolutionEqns, initialConditions],
+		"Events" -> {stopEvent[p[t]-6-2(\[Alpha][t]^2+\[Beta][t]^2)^(1/2) -0.001 == 0, "Separatrix"]}, "Method" -> {"EquationSimplification" -> "Solve"}|>,
+	t, IntegrationLimit,
+	<|"Function" -> SchwarzOsculatingOrbitalElements, "MessageHead" -> SchwarzOsculatingOrbitalElements,
+		"VariableName" -> "t", "AccuracyGoal" -> Accuracy, "PrecisionGoal" -> Precision,
+		"NDSolveOptions" -> ndsolveOptions, "Monitor" -> MonitorQ[True], "Quiet" -> True|>];
+If[FailureQ[integration], Return[$Failed]];
+{psol,\[Alpha]sol,\[Beta]sol,\[Chi]sol,\[Phi]sol} = {p,\[Alpha],\[Beta],\[Chi], \[Phi]} /. integration["Solution"];
 
 rsol[t_] := (M psol[t] )/(1+ \[Alpha]sol[t] Sin[\[Chi]sol[t]]+ \[Beta]sol[t]Cos[\[Chi]sol[t]] ); 
 esol[t_] := (\[Alpha]sol[t]^2 + \[Beta]sol[t]^2)^(1/2);
@@ -195,7 +215,7 @@ esol[t_] := (\[Alpha]sol[t]^2 + \[Beta]sol[t]^2)^(1/2);
 \[Theta]sol[t_] := \[Pi]/2;
 
 (*Return associations for the varibales as functions of t*)
-<| "r"-> rsol, "\[Theta]" -> \[Theta]sol, "\[Phi]"-> \[Phi]sol,"p" -> psol, "e"-> esol,  "\[Xi]" -> \[Xi]sol , "limit" -> psol["Domain"][[1,2]]|>
+<| "r"-> rsol, "\[Theta]" -> \[Theta]sol, "\[Phi]"-> \[Phi]sol,"p" -> psol, "e"-> esol,  "\[Xi]" -> \[Xi]sol , "limit" -> psol["Domain"][[1,2]], "StopReason" -> integration["StopReason"]|>
 ]
 
 
@@ -220,7 +240,7 @@ esol[t_] := (\[Alpha]sol[t]^2 + \[Beta]sol[t]^2)^(1/2);
 
 
 (* ::Input::Initialization:: *)
-SchwarzOsculatingOrbitalElements[\[Eta]_?NumericQ, p0_?NumericQ, e0_?NumericQ, \[Xi]0_?NumericQ, OptionsPattern[]]:= Module[{flag,error, Fr, F\[Phi]},
+SchwarzOsculatingOrbitalElements[\[Eta]_?NumericQ, p0_?NumericQ, e0_?NumericQ, \[Xi]0_?NumericQ, opts:OptionsPattern[{SchwarzOsculatingOrbitalElements, NDSolve}]]:= Module[{flag,error, Fr, F\[Phi]},
 	(*Seperatrix condition for bound orbits in Schwarzschild Spacetime*)
 	If[p0 < 6 + 2 e0, 
 		Message[SchwarzOsculatingOrbitalElements::ICs]; $Failed,
@@ -237,14 +257,14 @@ Switch[OptionValue["Force"],
 		(*Decide which method to use*)
 		If[e0> 0.05,
 			(*Faster, but bad for small e0 values*)
-			SchwarzOscGeoEqs1[\[Eta],Fr,F\[Phi], p0, e0, \[Xi]0,OptionValue["IntegrationLimit"], OptionValue["AccuracyGoal"], OptionValue["PrecisionGoal"]],
+			SchwarzOscGeoEqs1[\[Eta],Fr,F\[Phi], p0, e0, \[Xi]0,OptionValue["IntegrationLimit"], OptionValue["AccuracyGoal"], OptionValue["PrecisionGoal"], NDSolveOptions[opts]],
 			(*Slower, but works for arbitrily small values of e0*)
-			SchwarzOscGeoEqs2[\[Eta],Fr,F\[Phi], p0, e0, \[Xi]0,OptionValue["IntegrationLimit"], OptionValue["AccuracyGoal"], OptionValue["PrecisionGoal"]]
+			SchwarzOscGeoEqs2[\[Eta],Fr,F\[Phi], p0, e0, \[Xi]0,OptionValue["IntegrationLimit"], OptionValue["AccuracyGoal"], OptionValue["PrecisionGoal"], NDSolveOptions[opts]]
 		]
 	]
 ]
 
-SchwarzOsculatingOrbitalElementsTP[\[Eta]_?NumericQ, p0_?NumericQ, e0_?NumericQ, \[Xi]0_?NumericQ, OptionsPattern[]]:= Module[{flag,error, Fr, F\[Phi]},
+SchwarzOsculatingOrbitalElementsTP[\[Eta]_?NumericQ, p0_?NumericQ, e0_?NumericQ, \[Xi]0_?NumericQ, opts:OptionsPattern[{SchwarzOsculatingOrbitalElementsTP, NDSolve}]]:= Module[{flag,error, Fr, F\[Phi]},
 	(*Seperatrix condition for bound orbits in Schwarzschild Spacetime*)
 	If[p0 < 6 + 2 e0, 
 		Message[SchwarzOsculatingOrbitalElements::ICs]; $Failed,
@@ -261,9 +281,9 @@ Switch[OptionValue["Force"],
 		(*Decide which method to use*)
 		If[e0> 0.05,
 			(*Faster, but bad for small e0 values*)
-			SchwarzOscGeoEqsTP[\[Eta],Fr,F\[Phi], p0, e0, \[Xi]0,OptionValue["IntegrationLimit"], OptionValue["AccuracyGoal"], OptionValue["PrecisionGoal"]],
+			SchwarzOscGeoEqsTP[\[Eta],Fr,F\[Phi], p0, e0, \[Xi]0,OptionValue["IntegrationLimit"], OptionValue["AccuracyGoal"], OptionValue["PrecisionGoal"], NDSolveOptions[opts]],
 			(*Slower, but works for arbitrily small values of e0*)
-			SchwarzOscGeoEqs2TP[\[Eta],Fr,F\[Phi], p0, e0, \[Xi]0,OptionValue["IntegrationLimit"], OptionValue["AccuracyGoal"], OptionValue["PrecisionGoal"]]
+			SchwarzOscGeoEqs2TP[\[Eta],Fr,F\[Phi], p0, e0, \[Xi]0,OptionValue["IntegrationLimit"], OptionValue["AccuracyGoal"], OptionValue["PrecisionGoal"], NDSolveOptions[opts]]
 		]
 	]
 ]

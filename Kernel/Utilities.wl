@@ -9,21 +9,6 @@
 
 
 (* ::Section:: *)
-(*Shared Functions*)
-
-
-(* ::Text:: *)
-(*Reports why an integration stopped. reason is set by the stopping event ("Separatrix", "SeparatrixBuffer" or "pMin"), or is None if no event fired.*)
-
-
-StopMessage[head_, var_, end_, limit_, reason_] := Switch[reason,
-	"Separatrix", Message[MessageName[head, "sep"], var, end],
-	"SeparatrixBuffer", Message[MessageName[head, "sepbuf"], var, end],
-	"pMin", Message[MessageName[head, "pmin"], var, end],
-	_, If[end == limit, Message[MessageName[head, "limit"], var, limit], Message[MessageName[head, "early"], var, end]]];
-
-
-(* ::Section:: *)
 (*Kerr Spacetime*)
 
 
@@ -57,20 +42,6 @@ Vr = (En(r^2 + a^2) - a L )^2 - (r^2 + a^2 - 2r) (r^2+ K);
  {r1,r2,r3,r4} = Sort[ Re[r/.Solve[Vr == 0, r]], Greater];
  r2
 ];
-
-
-(* ::Subsubsection::Closed:: *)
-(*Parametrisation*)
-
-
-(* ::Text:: *)
-(*Accepts the Parametrisation option as a string or a symbol (e.g. "Mino" or Mino). Returns True for Mino time, False for coordinate time, and $Failed otherwise.*)
-
-
-MinoParametrisationQ[param_] := Switch[If[Head[param] === Symbol, SymbolName[param], param],
-	"Mino", True,
-	"CoordinateTime", False,
-	_, Message[KerrOsculatingOrbitalElements::param, param]; $Failed];
 
 
 (* ::Subsubsection::Closed:: *)
@@ -130,3 +101,110 @@ En = Energy[a,p,e,x];
 CarterConstant[a_?NumericQ, p_?NumericQ, e_?NumericQ, x_?NumericQ]:= memoLast[CarterConstant, carterConstantCache, {a,p,e,x}, (-a^2 (-1+Energy[a,p,e,x]^2)+AngularMomentum[a,p,e,x]^2/x^2) (1-x^2)];
 
 
+(* ::Subsubsection::Closed:: *)
+(*Orbit geometry*)
+
+
+(* ::Text:: *)
+(*The quantities that the osculating equations share, at one point of the orbit. The point lies on a geodesic with constants En, L and Q, at radius r and polar phase \[Psi]\[Theta], moving radially at dr/d\[Lambda] = drd\[Lambda]; x is the geodesic's inclination parameter, so zm = 1 - x^2. Each formulation knows r and dr/d\[Lambda] in its own variables, so it supplies them. The arguments may be symbolic, as the solvers build their equations from these expressions.*)
+(*The result has the arguments, under the keys "a", "En", "L", "Q", "r", "x" and "\[Psi]\[Theta]", and:*)
+(*"K" = Q + (L - a En)^2, "\[Beta]" = a^2 (1 - En^2), "zm", "\[Beta]zp" = \[Beta] zp, "z" = cos^2 \[Theta] and "\[Theta]";*)
+(*"\[CapitalSigma]", "\[CapitalDelta]", "\[Omega]" = Sqrt[r^2 + a^2], "F" = \[Omega]^2 En - a L, and the shorthands "H" and "G" of the polar phase equation;*)
+(*the covariant velocities "ur" and "u\[Theta]", and "un", the velocity along the null tetrad's leg n;*)
+(*"dtd\[Lambda]" and "d\[Phi]d\[Lambda]".*)
+
+
+KerrOrbitGeometry[a_, {En_, L_, Q_}, {r_, x_, \[Psi]\[Theta]_}, drd\[Lambda]_] := Module[
+	{K, \[Beta], zm, \[Beta]zp, z, \[Theta], \[CapitalSigma], \[CapitalDelta], \[Omega], F, ur},
+	K = Q + (L - a En)^2;
+	\[Beta] = a^2 (1 - En^2);
+	zm = 1 - x^2;
+	\[Beta]zp = \[Beta] + L^2/x^2;
+	z = zm Cos[\[Psi]\[Theta]]^2;
+	\[Theta] = ArcCos[Sqrt[zm] Cos[\[Psi]\[Theta]]];
+	\[CapitalSigma] = r^2 + a^2 z;
+	\[CapitalDelta] = r^2 + a^2 - 2 r;
+	\[Omega] = Sqrt[r^2 + a^2];
+	F = \[Omega]^2 En - a L;
+	ur = drd\[Lambda]/\[CapitalDelta];
+	<|"a" -> a, "En" -> En, "L" -> L, "Q" -> Q, "r" -> r, "x" -> x, "\[Psi]\[Theta]" -> \[Psi]\[Theta],
+		"K" -> K, "\[Beta]" -> \[Beta], "zm" -> zm, "\[Beta]zp" -> \[Beta]zp, "z" -> z, "\[Theta]" -> \[Theta],
+		"\[CapitalSigma]" -> \[CapitalSigma], "\[CapitalDelta]" -> \[CapitalDelta], "\[Omega]" -> \[Omega], "F" -> F,
+		"H" -> L - a En x^2,
+		"G" -> \[Omega]^2 L/Sin[\[Theta]] - a^3 x^2 Sin[\[Theta]] En,
+		"ur" -> ur,
+		"u\[Theta]" -> Sqrt[zm] Sin[\[Psi]\[Theta]]/Sin[\[Theta]] Sqrt[\[Beta]zp - \[Beta] z],
+		"un" -> -(F + \[CapitalDelta] ur)/(2 \[CapitalSigma]),
+		"dtd\[Lambda]" -> En (\[Omega]^4/\[CapitalDelta] - a^2 (1 - z)) + a L (1 - \[Omega]^2/\[CapitalDelta]),
+		"d\[Phi]d\[Lambda]" -> L/(1 - z) + a En (\[Omega]^2/\[CapitalDelta] - 1) - a^2 L/\[CapitalDelta]|>
+];
+
+
+(* ::Text:: *)
+(*The force's components in the null tetrad, {a_n, A1, A2, A3}, from its covariant Boyer-Lindquist components {a_t, a_r, a_\[Theta], a_\[Phi]}. The phase equations use these.*)
+
+
+NullTetradForce[g_Association, {at_, ar_, a\[Theta]_, a\[Phi]_}] := Module[{a, En, L, \[Theta], \[CapitalSigma]},
+	{a, En, L, \[Theta], \[CapitalSigma]} = Lookup[g, {"a", "En", "L", "\[Theta]", "\[CapitalSigma]"}];
+	{
+		(g["\[Omega]"]^2 at - g["\[CapitalDelta]"] ar + a a\[Phi])/(2 \[CapitalSigma]),
+		a\[Theta],
+		-a Sin[\[Theta]] at - a\[Phi]/Sin[\[Theta]],
+		a (L - a En Sin[\[Theta]]^2) at/\[CapitalSigma] + g["u\[Theta]"] a\[Theta]/\[CapitalSigma] +
+			(L - a En Sin[\[Theta]]^2) a\[Phi]/(\[CapitalSigma] Sin[\[Theta]]^2)
+	}
+];
+
+
+(* ::Subsubsection::Closed:: *)
+(*Rates of change of the constants of motion and the orbital elements*)
+
+
+(* ::Text:: *)
+(*The rates of change with Mino time of En, L, K and Q under the covariant force {a_t, a_r, a_\[Theta], a_\[Phi]}, as an Association with those keys. K's rate is written with the radial velocity, which assumes the force is orthogonal to the velocity, so a_\[Theta] does not appear.*)
+
+
+ConstantsOfMotionRates[g_Association, {at_, ar_, a\[Theta]_, a\[Phi]_}] := Module[{a, \[CapitalSigma], \[CapitalDelta], dEn, dL, dK},
+	{a, \[CapitalSigma], \[CapitalDelta]} = Lookup[g, {"a", "\[CapitalSigma]", "\[CapitalDelta]"}];
+	dEn = -\[CapitalSigma] at;
+	dL = \[CapitalSigma] a\[Phi];
+	dK = 2 \[CapitalSigma]/\[CapitalDelta] (-g["F"] (g["\[Omega]"]^2 at + a a\[Phi]) - \[CapitalDelta]^2 g["ur"] ar);
+	<|"En" -> dEn, "L" -> dL, "K" -> dK, "Q" -> dK - 2 (g["L"] - a g["En"]) (dL - a dEn)|>
+];
+
+
+(* ::Text:: *)
+(*The map from the rates of change of (En, L, Q) to those of (p, e^2, x), for an orbit with spin a, elements p, e^2 and x, and constants En, L and Q. It returns an Association with the keys "p", "e2" and "x". The rates may be with respect to any time, as the map is linear.*)
+(*It gives e^2 rather than e, because the rate of e^2 has no division by e and stays finite for circular orbits; that of e is "e2"/(2 e). It does divide by x, so it is singular for polar orbits (x = 0).*)
+
+
+OrbitalElementRates[a_, {p_, e2_, x_}, {En_, L_, Q_}, {dEn_, dL_, dQ_}] := Module[
+	{K, V, dK, dV, Dp, h0p, h1p, B0, B1, zm, \[Beta], \[Beta]zp, dzm},
+	K = Q + (L - a En)^2;
+	V = a^2 (1 - En^2) + L^2 + Q;
+	dK = dQ + 2 (L - a En) (dL - a dEn);
+	dV = -2 a^2 En dEn + 2 L dL + dQ;
+
+	(* p and e^2 *)
+	Dp = (p^3 - K p (3 - e2) + 4 a^2 Q)^2 - 4 e2 (K p - 2 a^2 Q)^2;
+	h0p = -4 (1 - En^2) p^3 + 6 p^2 - 2 V p (1 + e2) + 2 K (1 + 3 e2);
+	h1p = 6 p^2 - 4 V p + 2 K (3 + e2);
+	B0 = 2 p^4 En dEn - p^2 (1 + e2) dV + 2 p (1 + 3 e2) dK - a^2 (1 + 6 e2 + e2^2) dQ;
+	B1 = -2 p^2 dV + 2 p (3 + e2) dK - 4 a^2 (1 + e2) dQ;
+
+	(* x, through zm = 1 - x^2 *)
+	zm = 1 - x^2;
+	\[Beta] = a^2 (1 - En^2);
+	\[Beta]zp = \[Beta] + L^2/x^2;
+	dzm = ((1 - zm) dK - 2 (L - a (1 - zm) En) (dL - a (1 - zm) dEn))/(\[Beta]zp - \[Beta] zm);
+
+	<|
+		"p" -> p/Dp (
+			-2 p^4 (K p - 2 a^2 Q) En dEn +
+			p^2 (p^3 - 2 (1 - e2) (K p - a^2 Q)) dV -
+			p (p^3 (3 + e2) - (1 - e2) ((7 + e2) K p - 8 a^2 Q)) dK +
+			a^2 (2 p^3 (1 + e2) - (1 - e2) ((5 + 3 e2) K p - 2 a^2 Q (3 + e2))) dQ),
+		"e2" -> p (h1p B0 - h0p B1)/(2 Dp),
+		"x" -> -dzm/(2 x)
+	|>
+];

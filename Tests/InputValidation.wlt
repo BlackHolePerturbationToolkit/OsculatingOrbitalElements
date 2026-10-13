@@ -92,53 +92,54 @@ VerificationTest[
 (* Stopping conditions *)
 
 VerificationTest[
-	AssociationQ[GenericKerrpexBL[Sequence @@ kerrArgs]]
+	GenericKerrpexBL[Sequence @@ kerrArgs]["StopReason"]
 	,
-	True, {KerrOsculatingOrbitalElements::sep},
+	"Separatrix", {KerrOsculatingOrbitalElements::sep},
 	TestID -> "GenericKerrpexBL stops at the separatrix"
 ]
 
 VerificationTest[
 	(* e0 < 100 eta selects the small-e branch, which stops at a buffer outside the separatrix *)
-	AssociationQ[GenericKerrpexBL[10^-3, 0.5, 10, 10^-4, 0.8, 0, 0]]
+	GenericKerrpexBL[10^-3, 0.5, 10, 10^-4, 0.8, 0, 0]["StopReason"]
 	,
-	True, {KerrOsculatingOrbitalElements::sepbuf},
+	"SeparatrixBuffer", {KerrOsculatingOrbitalElements::sepbuf},
 	TestID -> "GenericKerrpexBL, small e: stops at the separatrix buffer"
 ]
 
 VerificationTest[
-	AssociationQ[GenericKerrREGBL[Sequence @@ kerrArgs]]
+	GenericKerrREGBL[Sequence @@ kerrArgs]["StopReason"]
 	,
-	True, {KerrOsculatingOrbitalElements::sepbuf},
+	"SeparatrixBuffer", {KerrOsculatingOrbitalElements::sepbuf},
 	TestID -> "GenericKerrREGBL stops at the separatrix buffer"
 ]
 
 VerificationTest[
 	sol = GenericKerrREGBL[Sequence @@ kerrArgs, pMin -> 9];
-	sol["p"][sol["limit"]]
+	{sol["StopReason"], sol["p"][sol["limit"]]}
 	,
-	9, {KerrOsculatingOrbitalElements::pmin}, SameTest -> withinTolerance[10^-6],
+	{"pMin", 9}, {KerrOsculatingOrbitalElements::pmin},
+	SameTest -> (#1[[1]] === #2[[1]] && withinTolerance[10^-6][#1[[2]], #2[[2]]] &),
 	TestID -> "GenericKerrREGBL stops at pMin"
 ]
 
 VerificationTest[
-	Quiet[AssociationQ[KerrOsculatingOrbitalElements[Sequence @@ kerrArgs]], FindRoot::brmp]
+	Quiet[KerrOsculatingOrbitalElements[Sequence @@ kerrArgs]["StopReason"], FindRoot::brmp]
 	,
-	True, {KerrOsculatingOrbitalElements::sep},
+	"Separatrix", {KerrOsculatingOrbitalElements::sep},
 	TestID -> "KerrOsculatingOrbitalElements stops at the separatrix"
 ]
 
 VerificationTest[
-	AssociationQ[SchwarzOsculatingOrbitalElements[10^-3, 12, 0.3, 0]]
+	SchwarzOsculatingOrbitalElements[10^-3, 12, 0.3, 0]["StopReason"]
 	,
-	True, {SchwarzOsculatingOrbitalElements::sep},
+	"Separatrix", {SchwarzOsculatingOrbitalElements::sep},
 	TestID -> "SchwarzOsculatingOrbitalElements stops at the separatrix"
 ]
 
 VerificationTest[
-	AssociationQ[SchwarzOsculatingOrbitalElementsTP[10^-3, 12, 0.03, 0]]
+	SchwarzOsculatingOrbitalElementsTP[10^-3, 12, 0.03, 0]["StopReason"]
 	,
-	True, {SchwarzOsculatingOrbitalElements::sep},
+	"Separatrix", {SchwarzOsculatingOrbitalElements::sep},
 	TestID -> "SchwarzOsculatingOrbitalElementsTP, small e: stops at the separatrix"
 ]
 
@@ -147,9 +148,10 @@ VerificationTest[
 (* IntegrationLimit is in the units of the chosen time variable *)
 
 VerificationTest[
-	GenericKerrpexBL[10^-5, 0.5, 10, 0.2, 0.8, 0, 0, IntegrationLimit -> 500]["limit"]
+	sol = GenericKerrpexBL[10^-5, 0.5, 10, 0.2, 0.8, 0, 0, IntegrationLimit -> 500];
+	{sol["limit"], sol["StopReason"]}
 	,
-	500., {KerrOsculatingOrbitalElements::limit},
+	{500., "IntegrationLimit"}, {KerrOsculatingOrbitalElements::limit},
 	TestID -> "GenericKerrpexBL: IntegrationLimit -> 500 integrates to t = 500"
 ]
 
@@ -165,6 +167,56 @@ VerificationTest[
 	,
 	300., {SchwarzOsculatingOrbitalElements::limit},
 	TestID -> "SchwarzOsculatingOrbitalElementsTP: IntegrationLimit -> 300 integrates to t = 300"
+]
+
+
+(* ::Section:: *)
+(* SeparatrixBuffer *)
+
+separatrixMargin[sol_] := sol["p"][sol["limit"]] - Quiet[KerrGeoSeparatrix[0.5, sol["e"][sol["limit"]], sol["x"][sol["limit"]]], FindRoot::brmp];
+
+VerificationTest[
+	sol = GenericKerrpexBL[Sequence @@ kerrArgs, SeparatrixBuffer -> 0.5];
+	{sol["StopReason"], separatrixMargin[sol]}
+	,
+	{"SeparatrixBuffer", 0.5}, {KerrOsculatingOrbitalElements::sepbuf},
+	SameTest -> (#1[[1]] === #2[[1]] && withinTolerance[10^-6][#1[[2]], #2[[2]]] &),
+	TestID -> "GenericKerrpexBL, SeparatrixBuffer -> 0.5: stops at p = p_sep + 0.5"
+]
+
+VerificationTest[
+	sol = GenericKerrREGBL[Sequence @@ kerrArgs, SeparatrixBuffer -> 0.5];
+	{sol["StopReason"], separatrixMargin[sol]}
+	,
+	{"SeparatrixBuffer", 0.5}, {KerrOsculatingOrbitalElements::sepbuf},
+	SameTest -> (#1[[1]] === #2[[1]] && withinTolerance[10^-6][#1[[2]], #2[[2]]] &),
+	TestID -> "GenericKerrREGBL, SeparatrixBuffer -> 0.5: stops at p = p_sep + 0.5"
+]
+
+
+(* ::Section:: *)
+(* Options of NDSolve are passed to NDSolve *)
+
+VerificationTest[
+	GenericKerrpexBL[10^-5, 0.5, 10, 0.2, 0.8, 0, 0, IntegrationLimit -> 5000, MaxSteps -> 20]["StopReason"]
+	,
+	"Other", {NDSolve::mxst, KerrOsculatingOrbitalElements::early},
+	TestID -> "GenericKerrpexBL: MaxSteps is passed to NDSolve, and stopping early gives \"Other\""
+]
+
+VerificationTest[
+	Quiet[KerrOsculatingOrbitalElements[10^-5, 0.5, 10, 0.2, 0.8, 0, 0, IntegrationLimit -> 5000, MaxSteps -> 20]["StopReason"], FindRoot::brmp]
+	,
+	"Other", {NDSolve::mxst, KerrOsculatingOrbitalElements::early},
+	TestID -> "KerrOsculatingOrbitalElements: MaxSteps is passed to NDSolve"
+]
+
+VerificationTest[
+	(* The Schwarzschild solvers suppress NDSolve's own messages *)
+	SchwarzOsculatingOrbitalElementsTP[10^-5, 12, 0.03, 0, IntegrationLimit -> 5000, MaxSteps -> 20]["StopReason"]
+	,
+	"Other", {SchwarzOsculatingOrbitalElements::early},
+	TestID -> "SchwarzOsculatingOrbitalElementsTP: MaxSteps is passed to NDSolve"
 ]
 
 

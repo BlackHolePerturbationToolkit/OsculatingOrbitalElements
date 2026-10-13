@@ -107,3 +107,19 @@ VerificationTest[
 	{0, 0, 0, 0}, SameTest -> withinTolerance[10^-4],
 	TestID -> "a = 0, x = 1: REG agrees with SchwarzOsculatingOrbitalElementsTP"
 ]
+
+
+(* ::Section:: *)
+(* Several force drivers add up. The Force option takes one force for now, so this calls RunSolver directly. *)
+
+VerificationTest[
+	halfDrag = Function[force, Module[{drivers = OsculatingOrbitalElements`Private`pexForceDrivers[force]},
+		Table[<|"Type" -> "Force", "Function" -> Function[state, 0.5 drivers[[1]]["Function"][state]]|>, 2]]];
+	split = quietStops@OsculatingOrbitalElements`Private`RunSolver[GenericKerrpexBL, OsculatingOrbitalElements`Private`pexSystem,
+		halfDrag, 10^-5, 0.5, {10, 0.2, 0.8, 0, 0}, {IntegrationLimit -> 2000}];
+	whole = quietStops@GenericKerrpexBL[10^-5, 0.5, 10, 0.2, 0.8, 0, 0, IntegrationLimit -> 2000];
+	maxDifference[split, whole, {"p", "e", "x", "r", "\[Phi]"}, Range[200., 2000., 200.]]
+	,
+	{0, 0, 0, 0, 0}, SameTest -> withinTolerance[10^-10],
+	TestID -> "Two force drivers, each half the gas drag, give the same inspiral as the gas drag"
+]

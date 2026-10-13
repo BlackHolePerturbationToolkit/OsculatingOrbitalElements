@@ -140,9 +140,9 @@ OsculatingOrbitalElements/
 │   ├── Interface.wl                  Entry point: parameter Association, validation, solver and force or flux
 │   │                                 selection, the shared NDSolve driver
 │   ├── InspiralObject.wl             Inspiral object: construction, property access, summary box
-│   ├── Utilities.wl                  Constants of motion, radial roots, separatrix, index raising/lowering,
-│   │                                 F_t from orthogonality, the map from (E, L, Q) rates to (p, e², x) rates,
-│   │                                 caching
+│   ├── Utilities.wl                  Constants of motion, radial roots, separatrix, orbit geometry,
+│   │                                 index raising/lowering, F_t from orthogonality, the map from (E, L, Q)
+│   │                                 rates to (p, e², x) rates, caching
 │   ├── Solvers/
 │   │   ├── KerrPEX.wl                Default: p, e, x equations, plus the p, α, β equations used at small e
 │   │   ├── KerrELK.wl                En, L, K equations (to be supported later)
@@ -175,7 +175,8 @@ OsculatingOrbitalElements/
 
 When each file is created:
 
-- `Interface.wl`, `InspiralObject.wl` and `ForceObject.wl`: phases 3 and 4 of the checklist.
+- `Interface.wl`: phase 2, for the shared NDSolve driver. The new entry point follows in phase 3.
+- `InspiralObject.wl` and `ForceObject.wl`: phases 3 and 4 of the checklist.
 - `FluxModels/`: phase 5.
 - `Documentation/`: phase 7.
 
@@ -219,7 +220,8 @@ Legacy later: each current public function (`SchwarzOsculatingOrbitalElements`, 
 | `SchwarzGasDrag`, `KerrGasDrag`, `KerrGasDragVec`, `KerrGasDragapex` | `ForceModels/GasDrag.wl` |
 | `KerrEMCons` | `ForceModels/EMConservative.wl` |
 | `SchwarzFastGSF` and its data loading | `ForceModels/FastGSF.wl` |
-| `StopMessage`, radial roots, `SeparatrixEqELK`, constants of motion and `memoLast`, `MinoParametrisationQ` | `Utilities.wl` |
+| Radial roots, `SeparatrixEqELK`, constants of motion and `memoLast` | `Utilities.wl` |
+| `StopMessage`, `MinoParametrisationQ` | `Utilities.wl` in phase 1, then `Interface.wl` in phase 2 |
 | `KerrOscGeoEqs`, `…TP`, `…TPVecLessArg`, and the stale usage messages | `Legacy/LegacyEquations.wl` |
 
 ## Checklist for improvements that should be made
@@ -235,7 +237,7 @@ Legacy later: each current public function (`SchwarzOsculatingOrbitalElements`, 
 
 ### Phase 0: Tests before any restructuring
 
-Run the suite with `wolframscript -file Tests/AllTests.wls` (about a minute). It has 84 tests in 7 files.
+Run the suite with `wolframscript -file Tests/AllTests.wls` (about a minute). Phase 0 wrote 84 tests in 7 files; there are now 98 in 8.
 
 - [x] Set up `Tests/` with `.wlt` files and an `AllTests.wls` runner, and run it against the current single-file package
 - [x] Geodesic limit (η → 0) against `KerrGeoOrbit` for every solver
@@ -260,6 +262,8 @@ Run the suite with `wolframscript -file Tests/AllTests.wls` (about a minute). It
 
 The reference outputs were made with Mathematica 13.1, because Wolfram 14.3's licence had lapsed, at commit `8ce9ffe`. They match exactly only on the same Wolfram version and system. Elsewhere the regression test uses a relative tolerance of 10⁻⁸. If Phase 1 is done on another version, regenerate them first with `MakeReferenceOutputs.wls`.
 
+They were regenerated in phase 2, when pex switched to the shared rate map (see Phase 2).
+
 ### Phase 1: Restructure with no change in behaviour
 
 - [x] Create the `Kernel/` layout with `.wl` files and an `init.wl` that loads the header
@@ -272,19 +276,31 @@ The reference outputs were made with Mathematica 13.1, because Wolfram 14.3's li
   - Every tutorial cell gives the same result and the same messages, apart from the time printed by `Timing`.
 - [x] Update the README install instructions (Applications folder and `PacletDirectoryLoad`)
 - [x] Added `Tests/Package.wlt`, which checks the exported public symbols, that loading issues no messages and leaves the working directory unchanged, and that the package loads through `Kernel/init.wl`
-- [ ] The public symbol `pMin$` is created by `Module` renaming its local `pMin`, which shares its name with the `pMin` option. Remove it when the options are reworked (Phase 3).
+- [x] The public symbol `pMin$` was created by `Module` renaming its local `pMin`, which shares its name with the `pMin` option. Removed in phase 2 by renaming the local variable.
 
 ### Phase 2: Separate the interface from the solvers
 
-- [ ] Define what each solver file provides: variables, initial conditions, equations, stop events, and derived quantities (r, θ, En, L, Q, …)
-- [ ] Keep that contract independent of what drives the inspiral. A solver builds its equations from a list of drivers: forces contribute to the slow variables and to the phase equations, and fluxes (from phase 5) only to the slow variables. See "Flux-driven evolution".
-- [ ] Move the map from (dE, dL, dQ) to the rates of p, e² and x, now inside the pex and REG equations, into `Utilities.wl`, so the flux solver can reuse it
-- [ ] Write one NDSolve driver shared by all solvers, which works for any set of variables:
-  - [ ] Stop conditions (separatrix, pMin, maximum time) handled in one place
-  - [ ] A configurable separatrix buffer (currently fixed at η)
-  - [ ] Store why the integration stopped in the output (currently only reported as a message)
-  - [ ] Pass NDSolve options straight through
-- [ ] Move the orbit geometry (Σ, Δ, roots, velocities), currently repeated in several functions, into `Utilities.wl`
+- [x] Define what each solver file provides: variables, initial conditions, equations, stop events, and derived quantities (r, θ, En, L, Q, …)
+  - A solver is a builder and a force resolver, described at `RunSolver` in `Interface.wl`.
+  - The builder returns the variable, unknowns, equations, stop events, NDSolve method and a function that makes the outputs from the solution. `RunSolver` reads the options, resolves the force, builds and integrates the system, and adds `"limit"` and `"StopReason"`.
+  - pex and REG are written this way (`pexSystem`, `regSystem`), and share their derived outputs.
+  - ELK and the Schwarzschild solvers only use the shared NDSolve driver, since ELK is to be supported later and the Schwarzschild solvers' future is undecided.
+- [x] Keep that contract independent of what drives the inspiral. A solver builds its equations from a list of drivers: forces contribute to the slow variables and to the phase equations, and fluxes (from phase 5) only to the slow variables. See "Flux-driven evolution".
+  - A force driver is `<|"Type" -> "Force", "Function" -> f|>`. Here f takes the orbit's state (elements, phases and the shared geometry) and returns {a_t, a_r, a_θ, a_φ} per unit η.
+  - `TotalForce` adds the drivers. A test checks that two half-strength gas drags give the same inspiral as one full-strength gas drag.
+  - Flux drivers will be a second type, added in phase 5.
+- [x] Move the map from (dE, dL, dQ) to the rates of p, e² and x, now inside the pex and REG equations, into `Utilities.wl`, so the flux solver can reuse it
+  - `OrbitalElementRates` uses REG's regular form, which gives de²/dλ. It is tested against 60-digit finite differences of the constants of motion, including at a = 0 and e = 0.
+  - pex now uses it too, in place of its map through the turning points r1 and r2. The two agree to 10⁻¹² in the rates, and the new form is usually the more accurate.
+  - This changed pex results by at most 5×10⁻⁹, the level of NDSolve's default tolerance, so the reference outputs were regenerated. REG, ELK and Schwarzschild results did not change.
+- [x] Write one NDSolve driver shared by all solvers, which works for any set of variables (`IntegrateSystem` in `Interface.wl`):
+  - [x] Stop conditions (separatrix, pMin, maximum time) handled in one place. Solvers declare `stopEvent[condition, reason]`.
+  - [x] A configurable separatrix buffer: the `SeparatrixBuffer` option (pex and REG; η by default)
+  - [x] Store why the integration stopped in the output: `"StopReason"` is `"Separatrix"`, `"SeparatrixBuffer"`, `"pMin"`, `"IntegrationLimit"` or `"Other"`
+  - [x] Pass NDSolve options straight through, ahead of the solver's own settings
+- [x] Move the orbit geometry (Σ, Δ, roots, velocities), currently repeated in several functions, into `Utilities.wl`
+  - `KerrOrbitGeometry`, `NullTetradForce` and `ConstantsOfMotionRates` are used by pex and REG. The polar phase equation they share is `polarPhaseRate` in `KerrPEX.wl`, until the regular polar formulation replaces it.
+  - The force models and ELK still compute their own geometry. They should use the shared one when the force models are rewritten (phase 4) and when ELK is supported.
 
 ### Phase 3: New interface and inspiral object
 
