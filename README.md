@@ -17,34 +17,57 @@ Getting the package
 The latest development version will always be available from the project git
 repository:
 
-git clone https://github.com/ucd-relativity/OsculatingOrbitalElements.git
+git clone https://github.com/BlackHolePerturbationToolkit/OsculatingOrbitalElements.git
 
 Requirements
 ------------
-Mathematica: OsculatingOrbitalElements requires a recent version of Mathematica. 
-It is typically tested with only the latest available version.
+- Mathematica (Wolfram Language) 13.1 or later.
+- The [KerrGeodesics package](https://github.com/BlackHolePerturbationToolkit/KerrGeodesics).
 
 Installation
 ------------
-Clone the repository and place it somewhere on Mathematica's `$Path`.
-Typical locations are inside `${HOME}/.Mathematica/Applications/` for Linux,
-`${HOME}/Library/Mathematica/Applications/` for Mac OSX, or in 
-`C:\Users\yourusername\AppData\Roaming\Mathematica\Applications`
-for Windows.
+There are two ways to make the package available. Whichever you use, keep only one copy of
+OsculatingOrbitalElements where Mathematica can find it, or an older copy may be loaded instead.
 
-This package requires the [KerrGeodesics Package](https://github.com/BlackHolePerturbationToolkit/KerrGeodesics).
+**Applications folder.** Clone the repository into the `Applications` folder of your user base
+directory, keeping the folder name `OsculatingOrbitalElements`. To find that folder, evaluate
 
+```mathematica
+FileNameJoin[{$UserBaseDirectory, "Applications"}]
+```
+
+On macOS this is `~/Library/Wolfram/Applications` in recent versions and
+`~/Library/Mathematica/Applications` in older ones.
+
+**Paclet.** Clone the repository anywhere and load it as a paclet in each session (or in your
+`init.m`):
+
+```mathematica
+PacletDirectoryLoad["/path/to/OsculatingOrbitalElements"]
+```
 
 Usage
 -----
-This package, along with the KerrGeodesics package may be loaded into Mathematica using the command:
+Load the package, which also loads KerrGeodesics, with
 
 ```mathematica
 << OsculatingOrbitalElements`
 ```
+
 Example
 --------
 Examples are included in tutorial.nb.
+
+Tests
+-----
+Run the test suite from the repository folder with
+
+```
+wolframscript -file Tests/AllTests.wls
+```
+
+It takes about a minute and exits with status 1 if any test fails. To run only some of the test
+files, add their names, for example `wolframscript -file Tests/AllTests.wls Caching Regression`.
 
 Changelog
 ---------
@@ -56,7 +79,7 @@ Known problems
 --------------
 Known bugs are recorded in the project bug tracker:
 
-https://github.com/ucd-relativity/OsculatingOrbitalElements/issues
+https://github.com/BlackHolePerturbationToolkit/OsculatingOrbitalElements/issues
 
 License
 -------

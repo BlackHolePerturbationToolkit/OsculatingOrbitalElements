@@ -19,7 +19,14 @@
 $testsDirectory = DirectoryName[ExpandFileName[$InputFileName]];
 $repoDirectory = ParentDirectory[$testsDirectory];
 PrependTo[$Path, ParentDirectory[$repoDirectory]];
-Get["OsculatingOrbitalElements`"];
+
+(* Package.wlt checks what loading the package did: messages, public symbols and the working directory *)
+$directoryBeforeLoading = Directory[];
+Block[{$MessageList = {}},
+	Get["OsculatingOrbitalElements`"];
+	$loadMessages = $MessageList];
+$publicSymbolsAfterLoading = Names["OsculatingOrbitalElements`*"];
+$directoryAfterLoading = Directory[];
 
 If[!StringStartsQ[FindFile["OsculatingOrbitalElements`"], $repoDirectory],
 	Print["Loaded the package from ", FindFile["OsculatingOrbitalElements`"], " rather than ", $repoDirectory,

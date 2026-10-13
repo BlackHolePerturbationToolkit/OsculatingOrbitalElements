@@ -14,6 +14,7 @@ Here we will specify plans for refactoring the package and what new features we 
 - Custom force models should be packaged into a "Force object"
 - This object should return the (downstairs indexed) F_r, F_\theta, F_\phi with F_t determined from the orthogonality condition. The object should use pex params and darwin angles
 - This object should also accept additional arguments the force might need, like a drag coefficient for the gas drag model etc.
+- Inspirals can also be driven by orbit-averaged rates for the slowly varying elements p, e, x (for example leading-order post-Newtonian rates), packaged into a "Flux object", on their own or together with forces. See "Flux-driven evolution". It is implemented after the force objects, but the earlier phases leave room for it.
 - Keep unused legacy code for now, but segragate it away
 - Need unit tests
 - Need full documentation with examples
@@ -21,11 +22,61 @@ Here we will specify plans for refactoring the package and what new features we 
 
 ## Future features that might be nice
 
-- Support for Flux modes that replace the RHS with pdot, edot, xdot (orbit averaged)
+- Support for Flux modes that replace the RHS with pdot, edot, xdot (orbit averaged). Now planned: see "Flux-driven evolution".
 
-- Each built in force object having properties that can be queried, like parameter range, paper citation, etc.
+- Each built in force or flux object having properties that can be queried, like parameter range, paper citation, etc.
 
-- Having multiple forces/ fluxes driving an inspiral
+- Having multiple forces/ fluxes driving an inspiral, for example a gravitational-wave flux together with gas drag. Now planned: see "Flux-driven evolution".
+
+## Flux-driven evolution
+
+As well as an oscillatory force, an inspiral can be driven by orbit-averaged rates of change of the slowly varying elements, ⟨dp/dt⟩, ⟨de/dt⟩ and ⟨dx/dt⟩, which we call a flux. Examples are leading-order post-Newtonian rates at first order in the mass ratio: Peters (1964) in the weak field, or the Kerr post-Newtonian fluxes of Gair & Glampedakis (2006) or Sago & Fujita (2015).
+
+**Decision: keep evolving the Darwin and Hughes angles.**
+
+- A flux-driven inspiral uses the same variables and equations as a force-driven one. There is no separate solver that evolves mean anomalies.
+- This is slower, because the phases still oscillate on the orbital timescale, but speed is not a priority for this code.
+- In exchange, an inspiral can be driven by a flux and a force together, for example a gravitational-wave flux and gas drag, and by several of each. No other code does this.
+
+**How a flux enters the equations.** A flux is not a force: it has no instantaneous direction, so there is nothing for the force terms in the phase equations to act on.
+
+- **Only the slow variables change.** A flux adds its rates to p, e and x.
+- **Phases advance at their geodesic rate** for the current elements, plus the force terms when a force is also present. This is the usual adiabatic prescription. The position then drifts from the geodesic at O(η), which is consistent with an averaged flux.
+- **Contributions add.** The osculating equations are linear in the force, so several forces add to one total force, and their rates add to those of any fluxes.
+- **Mixed variables need care.** Where slow and fast variables are mixed, the flux must be added in that form:
+  - In the REG components (αp, βp) = e (sin ψr, cos ψr), a flux contributes (ė/e)(αp, βp).
+  - In the planned polar components (αθ, βθ), it contributes (ż_m/2z_m)(αθ, βθ), alongside ẋ for x.
+  - These ratios stay finite for physical fluxes (ė ∝ e as e → 0, and ż_m ∝ z_m near the equator), so the Flux object may need to supply them directly.
+  - A flux must not be passed through REG's osculating relations. Those assume r and u_r stay continuous, which only holds for a force.
+- **The same small-e and equatorial treatments** therefore apply to fluxes as to forces.
+
+**Flux object** (`Kernel/FluxModels/FluxObject.wl`), the counterpart of the Force object. It holds:
+
+- a function of (a, p, e, x, parameters) that returns the averaged rates, and is only evaluated on numeric input;
+- which quantities the rates are for: (p, e, x), or (E, L, Q), the form in which most fluxes are published;
+- which time the averages are taken with respect to: coordinate time t or Mino time λ. They differ by the factor Γ = ⟨dt/dλ⟩;
+- its parameters, and the same descriptive properties and mass-ratio convention as force models.
+
+**Converting (E, L, Q) rates.** The map from (dE, dL, dQ) to the rates of p, e and x already exists inside the pex and REG equations; it should live in one place, `Utilities.wl`. Two points about it:
+
+- **Circular orbits.** Its rate for e is singular at e = 0, where the two radial roots coincide. The REG equations contain a regular map to de² instead, which gives ė/e = (de²/dt)/(2e²). That still needs care at exactly e = 0. A flux given for (p, e, x), or one that supplies ė/e directly, avoids the problem.
+- **Polar orbits.** The rate for x is regular at x = 0 once the 1/x is cancelled using L/x (see "Polar motion near the equator and the poles").
+
+**Interface and output.** The parameter Association takes "Force", "Flux" or both, each as a single object or a list. The result is the same inspiral object, which records the forces and fluxes that drove it.
+
+**Checking it:**
+
+- **A force against its averaged flux.** Orbit-averaging a Force object over the radial and polar phases gives a Flux object. Driving an inspiral with the force, and then with its averaged flux, should give p, e and x that agree to O(η) over the whole inspiral. This tests the flux machinery against the osculating equations, and lets any force model be used as a flux.
+- **Limiting cases.** A zero flux must leave force-driven results unchanged, and with no force the phases must advance at their geodesic rates.
+- **Combinations.** Force A plus the averaged flux of force B should agree with forces A and B together, again to O(η) in p, e and x.
+
+**What the earlier phases must allow for.** These are cheap to do now and awkward to retrofit:
+
+- **Phase 2:**
+  - The solver contract must not assume a single force. A solver builds its equations from a list of drivers: forces contribute to the slow variables and to the phase equations, and fluxes only to the slow variables (in the component forms above).
+  - The (dE, dL, dQ) → (dp, de², dx) map moves into `Utilities.wl`.
+- **Phase 3:** The parameter Association accepts "Flux" alongside "Force", each as one object or a list, and the inspiral object records them.
+- **Phase 4:** Parameter handling, the mass-ratio convention and the descriptive properties are designed once, for both Force and Flux objects. Several forces combine into one total force.
 
 ## Polar motion near the equator and the poles (for later)
 
@@ -86,11 +137,12 @@ OsculatingOrbitalElements/
 │   ├── init.wl                       One-line loader, used by both Applications-folder and paclet installs
 │   ├── OsculatingOrbitalElements.wl  Header: usage messages, options and messages for every public symbol;
 │   │                                 loads the files below
-│   ├── Interface.wl                  Entry point: parameter Association, validation, solver and force
+│   ├── Interface.wl                  Entry point: parameter Association, validation, solver and force or flux
 │   │                                 selection, the shared NDSolve driver
 │   ├── InspiralObject.wl             Inspiral object: construction, property access, summary box
 │   ├── Utilities.wl                  Constants of motion, radial roots, separatrix, index raising/lowering,
-│   │                                 F_t from orthogonality, caching
+│   │                                 F_t from orthogonality, the map from (E, L, Q) rates to (p, e², x) rates,
+│   │                                 caching
 │   ├── Solvers/
 │   │   ├── KerrPEX.wl                Default: p, e, x equations, plus the p, α, β equations used at small e
 │   │   ├── KerrELK.wl                En, L, K equations (to be supported later)
@@ -100,6 +152,10 @@ OsculatingOrbitalElements/
 │   │   ├── GasDrag.wl                Gas drag (Schwarzschild and Kerr)
 │   │   ├── EMConservative.wl         Conservative electromagnetic force
 │   │   └── FastGSF.wl                Fast first-order GSF fit (Schwarzschild); reads Data/FastGSF
+│   ├── FluxModels/
+│   │   ├── FluxObject.wl             Flux object: averaged rates, the quantities and time they refer to,
+│   │   │                             parameters, combining fluxes, orbit-averaging a Force object
+│   │   └── PostNewtonian.wl          For example leading-order post-Newtonian rates
 │   └── Legacy/
 │       └── LegacyEquations.wl        Unused code kept for reference (see Legacy code below)
 ├── Data/FastGSF/                     a_n_jk, b_n_jk, c_n_jk, d_n_jk (currently DataFiles/)
@@ -117,14 +173,23 @@ OsculatingOrbitalElements/
 └── README.md, LICENSE, .gitignore
 ```
 
-`Interface.wl`, `InspiralObject.wl` and `ForceObject.wl` are created in phases 3 and 4 of the checklist, and `Documentation/` in phase 6. The future features fit this structure without changes. Orbit-averaged flux evolution would be another file in `Solvers/`. A new built-in force is a new file in `ForceModels/`, and combining several forces belongs in `ForceObject.wl`.
+When each file is created:
+
+- `Interface.wl`, `InspiralObject.wl` and `ForceObject.wl`: phases 3 and 4 of the checklist.
+- `FluxModels/`: phase 5.
+- `Documentation/`: phase 7.
+
+The future features fit this structure without changes:
+
+- A new built-in force is a new file in `ForceModels/`, and a new flux model a new file in `FluxModels/`.
+- Combining several forces belongs in `ForceObject.wl`, and combining several fluxes in `FluxObject.wl`.
 
 ### Conventions
 
 - **One public context, one shared private context.** The header declares the public symbols in `` OsculatingOrbitalElements` ``, then loads the other files inside `` Begin["`Private`"] ``. Those files have no `BeginPackage` of their own, so any private helper can be used from any file, and moving code between files needs no import or export changes.
 - **Public symbols are declared only in the header.** A new public function or option needs its usage message there; otherwise it is created as a private symbol.
 - **The header lists the KerrGeodesics subcontexts explicitly.** The other files are read with the header's `$ContextPath`, and `` "KerrGeodesics`" `` alone does not include `` KerrGeodesics`ConstantsOfMotion` `` or `` KerrGeodesics`SpecialOrbits` ``. Without them, a name such as `KerrGeoEnergy` silently becomes a new private symbol that never evaluates.
-- **Load order:** Utilities, ForceModels, Solvers, InspiralObject, Interface, then Legacy. Only code that runs at load time, such as reading the FastGSF data, depends on it.
+- **Load order:** Utilities, ForceModels, FluxModels, Solvers, InspiralObject, Interface, then Legacy. Only code that runs at load time, such as reading the FastGSF data, depends on it.
 - **Paths come from the package itself.** The header records its own directory from `$InputFileName`. Nothing calls `SetDirectory` or assumes `$UserBaseDirectory`.
 
 ### Legacy code
@@ -154,7 +219,7 @@ Legacy later: each current public function (`SchwarzOsculatingOrbitalElements`, 
 | `SchwarzGasDrag`, `KerrGasDrag`, `KerrGasDragVec`, `KerrGasDragapex` | `ForceModels/GasDrag.wl` |
 | `KerrEMCons` | `ForceModels/EMConservative.wl` |
 | `SchwarzFastGSF` and its data loading | `ForceModels/FastGSF.wl` |
-| Radial roots, `SeparatrixEqELK`, constants of motion and `memoLast`, `MinoParametrisationQ` | `Utilities.wl` |
+| `StopMessage`, radial roots, `SeparatrixEqELK`, constants of motion and `memoLast`, `MinoParametrisationQ` | `Utilities.wl` |
 | `KerrOscGeoEqs`, `…TP`, `…TPVecLessArg`, and the stale usage messages | `Legacy/LegacyEquations.wl` |
 
 ## Checklist for improvements that should be made
@@ -197,18 +262,24 @@ The reference outputs were made with Mathematica 13.1, because Wolfram 14.3's li
 
 ### Phase 1: Restructure with no change in behaviour
 
-- [ ] Create the `Kernel/` layout with `.wl` files and an `init.wl` that loads the header
-- [ ] Move the code as in the table above, without changing any equations
-- [ ] Move unused code to `Kernel/Legacy/` with legacy headers, and comment out the stale usage messages there
-- [ ] Record the package directory from `$InputFileName`, move `DataFiles/` to `Data/FastGSF/`, and remove `SetDirectory`
-- [ ] Add `PacletInfo.wl`
-- [ ] Tests pass with identical outputs, and `tutorial.nb` still runs
-- [ ] Update the README install instructions (Applications folder and `PacletDirectoryLoad`)
+- [x] Create the `Kernel/` layout with `.wl` files and an `init.wl` that loads the header
+- [x] Move the code as in the table above, without changing any equations
+- [x] Move unused code to `Kernel/Legacy/` with legacy headers, and comment out the stale usage messages there
+- [x] Record the package directory from `$InputFileName`, move `DataFiles/` to `Data/FastGSF/`, and remove `SetDirectory`
+- [x] Add `PacletInfo.wl` (version 0.1.0, Mathematica 13.1+)
+- [x] Tests pass with identical outputs, and `tutorial.nb` still runs
+  - All regression outputs match exactly on Mathematica 13.1.
+  - Every tutorial cell gives the same result and the same messages, apart from the time printed by `Timing`.
+- [x] Update the README install instructions (Applications folder and `PacletDirectoryLoad`)
+- [x] Added `Tests/Package.wlt`, which checks the exported public symbols, that loading issues no messages and leaves the working directory unchanged, and that the package loads through `Kernel/init.wl`
+- [ ] The public symbol `pMin$` is created by `Module` renaming its local `pMin`, which shares its name with the `pMin` option. Remove it when the options are reworked (Phase 3).
 
 ### Phase 2: Separate the interface from the solvers
 
 - [ ] Define what each solver file provides: variables, initial conditions, equations, stop events, and derived quantities (r, θ, En, L, Q, …)
-- [ ] Write one NDSolve driver shared by all solvers:
+- [ ] Keep that contract independent of what drives the inspiral. A solver builds its equations from a list of drivers: forces contribute to the slow variables and to the phase equations, and fluxes (from phase 5) only to the slow variables. See "Flux-driven evolution".
+- [ ] Move the map from (dE, dL, dQ) to the rates of p, e² and x, now inside the pex and REG equations, into `Utilities.wl`, so the flux solver can reuse it
+- [ ] Write one NDSolve driver shared by all solvers, which works for any set of variables:
   - [ ] Stop conditions (separatrix, pMin, maximum time) handled in one place
   - [ ] A configurable separatrix buffer (currently fixed at η)
   - [ ] Store why the integration stopped in the output (currently only reported as a message)
@@ -217,7 +288,7 @@ The reference outputs were made with Mathematica 13.1, because Wolfram 14.3's li
 
 ### Phase 3: New interface and inspiral object
 
-- [ ] Decide the keys and defaults of the parameter Association, following WaSABI
+- [ ] Decide the keys and defaults of the parameter Association, following WaSABI. Accept a "Flux" entry alongside "Force", each as one object or a list.
 - [ ] Decide the name and signature of the entry function
 - [ ] Validate inputs: bound orbit, parameter ranges, missing keys
 - [ ] Make the pex solver the default, reporting in Boyer–Lindquist coordinate time with the Darwin (ψr) and Hughes (ψθ) angles
@@ -229,8 +300,9 @@ The reference outputs were made with Mathematica 13.1, because Wolfram 14.3's li
 - [ ] Make the constants of motion safe at x = 0
 - [ ] Decide whether Schwarzschild stays a separate solver or becomes the a = 0 case of the Kerr solver (this needs the equatorial support above)
 - [ ] Build the inspiral object, modelled on `KerrGeoOrbitFunction`:
-  - [ ] Properties: trajectory, orbital elements, constants of motion, phases, domain, stop reason, input parameters and force
+  - [ ] Properties: trajectory, orbital elements, constants of motion, phases, domain, stop reason, input parameters, and the force or flux
   - [ ] Summary box
+  - [ ] Record the forces and fluxes that drove the inspiral
 - [ ] Later: offer ELK as an option. Its `"p"` and `"e"` outputs are slow because every evaluation solves the radial quartic, and its gas drag (`KerrGasDrag`, `KerrGasDragVec`) still divides by zero at a = 0.
 
 ### Phase 4: Force objects
@@ -238,16 +310,36 @@ The reference outputs were made with Mathematica 13.1, because Wolfram 14.3's li
 - [ ] Force object wrapping one function of (a, p, e, x, ψr, ψθ, parameters) that returns the downstairs {F_r, F_θ, F_φ}, and is only evaluated on numeric input
 - [ ] Compute F_t from the orthogonality condition in `Utilities.wl`
 - [ ] Hold extra model parameters (such as a drag coefficient) in the object, and decide how they relate to η
+- [ ] Design the parameter handling, the mass-ratio convention and the descriptive properties (validity range, citation) once, so Flux objects can share them
 - [ ] Solvers accept only Force objects, and built-in models can be selected by name
+- [ ] Several forces combine into one total force (the osculating equations are linear in the force)
 - [ ] Rewrite gas drag, conservative EM and FastGSF as Force objects, each returning all components from a single evaluation
 - [ ] Vectorise the FastGSF sum. The tables are now built once, but the 1,600-term sum is about 94% of the 4 ms per call. Solves aren't affected today, because the solvers expand FastGSF symbolically once.
 
-### Phase 5: Legacy
+### Phase 5: Flux-driven evolution
+
+- [ ] Flux object in `Kernel/FluxModels/FluxObject.wl`, with:
+  - [ ] rates for (p, e, x) or (E, L, Q), with respect to t or λ;
+  - [ ] parameters and descriptive properties;
+  - [ ] combining several fluxes.
+- [ ] Add flux contributions to the solvers:
+  - [ ] the slow variables only, with the phases at their geodesic rate;
+  - [ ] the (ė/e) and (ż_m/2z_m) forms for the component variables.
+- [ ] Inspirals driven by forces and fluxes together, and by several of each
+- [ ] Orbit-average a Force object into a Flux object
+- [ ] First flux model, for example Peters' leading-order rates, in `Kernel/FluxModels/PostNewtonian.wl`
+- [ ] Tests:
+  - [ ] A zero flux leaves force-driven results unchanged, and with no force the phases advance at their geodesic rates
+  - [ ] With Peters' rates the elements follow the analytic solution of Peters' equations
+  - [ ] Gas drag driven by the force and by its orbit-averaged flux agree in p, e and x to O(η)
+  - [ ] One force plus the averaged flux of another agrees with both forces together, to O(η) in p, e and x
+
+### Phase 6: Legacy
 
 - [ ] When the new interface reproduces a current public function's results, move that function to `Kernel/Legacy/` and mark its usage message as legacy
 - [ ] Decide what to do with `Data generation.nb` and `TestingELKvspex.nb`, which call functions that no longer exist
 
-### Phase 6: Documentation and distribution
+### Phase 7: Documentation and distribution
 
 - [ ] Reference pages for every public symbol, a guide page, and tutorials with worked examples
 - [ ] Turn `tutorial.nb` into documentation, fixing its current bugs (undefined `ELKup`, and sin θ and cos θ swapped in the 3D plot)
