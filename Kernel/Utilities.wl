@@ -51,6 +51,17 @@ Vr = (En(r^2 + a^2) - a L )^2 - (r^2 + a^2 - 2r) (r^2+ K);
 SeparatrixEqELK[a_?NumericQ,En_?NumericQ,L_?NumericQ,k_?NumericQ]:=16 (-1+En) (1+En) (a^10 En^2-a^12 En^2-27 a^8 En^4+30 a^10 En^4+a^12 En^4-96 a^10 En^6+64 a^10 En^8-a^8 k+a^10 k+36 a^6 En^2 k-43 a^8 En^2 k+3 a^10 En^2 k+36 a^6 En^4 k+80 a^8 En^4 k-4 a^10 En^4 k+96 a^8 En^6 k-128 a^8 En^8 k-8 a^4 k^2+12 a^6 k^2-4 a^8 k^2-52 a^4 En^2 k^2+42 a^6 En^2 k^2-2 a^8 En^2 k^2-2 a^4 En^4 k^2-220 a^6 En^4 k^2+6 a^8 En^4 k^2+96 a^6 En^6 k^2+64 a^6 En^8 k^2-16 k^3+32 a^2 k^3-22 a^4 k^3+6 a^6 k^3-52 a^2 En^2 k^3+42 a^4 En^2 k^3-2 a^6 En^2 k^3+36 a^2 En^4 k^3+80 a^4 En^4 k^3-4 a^6 En^4 k^3-96 a^4 En^6 k^3-8 k^4+12 a^2 k^4-4 a^4 k^4+36 En^2 k^4-43 a^2 En^2 k^4+3 a^4 En^2 k^4-27 En^4 k^4+30 a^2 En^4 k^4+a^4 En^4 k^4-k^5+a^2 k^5+En^2 k^5-a^2 En^2 k^5-2 a^9 En L+2 a^11 En L+108 a^7 En^3 L-126 a^9 En^3 L+6 a^11 En^3 L+456 a^9 En^5 L-8 a^11 En^5 L-320 a^9 En^7 L-72 a^5 En k L+92 a^7 En k L-16 a^9 En k L-108 a^5 En^3 k L-188 a^7 En^3 k L-8 a^9 En^3 k L-440 a^7 En^5 k L+24 a^9 En^5 k L+512 a^7 En^7 k L+64 a^3 En k^2 L-88 a^5 En k^2 L+36 a^7 En k^2 L+4 a^3 En^3 k^2 L+440 a^5 En^3 k^2 L-12 a^7 En^3 k^2 L-136 a^5 En^5 k^2 L-24 a^7 En^5 k^2 L-192 a^5 En^7 k^2 L+40 a En k^3 L+4 a^3 En k^3 L-32 a^5 En k^3 L-36 a En^3 k^3 L-132 a^3 En^3 k^3 L+24 a^5 En^3 k^3 L+120 a^3 En^5 k^3 L+8 a^5 En^5 k^3 L-6 a En k^4 L+10 a^3 En k^4 L+6 a En^3 k^4 L-10 a^3 En^3 k^4 L+a^8 L^2-a^10 L^2-162 a^6 En^2 L^2+198 a^8 En^2 L^2-23 a^10 En^2 L^2-864 a^8 En^4 L^2+8 a^10 En^4 L^2+640 a^8 En^6 L^2+16 a^10 En^6 L^2+36 a^4 k L^2-49 a^6 k L^2+12 a^8 k L^2+108 a^4 En^2 k L^2+124 a^6 En^2 k L^2+68 a^8 En^2 k L^2+744 a^6 En^4 k L^2-48 a^8 En^4 k L^2-768 a^6 En^6 k L^2-32 a^8 En^6 k L^2-12 a^2 k^2 L^2+31 a^4 k^2 L^2-22 a^6 k^2 L^2-2 a^2 En^2 k^2 L^2-234 a^4 En^2 k^2 L^2-66 a^6 En^2 k^2 L^2-16 a^4 En^4 k^2 L^2+72 a^6 En^4 k^2 L^2+192 a^4 En^6 k^2 L^2+16 a^6 En^6 k^2 L^2-15 a^2 k^3 L^2+12 a^4 k^3 L^2+40 a^2 En^2 k^3 L^2+20 a^4 En^2 k^3 L^2-24 a^2 En^4 k^3 L^2-32 a^4 En^4 k^3 L^2-a^2 k^4 L^2+a^2 En^2 k^4 L^2+108 a^5 En L^3-138 a^7 En L^3+24 a^9 En L^3+816 a^7 En^3 L^3+40 a^9 En^3 L^3-640 a^7 En^5 L^3-64 a^9 En^5 L^3-36 a^3 En k L^3-4 a^5 En k L^3-88 a^7 En k L^3-552 a^5 En^3 k L^3-8 a^7 En^3 k L^3+512 a^5 En^5 k L^3+96 a^7 En^5 k L^3+14 a^3 En k^2 L^3+72 a^5 En k^2 L^3+56 a^3 En^3 k^2 L^3-40 a^5 En^3 k^2 L^3-64 a^3 En^5 k^2 L^3-32 a^5 En^5 k^2 L^3-8 a^3 En k^3 L^3+8 a^3 En^3 k^3 L^3-27 a^4 L^4+36 a^6 L^4-8 a^8 L^4-384 a^6 En^2 L^4-88 a^8 En^2 L^4+320 a^6 En^4 L^4+96 a^8 En^4 L^4-12 a^4 k L^4+32 a^6 k L^4+152 a^4 En^2 k L^4+64 a^6 En^2 k L^4-128 a^4 En^4 k L^4-96 a^6 En^4 k L^4-8 a^4 k^2 L^4-8 a^4 En^2 k^2 L^4+16 a^4 En^4 k^2 L^4+72 a^5 En L^5+64 a^7 En L^5-64 a^5 En^3 L^5-64 a^7 En^3 L^5-32 a^5 En k L^5+32 a^5 En^3 k L^5-16 a^6 L^6+16 a^6 En^2 L^6)
 
 
+(* ::Text:: *)
+(*The separatrix p for a, e and x, from KerrGeoSeparatrix, made safe for the values an inspiral reaches. KerrGeoSeparatrix only treats exact x = 1, 0 and -1 as the equatorial and polar cases, and does not evaluate at machine 1., 0. or -1., at |x| > 1, or within machine tolerance of 1 or -1. So x is clamped to [-1, 1], and within 10^-12 of \[PlusMinus]1 or 0 replaced by the exact value, which moves p_sep by far less than any stopping buffer.*)
+
+
+SeparatrixP[a_?NumericQ, e_?NumericQ, x_?NumericQ] := With[{xc = Clip[x, {-1, 1}]}, Quiet[Which[
+	PossibleZeroQ[a], 6 + 2 e,
+	1 - Abs[xc] < 10^-12, KerrGeoSeparatrix[a, e, Sign[xc]],
+	Abs[xc] < 10^-12, KerrGeoSeparatrix[a, e, 0],
+	True, KerrGeoSeparatrix[a, e, xc]]]];
+
+
 (* ::Subsubsection::Closed:: *)
 (*Constants of Motion*)
 
@@ -101,39 +112,92 @@ En = Energy[a,p,e,x];
 CarterConstant[a_?NumericQ, p_?NumericQ, e_?NumericQ, x_?NumericQ]:= memoLast[CarterConstant, carterConstantCache, {a,p,e,x}, (-a^2 (-1+Energy[a,p,e,x]^2)+AngularMomentum[a,p,e,x]^2/x^2) (1-x^2)];
 
 
+(* ::Text:: *)
+(*The regular solver's constants of motion. RegularEnergy and RegularLOverX take a, p, e^2 and x, and return the energy and \[ScriptL] = L/x, from which L = x \[ScriptL] and Q = (1 - x^2)(a^2 (1 - En^2) + \[ScriptL]^2). Unlike the functions above, they need no special cases at e = 0 or x = 0: they take e^2, as the regular radial variables give it, and \[ScriptL] stays finite for polar orbits, where L/x is 0/0.*)
+(*They follow Schmidt's construction, as KerrGeodesics does, with two changes:*)
+(*- L is replaced by x \[ScriptL]. Schmidt's h(r) is multiplied by x^2, which makes it r^2 - 2 r + a^2 zm.*)
+(*- The conditions at the turning points r1 and r2 are replaced by their mean and their divided difference. These are sums of products of r1 and r2 with positive coefficients, so nothing cancels as r1 and r2 meet at e = 0.*)
+
+
+regularConstants[a_, p_, e2_, x_] := Module[
+	{e, r1, r2, zm, means, differences, rows, f, d, h, r, det, \[Kappa], \[Rho], \[Epsilon], \[Eta], \[Sigma], En2},
+	e = Sqrt[e2];
+	r1 = p/(1 - e);
+	r2 = p/(1 + e);
+	zm = 1 - x^2;
+	(* For a polynomial with coefficients c, lowest power first: c . means is the mean of its values at r1 and r2, and
+	   c . differences their divided difference *)
+	means = {2, r1 + r2, r1^2 + r2^2, r1^3 + r2^3, r1^4 + r2^4}/2;
+	differences = {0, 1, r1 + r2, r1^2 + r1 r2 + r2^2, r1^3 + r1^2 r2 + r1 r2^2 + r2^3};
+	rows[c_] := {c . means, c . differences};
+	f = rows[{a^4 zm, 2 a^2 x^2, a^2 (1 + zm), 0, 1}];
+	d = rows[{a^4 zm, -2 a^2 zm, a^2 (1 + zm), -2, 1}];
+	h = rows[{a^2 zm, -2, 1, 0, 0}];
+	(* Schmidt's g(r) = 2 a r, with the factor 2 a taken out so that a = 0 needs no special case *)
+	r = rows[{0, 1, 0, 0, 0}];
+	det[{u1_, u2_}, {v1_, v2_}] := u1 v2 - v1 u2;
+	\[Kappa] = det[d, h];
+	\[Rho] = det[f, h];
+	\[Epsilon] = det[d, r];
+	\[Eta] = det[f, r];
+	\[Sigma] = det[r, h];
+	En2 = (\[Kappa] \[Rho] + 8 a^2 x^2 \[Epsilon] \[Sigma] -
+		4 Abs[a] x Sqrt[\[Sigma] (4 a^2 \[Sigma] \[Epsilon]^2 x^2 + \[Rho] \[Epsilon] \[Kappa] - \[Eta] \[Kappa]^2)])/
+		(\[Rho]^2 + 16 a^2 x^2 \[Eta] \[Sigma]);
+	{Sqrt[En2], Sqrt[(\[Epsilon] - \[Eta] En2)/\[Sigma]]}
+];
+
+regularConstantsCache = None;
+cachedRegularConstants[a_, p_, e2_, x_] := memoLast[cachedRegularConstants, regularConstantsCache, {a, p, e2, x},
+	regularConstants[a, p, e2, x]];
+
+RegularEnergy[a_?NumericQ, p_?NumericQ, e2_?NumericQ, x_?NumericQ] := First[cachedRegularConstants[a, p, e2, x]];
+RegularLOverX[a_?NumericQ, p_?NumericQ, e2_?NumericQ, x_?NumericQ] := Last[cachedRegularConstants[a, p, e2, x]];
+
+
 (* ::Subsubsection::Closed:: *)
 (*Orbit geometry*)
 
 
 (* ::Text:: *)
-(*The quantities that the osculating equations share, at one point of the orbit. The point lies on a geodesic with constants En, L and Q, at radius r and polar phase \[Psi]\[Theta], moving radially at dr/d\[Lambda] = drd\[Lambda]; x is the geodesic's inclination parameter, so zm = 1 - x^2. Each formulation knows r and dr/d\[Lambda] in its own variables, so it supplies them. The arguments may be symbolic, as the solvers build their equations from these expressions.*)
-(*The result has the arguments, under the keys "a", "En", "L", "Q", "r", "x" and "\[Psi]\[Theta]", and:*)
+(*The quantities that the osculating equations share, at one point of the orbit. The point lies on a geodesic with constants En, L and Q, at radius r, moving radially at dr/d\[Lambda] = drd\[Lambda]; x is the geodesic's inclination parameter, so zm = 1 - x^2. Each formulation knows r and dr/d\[Lambda] in its own variables, so it supplies them. The arguments may be symbolic, as the solvers build their equations from these expressions.*)
+(*The polar position is given in one of two ways:*)
+(*- {r, x, \[Psi]\[Theta]}, with the polar phase \[Psi]\[Theta], as the pex and REG equations use. Then \[Beta] zp = \[Beta] + L^2/x^2, which is 0/0 for polar orbits.*)
+(*- {r, x, \[Alpha]\[Theta], \[Beta]\[Theta]}, with the polar components \[Alpha]\[Theta] = Sqrt[zm] Sin[\[Psi]\[Theta]] and \[Beta]\[Theta] = Sqrt[zm] Cos[\[Psi]\[Theta]] = cos \[Theta], as the regular equations use. Then \[Beta] zp = Q + L^2 + \[Beta] x^2, which is regular everywhere.*)
+(*The result has the arguments, under the keys "a", "En", "L", "Q", "r", "x", "\[Alpha]\[Theta]", "\[Beta]\[Theta]" and, in the first form, "\[Psi]\[Theta]", and:*)
 (*"K" = Q + (L - a En)^2, "\[Beta]" = a^2 (1 - En^2), "zm", "\[Beta]zp" = \[Beta] zp, "z" = cos^2 \[Theta] and "\[Theta]";*)
 (*"\[CapitalSigma]", "\[CapitalDelta]", "\[Omega]" = Sqrt[r^2 + a^2], "F" = \[Omega]^2 En - a L, and the shorthands "H" and "G" of the polar phase equation;*)
 (*the covariant velocities "ur" and "u\[Theta]", and "un", the velocity along the null tetrad's leg n;*)
 (*"dtd\[Lambda]" and "d\[Phi]d\[Lambda]".*)
 
 
-KerrOrbitGeometry[a_, {En_, L_, Q_}, {r_, x_, \[Psi]\[Theta]_}, drd\[Lambda]_] := Module[
-	{K, \[Beta], zm, \[Beta]zp, z, \[Theta], \[CapitalSigma], \[CapitalDelta], \[Omega], F, ur},
+KerrOrbitGeometry[a_, {En_, L_, Q_}, {r_, x_, \[Psi]\[Theta]_}, drd\[Lambda]_] := Append[
+	orbitGeometry[a, {En, L, Q}, {r, x, Sqrt[1 - x^2] Sin[\[Psi]\[Theta]], Sqrt[1 - x^2] Cos[\[Psi]\[Theta]]},
+		a^2 (1 - En^2) + L^2/x^2, drd\[Lambda]],
+	"\[Psi]\[Theta]" -> \[Psi]\[Theta]];
+
+KerrOrbitGeometry[a_, {En_, L_, Q_}, {r_, x_, \[Alpha]\[Theta]_, \[Beta]\[Theta]_}, drd\[Lambda]_] :=
+	orbitGeometry[a, {En, L, Q}, {r, x, \[Alpha]\[Theta], \[Beta]\[Theta]}, Q + L^2 + a^2 (1 - En^2) x^2, drd\[Lambda]];
+
+orbitGeometry[a_, {En_, L_, Q_}, {r_, x_, \[Alpha]\[Theta]_, \[Beta]\[Theta]_}, \[Beta]zp_, drd\[Lambda]_] := Module[
+	{K, \[Beta], zm, z, \[Theta], \[CapitalSigma], \[CapitalDelta], \[Omega], F, ur},
 	K = Q + (L - a En)^2;
 	\[Beta] = a^2 (1 - En^2);
 	zm = 1 - x^2;
-	\[Beta]zp = \[Beta] + L^2/x^2;
-	z = zm Cos[\[Psi]\[Theta]]^2;
-	\[Theta] = ArcCos[Sqrt[zm] Cos[\[Psi]\[Theta]]];
+	z = \[Beta]\[Theta]^2;
+	\[Theta] = ArcCos[\[Beta]\[Theta]];
 	\[CapitalSigma] = r^2 + a^2 z;
 	\[CapitalDelta] = r^2 + a^2 - 2 r;
 	\[Omega] = Sqrt[r^2 + a^2];
 	F = \[Omega]^2 En - a L;
 	ur = drd\[Lambda]/\[CapitalDelta];
-	<|"a" -> a, "En" -> En, "L" -> L, "Q" -> Q, "r" -> r, "x" -> x, "\[Psi]\[Theta]" -> \[Psi]\[Theta],
+	<|"a" -> a, "En" -> En, "L" -> L, "Q" -> Q, "r" -> r, "x" -> x, "\[Alpha]\[Theta]" -> \[Alpha]\[Theta], "\[Beta]\[Theta]" -> \[Beta]\[Theta],
 		"K" -> K, "\[Beta]" -> \[Beta], "zm" -> zm, "\[Beta]zp" -> \[Beta]zp, "z" -> z, "\[Theta]" -> \[Theta],
 		"\[CapitalSigma]" -> \[CapitalSigma], "\[CapitalDelta]" -> \[CapitalDelta], "\[Omega]" -> \[Omega], "F" -> F,
 		"H" -> L - a En x^2,
 		"G" -> \[Omega]^2 L/Sin[\[Theta]] - a^3 x^2 Sin[\[Theta]] En,
 		"ur" -> ur,
-		"u\[Theta]" -> Sqrt[zm] Sin[\[Psi]\[Theta]]/Sin[\[Theta]] Sqrt[\[Beta]zp - \[Beta] z],
+		"u\[Theta]" -> \[Alpha]\[Theta]/Sin[\[Theta]] Sqrt[\[Beta]zp - \[Beta] z],
 		"un" -> -(F + \[CapitalDelta] ur)/(2 \[CapitalSigma]),
 		"dtd\[Lambda]" -> En (\[Omega]^4/\[CapitalDelta] - a^2 (1 - z)) + a L (1 - \[Omega]^2/\[CapitalDelta]),
 		"d\[Phi]d\[Lambda]" -> L/(1 - z) + a En (\[Omega]^2/\[CapitalDelta] - 1) - a^2 L/\[CapitalDelta]|>

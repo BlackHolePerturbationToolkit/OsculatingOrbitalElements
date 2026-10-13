@@ -56,7 +56,17 @@ Load the package, which also loads KerrGeodesics, with
 
 Example
 --------
-Examples are included in tutorial.nb.
+An inspiral driven by relativistic gas drag, around a black hole with spin a = 0.9:
+
+```mathematica
+inspiral = OsculatingInspiral[<|"a" -> 0.9, "\[Epsilon]" -> 10^-5, "p" -> 10, "e" -> 0.2, "x" -> 0.8, "Force" -> KerrGasDrag|>];
+inspiral["StopReason"]      (* why the integration stopped *)
+inspiral["p"][1000.]        (* p at coordinate time t = 1000 *)
+inspiral[1000.]             (* {t, r, \[Theta], \[Phi]} at t = 1000 *)
+inspiral["Properties"]      (* everything that can be queried *)
+```
+
+Older examples, using the earlier functions, are included in tutorial.nb.
 
 Tests
 -----

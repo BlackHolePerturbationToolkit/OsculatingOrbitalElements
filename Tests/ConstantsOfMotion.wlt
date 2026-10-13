@@ -56,3 +56,54 @@ Table[
 		{{0, 10, 1/5, 4/5}, {3/10, -1/5, 1/10}},
 		(* A circular orbit stays circular, and the rate of e^2 vanishes *)
 		{{1/2, 10, 0, 4/5}, {3/10, 0, 1/10}}}}]
+
+
+(* ::Section:: *)
+(* The regular solver's constants of motion, RegularEnergy and RegularLOverX, which take e^2 *)
+
+regularConstants[a_, p_, e_, x_] := With[{En = OsculatingOrbitalElements`Private`RegularEnergy[a, p, e^2, x],
+	l = OsculatingOrbitalElements`Private`RegularLOverX[a, p, e^2, x]},
+	{En, x l, (1 - x^2) (a^2 (1 - En^2) + l^2)}];
+
+VerificationTest[
+	(* Exact inputs at 50 digits, against KerrGeodesics: prograde and retrograde, a = 0, and equatorial *)
+	Max[Table[Abs[regularConstants @@ N[orbit, 50] - N[Values[KerrGeoConstantsOfMotion @@ orbit], 50]],
+		{orbit, Flatten[Table[{a, 9, 2/5, x}, {a, {0, 1/2, 9/10}}, {x, {1, 4/5, 3/10, -3/10, -1}}], 1]}]]
+	,
+	0, SameTest -> withinTolerance[10^-40],
+	TestID -> "Regular constants of motion at 50 digits"
+]
+
+Table[
+	VerificationTest[
+		regularConstants @@ orbit
+		,
+		N[If[orbit[[3]] == 0, {KerrGeoEnergy @@ #, KerrGeoAngularMomentum @@ #, KerrGeoCarterConstant @@ #} &[Rationalize[orbit, 0]],
+			Values[KerrGeoConstantsOfMotion @@ Rationalize[orbit, 0]]]],
+		SameTest -> withinTolerance[10^-12],
+		TestID -> "Regular constants of motion at {a, p, e, x} = " <> ToString[orbit]
+	],
+	{orbit, {
+		{0.5, 10., 0.2, 0.8},
+		{0.9, 7.5, 0.5, -0.3},
+		{0.5, 10., 0., 0.8},
+		{0.5, 10., 10.^-8, 0.8},
+		{0.9, 10., 0.2, 10.^-8},
+		{0.9, 10., 0.2, 0.},
+		{0.9, 10., 0., 0.},
+		{0., 10., 0.2, 1.}}}]
+
+
+(* ::Section:: *)
+(* SeparatrixP: KerrGeoSeparatrix, safe for the values of x and e that an inspiral reaches *)
+
+VerificationTest[
+	With[{sep = OsculatingOrbitalElements`Private`SeparatrixP},
+		{sep[0.5, 0.2, 1.], sep[0.5, 0.2, 1. - 10.^-16], sep[0.5, 0.2, 1. + 10.^-12], sep[0.5, 0.2, -1.], sep[0.5, 0.2, 0.],
+			sep[0.5, 0., 0.8], sep[0., 0.2, 0.3]}]
+	,
+	{KerrGeoSeparatrix[0.5, 0.2, 1], KerrGeoSeparatrix[0.5, 0.2, 1], KerrGeoSeparatrix[0.5, 0.2, 1], KerrGeoSeparatrix[0.5, 0.2, -1],
+		KerrGeoSeparatrix[0.5, 0.2, 0], Quiet[KerrGeoSeparatrix[0.5, 0., 0.8]], 6.4},
+	SameTest -> withinTolerance[10^-10],
+	TestID -> "SeparatrixP at x = 1., 0. and -1., near and beyond 1, at e = 0, and at a = 0"
+]

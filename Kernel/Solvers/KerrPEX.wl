@@ -1,7 +1,7 @@
 (* ::Package:: *)
 
 (* ::Title:: *)
-(*Kerr solvers in p, e, x (pex) and the regular p, \[Alpha], \[Beta] form (REG)*)
+(*Kerr solvers in p, e, x: the regular solver behind OsculatingInspiral, and the earlier pex and REG solvers*)
 
 
 (* ::Text:: *)
@@ -30,6 +30,26 @@ polarPhaseRate[g_Association, {an_, A1_, A2_, A3_}] := Module[{a, \[Psi]\[Theta]
       1 + (1 - zm) g["\[CapitalSigma]"] A1 Cos[\[Psi]\[Theta]]/(Sqrt[zm] (\[Beta]zp - \[Beta] zm) Sin[\[Theta]])) +
     Cos[\[Psi]\[Theta]] Sin[\[Psi]\[Theta]] g["H"] a g["\[CapitalDelta]"] (A3 - 2 g["ur"] an)/(2 (\[Beta]zp - \[Beta] zm) g["un"]) +
     Cos[\[Psi]\[Theta]] Sin[\[Psi]\[Theta]] g["G"] A2/(\[Beta]zp - \[Beta] zm)
+];
+
+
+(* ::Text:: *)
+(*The regular solver's polar equations: the rates with Mino time of the polar components \[Alpha]\[Theta] = Sqrt[zm] Sin[\[Psi]\[Theta]], \[Beta]\[Theta] = Sqrt[zm] Cos[\[Psi]\[Theta]] = cos \[Theta], and x, from the geometry (in its polar-component form), \[ScriptL] = L/x and the covariant force. (\[Alpha]\[Theta], \[Beta]\[Theta], x) is a unit vector, which these equations keep at unit length, and they are regular for equatorial and polar orbits. The derivation is in the design document; it writes the rate of Q in its polar form, which assumes the force is orthogonal to the velocity.*)
+
+
+polarComponentRates[g_Association, \[ScriptL]_, {at_, ar_, a\[Theta]_, a\[Phi]_}] := Module[
+  {a, En, L, x, \[Alpha]\[Theta], \[Beta]\[Theta], \[Beta], \[Theta], \[CapitalSigma], W, denominator},
+  {a, En, L, x, \[Alpha]\[Theta], \[Beta]\[Theta], \[Beta], \[Theta], \[CapitalSigma]} =
+    Lookup[g, {"a", "En", "L", "x", "\[Alpha]\[Theta]", "\[Beta]\[Theta]", "\[Beta]", "\[Theta]", "\[CapitalSigma]"}];
+  (* W = d\[Theta]/d\[Lambda] up to sign, and \[Beta](zp - zm) *)
+  W = Sqrt[g["\[Beta]zp"] - \[Beta] \[Beta]\[Theta]^2];
+  denominator = g["\[Beta]zp"] - \[Beta] g["zm"];
+  <|
+    "\[Alpha]\[Theta]" -> \[Beta]\[Theta] W +
+      \[CapitalSigma] (x^2 W a\[Theta]/Sin[\[Theta]] - \[Alpha]\[Theta] (a^2 En x^2 at + L a\[Phi]/Sin[\[Theta]]^2))/denominator,
+    "\[Beta]\[Theta]" -> -\[Alpha]\[Theta] W,
+    "x" -> -\[CapitalSigma] \[Alpha]\[Theta] (x W a\[Theta]/Sin[\[Theta]] - \[Alpha]\[Theta] (a^2 En x at + \[ScriptL] a\[Phi]/Sin[\[Theta]]^2))/denominator
+  |>
 ];
 
 
@@ -349,6 +369,159 @@ regSystem[\[Eta]_, a_, {p0_, e0_, x0_, \[Psi]r0_, \[Psi]\[Theta]0_}, drivers_Lis
 
 
 (* ::Subsubsection:: *)
+(*Regular p, e, x equations (OsculatingInspiral)*)
+
+
+(* ::Text:: *)
+(*The default solver. It integrates p, the eccentricity components \[Alpha]p = e Sin[\[Psi]r] and \[Beta]p = e Cos[\[Psi]r] with the REG radial equations, and the polar unit vector (\[Alpha]\[Theta], \[Beta]\[Theta], x). These variables are regular for circular, equatorial and polar orbits, so no orbit needs special treatment, and a force can move an orbit out of the equatorial plane. The initial values are {p0, e0, x0, \[Psi]r0, \[Psi]\[Theta]0, \[Phi]0}.*)
+(*\[Phi] is integrated directly. Near the Boyer-Lindquist axis d\[Phi]/d\[Lambda] ~ L/Sin[\[Theta]]^2, so an orbit with small |x|, which passes Sin[\[Theta]] = |x| from the axis, swings \[Phi] by nearly \[Pi] in a time ~ |x|. NDSolve's default multistep method can step over that swing entirely: at its default goals \[Phi] was wrong by ~0.4 rad for a gas-drag inspiral at x = 0.01, and meaningless at x = 0.001. An 8th-order explicit Runge-Kutta method with goals of 11 or more resolves it down to |x| = 0.001 at least, so that is the default here, with goals 12 (see the Method below, and the AccuracyGoal and PrecisionGoal defaults of OsculatingInspiral). Over 5000M of gas-drag inspiral it is also about 4 times more accurate in r than the earlier solvers' defaults, and about twice as slow. Writing \[Phi] through Sin[\[Theta]] Exp[I \[Phi]] instead was tried and is worse: its equation divides by Sin[\[Theta]] Exp[-I \[Phi]], which amplifies any inconsistency with the polar variables near the axis.*)
+
+
+regularSystem[\[Epsilon]_, a_, {p0_, e0_, x0_, \[Psi]r0_, \[Psi]\[Theta]0_, \[Phi]0_}, drivers_List, settings_Association] := Module[
+  {
+    minoQ, s, initialConditions, unknowns, EoM, events, outputs,
+    p, \[Alpha]p, \[Beta]p, x, \[Alpha]\[Theta], \[Beta]\[Theta], \[Phi], t, \[Lambda],
+    e2, En, \[ScriptL], L, Q, K, w, r, Z, P, geometry, \[CapitalSigma], \[CapitalDelta],
+    state, at, ar, a\[Theta], a\[Phi], rates, elementRates, polarRates,
+    Zp, Ze2, Z\[Beta], ZK, ZQ, dpd\[Lambda], de2d\[Lambda], d\[Alpha]d\[Lambda], d\[Beta]d\[Lambda],
+    dtd\[Lambda], toS, minimumP, pMinQ, deltaPSep, initialPSep
+  },
+
+  minoQ = settings["Mino"];
+  s = If[minoQ, \[Lambda], t];
+
+  initialConditions = {
+    p[0] == p0,
+    \[Alpha]p[0] == e0 Sin[\[Psi]r0],
+    \[Beta]p[0] == e0 Cos[\[Psi]r0],
+    x[0] == x0,
+    \[Alpha]\[Theta][0] == Sqrt[1 - x0^2] Sin[\[Psi]\[Theta]0],
+    \[Beta]\[Theta][0] == Sqrt[1 - x0^2] Cos[\[Psi]\[Theta]0],
+    \[Phi][0] == \[Phi]0,
+    If[minoQ, t[0] == 0, Nothing]
+  };
+
+  (* The osculating geodesic: its constants of motion, and its radial motion in terms of \[Alpha]p and \[Beta]p, as in REG.
+     Z = P^2, where P = d\[Psi]r/d\[Lambda], is polynomial in \[Alpha]p and \[Beta]p. *)
+  e2 = \[Alpha]p[s]^2 + \[Beta]p[s]^2;
+  En = RegularEnergy[a, p[s], e2, x[s]];
+  \[ScriptL] = RegularLOverX[a, p[s], e2, x[s]];
+  L = x[s] \[ScriptL];
+  Q = (1 - x[s]^2) (a^2 (1 - En^2) + \[ScriptL]^2);
+  K = Q + (L - a En)^2;
+  w = 1 + \[Beta]p[s];
+  r = p[s]/w;
+  Z = p[s] - K (3 - e2 + 2 \[Beta]p[s])/p[s] +
+    a^2 Q (4 - e2 + 4 \[Beta]p[s] + \[Beta]p[s]^2)/p[s]^2;
+  P = Sqrt[Z];
+  geometry = KerrOrbitGeometry[a, {En, L, Q}, {r, x[s], \[Alpha]\[Theta][s], \[Beta]\[Theta][s]}, p[s] \[Alpha]p[s] P/w^2];
+  {\[CapitalSigma], \[CapitalDelta]} = Lookup[geometry, {"\[CapitalSigma]", "\[CapitalDelta]"}];
+
+  (* The total force, per unit \[Epsilon] from each driver. Force callbacks get the phases, which are set to 0 where
+     they are undefined (e = 0, or an equatorial orbit); a physical force does not depend on them there. *)
+  state = Join[<|"a" -> a, "p" -> p[s], "e" -> Sqrt[e2], "x" -> x[s], "\[Psi]r" -> phaseAngle[\[Alpha]p[s], \[Beta]p[s]],
+    "\[Psi]\[Theta]" -> phaseAngle[\[Alpha]\[Theta][s], \[Beta]\[Theta][s]]|>, geometry];
+  {at, ar, a\[Theta], a\[Phi]} = \[Epsilon] TotalForce[drivers, state];
+
+  (* p and the eccentricity components, as in REG. Zp, Ze2, Z\[Beta], ZK and ZQ are the partial derivatives of Z with
+     respect to p, e^2, \[Beta]p, K and Q. *)
+  rates = ConstantsOfMotionRates[geometry, {at, ar, a\[Theta], a\[Phi]}];
+  elementRates = OrbitalElementRates[a, {p[s], e2, x[s]}, {En, L, Q}, Lookup[rates, {"En", "L", "Q"}]];
+  dpd\[Lambda] = elementRates["p"];
+  de2d\[Lambda] = elementRates["e2"];
+  Zp = 1 + K (3 - e2 + 2 \[Beta]p[s])/p[s]^2 -
+    2 a^2 Q (4 - e2 + 4 \[Beta]p[s] + \[Beta]p[s]^2)/p[s]^3;
+  Ze2 = K/p[s] - a^2 Q/p[s]^2;
+  Z\[Beta] = -2 K/p[s] + a^2 Q (4 + 2 \[Beta]p[s])/p[s]^2;
+  ZK = -(3 - e2 + 2 \[Beta]p[s])/p[s];
+  ZQ = a^2 (4 - e2 + 4 \[Beta]p[s] + \[Beta]p[s]^2)/p[s]^2;
+  d\[Beta]d\[Lambda] = w dpd\[Lambda]/p[s] - \[Alpha]p[s] P;
+  d\[Alpha]d\[Lambda] = \[Beta]p[s] P + \[CapitalSigma] \[CapitalDelta] w^2 ar/(p[s] P) +
+    \[Alpha]p[s] dpd\[Lambda]/p[s] - \[Alpha]p[s]/(2 Z) (
+      (Zp + w Z\[Beta]/p[s]) dpd\[Lambda] + Ze2 de2d\[Lambda] + ZK rates["K"] + ZQ rates["Q"]
+    );
+
+  (* The polar unit vector *)
+  polarRates = polarComponentRates[geometry, \[ScriptL], {at, ar, a\[Theta], a\[Phi]}];
+
+  (* The equations in the selected time variable *)
+  dtd\[Lambda] = geometry["dtd\[Lambda]"];
+  toS = If[minoQ, 1, 1/dtd\[Lambda]];
+  EoM = {
+    D[p[s], s] == toS dpd\[Lambda],
+    D[\[Alpha]p[s], s] == toS d\[Alpha]d\[Lambda],
+    D[\[Beta]p[s], s] == toS d\[Beta]d\[Lambda],
+    D[x[s], s] == toS polarRates["x"],
+    D[\[Alpha]\[Theta][s], s] == toS polarRates["\[Alpha]\[Theta]"],
+    D[\[Beta]\[Theta][s], s] == toS polarRates["\[Beta]\[Theta]"],
+    D[\[Phi][s], s] == toS geometry["d\[Phi]d\[Lambda]"],
+    If[minoQ, D[t[s], s] == dtd\[Lambda], Nothing]
+  };
+  unknowns = {p, \[Alpha]p, \[Beta]p, x, \[Alpha]\[Theta], \[Beta]\[Theta], \[Phi], If[minoQ, t, Nothing]};
+
+  (* Stop at pMin, or at the separatrix buffer, which is \[Epsilon] unless SeparatrixBuffer sets it *)
+  minimumP = settings["pMin"];
+  pMinQ = NumericQ[minimumP];
+  deltaPSep = If[NumericQ[settings["SeparatrixBuffer"]], settings["SeparatrixBuffer"], \[Epsilon]];
+  (* Otherwise the integration starts inside the buffer, and never meets the stopping condition *)
+  initialPSep = SeparatrixP[a, e0, x0];
+  If[!TrueQ[p0 > initialPSep + deltaPSep],
+    Message[OsculatingInspiral::sep, deltaPSep, p0, initialPSep];
+    Return[$Failed]];
+  (* The events are located to 8 digits. Near the separatrix p changes steeply, and the default, the solver's own goals,
+     can be more than the Runge-Kutta method's interpolation within a step supports (NDSolve::evcvmit). *)
+  events = With[{u = s, location = "LocationMethod" -> {"Brent", AccuracyGoal -> 8, PrecisionGoal -> 8}}, {
+    If[pMinQ, stopEvent[p[u] - minimumP == 0, "pMin", location], Nothing],
+    stopEvent[p[u] - SeparatrixP[a, Sqrt[\[Alpha]p[u]^2 + \[Beta]p[u]^2], x[u]] - deltaPSep == 0, "SeparatrixBuffer", location]
+  }];
+
+  (* The result, made from NDSolve's solution. In coordinate time, t is the independent variable itself. *)
+  outputs[rules_] := regularOutputs[a, Append[{p, \[Alpha]p, \[Beta]p, x, \[Alpha]\[Theta], \[Beta]\[Theta], \[Phi]} /. rules,
+    If[minoQ, t /. rules, Function[{u}, u, {Listable}]]]];
+
+  <|"Variable" -> s, "Unknowns" -> unknowns, "Equations" -> Join[initialConditions, EoM], "Events" -> events,
+    "Method" -> {"ExplicitRungeKutta", "DifferenceOrder" -> 8, "EquationSimplification" -> "Solve"}, "Outputs" -> outputs|>
+]
+
+
+(* ::Text:: *)
+(*The angle of the point (\[Beta], \[Alpha]), which is 0 at the origin, where the phase is undefined.*)
+
+
+phaseAngle[\[Alpha]_?NumericQ, \[Beta]_?NumericQ] := If[TrueQ[\[Alpha] == 0 && \[Beta] == 0], 0, ArcTan[\[Beta], \[Alpha]]];
+
+
+(* ::Text:: *)
+(*The regular solver's outputs, each a listable function of the time variable, from the solutions for p, \[Alpha]p, \[Beta]p, x, \[Alpha]\[Theta], \[Beta]\[Theta], \[Phi] and t. The phases \[Psi]r and \[Psi]\[Theta] lie in (-\[Pi], \[Pi]], and are Missing where they are undefined: \[Psi]r at e = 0, and \[Psi]\[Theta] on an equatorial orbit.*)
+
+
+regularOutputs[a_, {p_, \[Alpha]p_, \[Beta]p_, x_, \[Alpha]\[Theta]_, \[Beta]\[Theta]_, \[Phi]_, t_}] := Module[
+  {e2, e, r, \[Theta], \[Psi]r, \[Psi]\[Theta], En, \[ScriptL], L, Q, K},
+  e2 = Function[{u}, \[Alpha]p[u]^2 + \[Beta]p[u]^2, {Listable}];
+  e = Function[{u}, Sqrt[e2[u]], {Listable}];
+  r = Function[{u}, p[u]/(1 + \[Beta]p[u]), {Listable}];
+  \[Theta] = Function[{u}, ArcCos[\[Beta]\[Theta][u]], {Listable}];
+  \[Psi]r = Function[{u}, If[TrueQ[\[Alpha]p[u] == 0 && \[Beta]p[u] == 0],
+    Missing["UndefinedAtZeroEccentricity"], ArcTan[\[Beta]p[u], \[Alpha]p[u]]], {Listable}];
+  \[Psi]\[Theta] = Function[{u}, If[TrueQ[\[Alpha]\[Theta][u] == 0 && \[Beta]\[Theta][u] == 0],
+    Missing["UndefinedForEquatorialOrbit"], ArcTan[\[Beta]\[Theta][u], \[Alpha]\[Theta][u]]], {Listable}];
+  En = Function[{u}, RegularEnergy[a, p[u], e2[u], x[u]], {Listable}];
+  \[ScriptL] = Function[{u}, RegularLOverX[a, p[u], e2[u], x[u]], {Listable}];
+  L = Function[{u}, x[u] \[ScriptL][u], {Listable}];
+  Q = Function[{u}, (1 - x[u]^2) (a^2 (1 - En[u]^2) + \[ScriptL][u]^2), {Listable}];
+  K = Function[{u}, Q[u] + (L[u] - a En[u])^2, {Listable}];
+  <|
+    "Trajectory" -> {t, r, \[Theta], \[Phi]},
+    "t" -> t, "r" -> r, "\[Theta]" -> \[Theta], "\[Phi]" -> \[Phi],
+    "p" -> p, "e" -> e, "x" -> x,
+    "\[Psi]r" -> \[Psi]r, "\[Psi]\[Theta]" -> \[Psi]\[Theta],
+    "En" -> En, "L" -> L, "Q" -> Q, "K" -> K,
+    "\[Alpha]p" -> \[Alpha]p, "\[Beta]p" -> \[Beta]p, "\[Alpha]\[Theta]" -> \[Alpha]\[Theta], "\[Beta]\[Theta]" -> \[Beta]\[Theta]
+  |>
+];
+
+
+(* ::Subsubsection:: *)
 (*Outputs*)
 
 
@@ -384,7 +557,7 @@ derivedOutputs[a_, psol_, esol_, xsol_, \[Psi]\[Theta]sol_, equatorialQ_] := Mod
 
 
 (* ::Text:: *)
-(*The Force option as a list of drivers (see RunSolver in Interface.wl). The gas drag is written differently in the two solvers, so each has its own resolver. Force objects (phase 4 of the refactor) will replace this.*)
+(*The Force option, or the "Force" parameter, as a list of drivers (see RunSolver in Interface.wl). pex computes the gas drag from its elements, and the other solvers from the geometry, so each has its own resolver. Force objects (phase 4 of the refactor) will replace this.*)
 
 
 callbackForceDriver[force_] := <|"Type" -> "Force", "Function" -> Function[state,
@@ -396,12 +569,21 @@ pexForceDrivers[force_] := Switch[force,
 		Values[KerrGasDragapex[state["a"], state["p"], state["e"], state["x"], state["\[Psi]r"], state["\[Psi]\[Theta]"]]]]|>},
 	_, Message[KerrOsculatingOrbitalElements::InvalidForce, force]; $Failed];
 
-(* The same gas drag: u_t = -En, u_\[Phi] = L and u^t = (dt/d\[Lambda])/\[CapitalSigma] *)
+(* The same gas drag, written with the geometry: u_t = -En, u_\[Phi] = L and u^t = (dt/d\[Lambda])/\[CapitalSigma] *)
+gasDragDriver = <|"Type" -> "Force", "Function" -> Function[state,
+	{state["En"] - state["\[CapitalSigma]"]/state["dtd\[Lambda]"], -state["ur"], -state["u\[Theta]"], -state["L"]}]|>;
+
 regForceDrivers[force_] := Switch[force,
 	{_, _, _, _}, {callbackForceDriver[force]},
-	KerrGasDrag, {<|"Type" -> "Force", "Function" -> Function[state,
-		{state["En"] - state["\[CapitalSigma]"]/state["dtd\[Lambda]"], -state["ur"], -state["u\[Theta]"], -state["L"]}]|>},
+	KerrGasDrag, {gasDragDriver},
 	_, Message[KerrOsculatingOrbitalElements::InvalidForce, force]; $Failed];
+
+(* The "Force" parameter of OsculatingInspiral. None means no force, so the orbit is a geodesic. *)
+regularForceDrivers[force_] := Switch[force,
+	None, {},
+	{_, _, _, _}, {callbackForceDriver[force]},
+	KerrGasDrag, {gasDragDriver},
+	_, Message[OsculatingInspiral::force, force]; $Failed];
 
 
 (* ::Section:: *)

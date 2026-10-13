@@ -34,3 +34,13 @@ VerificationTest[
 	SameTest -> withinTolerance[10^-12],
 	TestID -> "Alternating arguments never return a stale cached value"
 ]
+
+VerificationTest[
+	OsculatingInspiral[<|"a" -> 0.5, "\[Epsilon]" -> 10^-5, "p" -> 10, "e" -> 0.2, "x" -> 0.8, "Force" -> KerrGasDrag|>, IntegrationLimit -> 2000];
+	Length[DownValues[OsculatingOrbitalElements`Private`cachedRegularConstants]]
+	,
+	(* The definition plus one cached value *)
+	2
+	,
+	TestID -> "After an OsculatingInspiral solve the regular constants of motion cache only one value"
+]

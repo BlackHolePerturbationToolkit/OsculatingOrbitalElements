@@ -14,6 +14,10 @@ kerrArgs = {10^-5, 0.5, 10, 0.2, 0.8, 0, 0};
 (* The integration limit followed by the given outputs at the end of the integration *)
 summary[sol_, keys_List] := Join[{sol["limit"]}, endValues[sol, keys]];
 
+(* The same for an inspiral from OsculatingInspiral *)
+inspiralSummary[insp_, keys_List] := With[{end = insp["Domain"][[2]]}, Join[{end}, insp[#][end] & /@ keys]];
+inspiralParams = <|"a" -> 0.5, "\[Epsilon]" -> 10^-5, "p" -> 10, "e" -> 0.2, "x" -> 0.8, "\[Psi]r" -> 0.3, "\[Psi]\[Theta]" -> 0.4, "Force" -> KerrGasDrag|>;
+
 regressionCases = <|
 
 	"Schwarzschild Darwin parameter, gas drag, e0 = 0.3" :>
@@ -82,6 +86,35 @@ regressionCases = <|
 	"REG, equatorial x0 = -1." :>
 		summary[quietStops@GenericKerrREGBL[10^-4, 0.5, 12, 0.3, -1., 0.7, 0, IntegrationLimit -> 20000],
 			{"p", "\[Alpha]p", "\[Beta]p", "\[Phi]"}],
+
+	"OsculatingInspiral, gas drag" :>
+		inspiralSummary[OsculatingInspiral[inspiralParams, IntegrationLimit -> 2000],
+			{"p", "e", "x", "\[Psi]r", "\[Psi]\[Theta]", "\[Phi]", "r", "\[Theta]"}],
+
+	"OsculatingInspiral, e0 = 0" :>
+		inspiralSummary[OsculatingInspiral[<|inspiralParams, "e" -> 0|>, IntegrationLimit -> 2000],
+			{"p", "\[Alpha]p", "\[Beta]p", "x", "\[Phi]", "r"}],
+
+	"OsculatingInspiral, a = 0, x0 = 1" :>
+		inspiralSummary[OsculatingInspiral[<|inspiralParams, "a" -> 0, "x" -> 1|>, IntegrationLimit -> 2000],
+			{"p", "e", "x", "\[Psi]r", "\[Phi]", "r"}],
+
+	"OsculatingInspiral, Mino time" :>
+		inspiralSummary[OsculatingInspiral[inspiralParams, Parametrisation -> "Mino", IntegrationLimit -> 10],
+			{"t", "p", "e", "x", "\[Phi]"}],
+
+	"OsculatingInspiral, electromagnetic force" :>
+		inspiralSummary[OsculatingInspiral[<|inspiralParams, "Force" -> emForce|>, IntegrationLimit -> 2000],
+			{"p", "e", "x", "\[Psi]r", "\[Phi]"}],
+
+	"OsculatingInspiral, to the separatrix buffer" :>
+		inspiralSummary[OsculatingInspiral[<|inspiralParams, "a" -> 0.9, "\[Epsilon]" -> 10^-3, "p" -> 12, "e" -> 0.3, "x" -> 0.5|>],
+			{"p", "e", "x", "\[Phi]"}],
+
+	"Regular constants of motion" :>
+		Flatten[Table[
+			{OsculatingOrbitalElements`Private`RegularEnergy @@ orbit, OsculatingOrbitalElements`Private`RegularLOverX @@ orbit},
+			{orbit, {{0.5, 10., 0.04, 0.8}, {0.9, 7.5, 0.25, -0.3}, {0.5, 10., 0., 0.8}, {0.9, 10., 0.04, 0.}, {0., 10., 0.09, 1.}}}]],
 
 	"Constants of motion" :>
 		Flatten[Table[

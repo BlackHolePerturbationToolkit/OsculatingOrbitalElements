@@ -7,7 +7,7 @@ VerificationTest[
 	Sort[$publicSymbolsAfterLoading]
 	,
 	Sort[{"Force", "ForceUpDown", "GenericKerrpexBL", "GenericKerrREGBL", "IntegrationLimit", "KerrEMCons", "KerrGasDrag",
-		"KerrGasDragVec", "KerrOsculatingOrbitalElements", "Parametrisation", "pMin", "SchwarzFastGSF",
+		"KerrGasDragVec", "KerrOsculatingOrbitalElements", "OsculatingInspiral", "OsculatingInspiralFunction", "Parametrisation", "pMin", "SchwarzFastGSF",
 		"SchwarzGasDrag", "SchwarzOsculatingOrbitalElements", "SchwarzOsculatingOrbitalElementsTP", "SeparatrixBuffer",
 		"TimeMonitor"}]
 	,

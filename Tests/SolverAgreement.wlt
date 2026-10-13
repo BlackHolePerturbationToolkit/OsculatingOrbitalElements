@@ -123,3 +123,42 @@ VerificationTest[
 	{0, 0, 0, 0, 0}, SameTest -> withinTolerance[10^-10],
 	TestID -> "Two force drivers, each half the gas drag, give the same inspiral as the gas drag"
 ]
+
+
+(* ::Section:: *)
+(* OsculatingInspiral's regular solver against REG, at the regular solver's default goals and REG at tight goals *)
+
+regularVsREG[a_, p_, e_, x_] := Module[{regular, reg},
+	regular = OsculatingInspiral[<|"a" -> a, "\[Epsilon]" -> 10^-5, "p" -> p, "e" -> e, "x" -> x, "Force" -> KerrGasDrag|>, IntegrationLimit -> 5000];
+	reg = quietStops@GenericKerrREGBL[10^-5, a, p, e, x, 0, 0, IntegrationLimit -> 5000, AccuracyGoal -> 13, PrecisionGoal -> 13];
+	maxDifference[regular, reg, {"p", "e", "x", "r", "\[Phi]"}, kerrSamples]];
+
+VerificationTest[
+	regularVsREG[0.5, 10, 0.2, 0.8]
+	,
+	{0, 0, 0, 0, 0}, SameTest -> withinTolerance[{10^-9, 10^-6, 10^-11, 10^-5, 10^-5}],
+	TestID -> "Kerr: the regular solver agrees with REG"
+]
+
+VerificationTest[
+	regularVsREG[0.9, 8, 0, 0.6]
+	,
+	{0, 0, 0, 0, 0}, SameTest -> withinTolerance[{10^-9, 10^-8, 10^-11, 10^-7, 10^-4}],
+	TestID -> "Kerr, e0 = 0: the regular solver agrees with REG"
+]
+
+VerificationTest[
+	regularVsREG[0.5, 10, 0.2, 1]
+	,
+	{0, 0, 0, 0, 0}, SameTest -> withinTolerance[{10^-8, 10^-5, 0, 10^-4, 10^-5}],
+	TestID -> "Kerr, x0 = 1: the regular solver agrees with REG"
+]
+
+VerificationTest[
+	regular = OsculatingInspiral[<|"a" -> 0, "\[Epsilon]" -> 10^-4, "p" -> 12, "e" -> 0.3, "x" -> 1, "\[Psi]r" -> 0.7, "Force" -> KerrGasDrag|>,
+		IntegrationLimit -> 20000];
+	maxDifference[regular, schwarzschild, {"p", "e", "r", "\[Phi]"}, Subdivide[0., 0.95 schwarzschild["limit"], 8]]
+	,
+	{0, 0, 0, 0}, SameTest -> withinTolerance[10^-4],
+	TestID -> "a = 0, x = 1: the regular solver agrees with SchwarzOsculatingOrbitalElementsTP"
+]

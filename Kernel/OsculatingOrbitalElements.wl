@@ -19,6 +19,55 @@ BeginPackage["OsculatingOrbitalElements`",{"KerrGeodesics`","KerrGeodesics`Speci
 (*Usage Statements*)
 
 
+(* ::Subsubsection:: *)
+(*The inspiral interface*)
+
+
+MessageName[OsculatingInspiral, "usage"] =
+"OsculatingInspiral[params] integrates the osculating geodesic equations for an inspiral in Kerr spacetime and returns an OsculatingInspiralFunction. params is an Association with these keys:
+\"a\": the spin, 0 \[LessEqual] a < 1.
+\"\[Epsilon]\": the small mass ratio, which multiplies the force.
+\"p\", \"e\", \"x\": the initial semi-latus rectum, eccentricity and inclination x = cos \[Iota], with x \[NotEqual] 0. x = \[PlusMinus]1 is an equatorial orbit, and a = 0 is Schwarzschild.
+\"Force\": KerrGasDrag, a list of four functions {a_t, a_r, a_\[Theta], a_\[Phi]} of (a, p, e, x, \[Psi]r, \[Psi]\[Theta]) giving the covariant force per unit \[Epsilon], or None for a geodesic.
+\"\[Psi]r\", \"\[Psi]\[Theta]\", \"\[Phi]\" (optional, default 0): the initial Darwin and Hughes phases and azimuth.
+The options are Parametrisation, IntegrationLimit, SeparatrixBuffer, pMin, TimeMonitor, AccuracyGoal, PrecisionGoal, and any option of NDSolve. By default NDSolve uses an 8th-order explicit Runge-Kutta method with AccuracyGoal and PrecisionGoal 12, which resolves the rapid swings of \[Phi] as near-polar orbits pass close to the poles; looser settings, or another Method, may not."
+
+MessageName[OsculatingInspiralFunction, "usage"] =
+"OsculatingInspiralFunction[assoc] represents an inspiral computed by OsculatingInspiral. inspiral[t] gives {t, r, \[Theta], \[Phi]} at coordinate time t, or at Mino time if Parametrisation -> \"Mino\" was used. inspiral[\"prop\"] gives a property, and inspiral[\"Properties\"] lists them. Quantities that change along the inspiral are functions of the time variable, for example inspiral[\"p\"][t]. \"Domain\" is the range of the time variable, and \"StopReason\" why the integration stopped."
+
+MessageName[OsculatingInspiral, "params"] = "The first argument, `1`, should be an Association of the inspiral's parameters."
+
+MessageName[OsculatingInspiral, "unknown"] = "Unknown parameters `1`. The parameters are `2`."
+
+MessageName[OsculatingInspiral, "missing"] = "Missing parameters `1`."
+
+MessageName[OsculatingInspiral, "range"] = "The parameter \"`1`\" is `2`, but should be `3`."
+
+MessageName[OsculatingInspiral, "polar"] = "Orbits that start exactly polar (x = 0) are not supported, since they pass through the poles, where Boyer-Lindquist coordinates are singular."
+
+MessageName[OsculatingInspiral, "flux"] = "Fluxes are not supported yet."
+
+MessageName[OsculatingInspiral, "force"] = "`1` is not a valid force. Use KerrGasDrag, a list of four functions {a_t, a_r, a_\[Theta], a_\[Phi]} of (a, p, e, x, \[Psi]r, \[Psi]\[Theta]), or None."
+
+MessageName[OsculatingInspiral, "sep"] = "The initial orbit must lie outside the separatrix by more than the separatrix buffer, `1`: p = `2`, and the separatrix is at p = `3`."
+
+MessageName[OsculatingInspiral, "param"] = "Invalid value `1` for Parametrisation. Use \"CoordinateTime\" or \"Mino\"."
+
+MessageName[OsculatingInspiral, "nosol"] = "NDSolve did not return a solution."
+
+MessageName[OsculatingInspiral, "early"] = "Warning: NDSolve stopped at `1` = `2`, before reaching IntegrationLimit or a stopping condition."
+
+MessageName[OsculatingInspiralFunction, "prop"] = "\"`1`\" is not a property of the inspiral. The properties are `2`."
+
+MessageName[Parametrisation, "usage"] = "Parametrisation is an option for OsculatingInspiral, KerrOsculatingOrbitalElements, GenericKerrpexBL and GenericKerrREGBL which specifies the time variable: \"CoordinateTime\" (the default) for Boyer-Lindquist coordinate time t, or \"Mino\" for Mino time \[Lambda]."
+
+MessageName[pMin, "usage"] = "pMin is an option for OsculatingInspiral, GenericKerrpexBL and GenericKerrREGBL which stops the integration when p falls to the given value. The default, None, does not."
+
+
+(* ::Subsubsection:: *)
+(*Earlier functions*)
+
+
 MessageName[SchwarzOsculatingOrbitalElements, "usage"] = 
 "SchwarzOsculatingOrbitalElements[\[Eta], p, e, \[Xi], Force-> {Fr, F\[Phi]}] calculates p, e, \[Xi], t and \[Phi] as functions of the Darwin Parameter (\[Chi]) using the contravarient components of an acceleration (Fr,F\[Phi]) and a mass ratio given by \[Eta]. The result's \"StopReason\" says why the integration stopped: \"Separatrix\", \"SeparatrixBuffer\", \"pMin\", \"IntegrationLimit\", or \"Other\" if NDSolve stopped early. Options of NDSolve are passed to NDSolve."
 
@@ -76,7 +125,7 @@ MessageName[KerrOsculatingOrbitalElements, "limit"] = "Integration reached Integ
 
 MessageName[KerrOsculatingOrbitalElements, "early"] = "Warning: NDSolve stopped at `1` = `2`, before reaching IntegrationLimit or a stopping condition."
 
-MessageName[SeparatrixBuffer, "usage"] = "SeparatrixBuffer is an option for GenericKerrpexBL and GenericKerrREGBL which specifies how far outside the separatrix, in p, the integration stops. Automatic stops at p_sep + \[Eta] when the eccentricity components are evolved (always in GenericKerrREGBL), and at the separatrix itself otherwise. A number stops at p_sep plus that number in both cases."
+MessageName[SeparatrixBuffer, "usage"] = "SeparatrixBuffer is an option for OsculatingInspiral, GenericKerrpexBL and GenericKerrREGBL which specifies how far outside the separatrix, in p, the integration stops. A number stops at p_sep plus that number. Automatic stops at p_sep + \[Epsilon] in OsculatingInspiral. In GenericKerrpexBL and GenericKerrREGBL it stops at p_sep + \[Eta] when the eccentricity components are evolved (always in GenericKerrREGBL), and at the separatrix itself otherwise."
 
 MessageName[IntegrationLimit, "usage"] = 
 "IntegrationLimit is an option which specifies the largest value of the independent variable to integrate to: \[Chi] for SchwarzOsculatingOrbitalElements, t for SchwarzOsculatingOrbitalElementsTP, and t or \[Lambda] (set by Parametrisation) for KerrOsculatingOrbitalElements, GenericKerrpexBL and GenericKerrREGBL.
@@ -108,6 +157,9 @@ MessageName[KerrEMCons, "usage"]= "KerrEMCons[a,p,e,x, \[Psi]r, \[Psi]\[Theta]] 
 (* ::Subsection:: *)
 (*Options and Syntax Information*)
 
+
+Options[OsculatingInspiral] = {Parametrisation -> "CoordinateTime", IntegrationLimit -> Automatic, SeparatrixBuffer -> Automatic, pMin -> None, TimeMonitor -> False, AccuracyGoal -> 12, PrecisionGoal -> 12};
+SyntaxInformation[OsculatingInspiral] = {"ArgumentsPattern" -> {_, OptionsPattern[]}, "OptionNames" -> ToString /@ Union[Keys[Options[OsculatingInspiral]], Keys[Options[NDSolve]]]};
 
 Options[SchwarzOsculatingOrbitalElements] = {IntegrationLimit-> 1000000, AccuracyGoal-> Automatic, PrecisionGoal -> Automatic, Force -> SchwarzGasDrag};
 SyntaxInformation[SchwarzOsculatingOrbitalElements] = {"ArgumentsPattern"-> {_, _, _, _, OptionsPattern[]}, "OptionNames" -> ToString /@ Union[Keys[Options[SchwarzOsculatingOrbitalElements]], Keys[Options[NDSolve]]]};
@@ -147,6 +199,7 @@ Get[FileNameJoin[{$packageDirectory, "ForceModels", "FastGSF.wl"}]];
 Get[FileNameJoin[{$packageDirectory, "Solvers", "Schwarzschild.wl"}]];
 Get[FileNameJoin[{$packageDirectory, "Solvers", "KerrELK.wl"}]];
 Get[FileNameJoin[{$packageDirectory, "Solvers", "KerrPEX.wl"}]];
+Get[FileNameJoin[{$packageDirectory, "InspiralObject.wl"}]];
 Get[FileNameJoin[{$packageDirectory, "Interface.wl"}]];
 
 

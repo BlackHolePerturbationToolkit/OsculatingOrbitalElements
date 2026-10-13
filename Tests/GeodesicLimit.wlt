@@ -107,3 +107,27 @@ VerificationTest[
 	{0, 0, 0}, SameTest -> withinTolerance[$tolerance],
 	TestID -> "GenericKerrREGBL, equatorial retrograde x0 = -1"
 ]
+
+
+(* ::Section:: *)
+(* OsculatingInspiral with no force *)
+
+geodesicInspiral[orbit_] := OsculatingInspiral[<|"a" -> orbit[[1]], "\[Epsilon]" -> 10^-5, "p" -> orbit[[2]], "e" -> orbit[[3]],
+	"x" -> orbit[[4]], "Force" -> None|>, IntegrationLimit -> 1000];
+
+Table[
+	VerificationTest[
+		geodesicDeviation[geodesicInspiral[orbit], orbit, $times]
+		,
+		{0, 0, 0}, SameTest -> withinTolerance[$tolerance],
+		TestID -> "OsculatingInspiral with Force -> None, {a, p, e, x} = " <> ToString[orbit]
+	],
+	{orbit, {{0.9, 9, 0.5, -0.4}, {0.5, 10, 0, 0.8}, {0.5, 10, 0.3, 1}, {0, 10, 0.3, 1}, {0.9, 10, 0.2, 0.05}}}]
+
+VerificationTest[
+	insp = geodesicInspiral[{0.9, 9, 0.5, -0.4}];
+	{insp["En"][1000.] - insp["En"][0], insp["L"][1000.] - insp["L"][0], insp["Q"][1000.] - insp["Q"][0], insp["p"][1000.] - 9}
+	,
+	{0, 0, 0, 0}, SameTest -> withinTolerance[10^-10],
+	TestID -> "OsculatingInspiral with Force -> None keeps the constants of motion"
+]

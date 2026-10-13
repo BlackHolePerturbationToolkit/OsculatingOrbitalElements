@@ -78,11 +78,11 @@ As well as an oscillatory force, an inspiral can be driven by orbit-averaged rat
 - **Phase 3:** The parameter Association accepts "Flux" alongside "Force", each as one object or a list, and the inspiral object records them.
 - **Phase 4:** Parameter handling, the mass-ratio convention and the descriptive properties are designed once, for both Force and Flux objects. Several forces combine into one total force.
 
-## Polar motion near the equator and the poles (for later)
+## Polar motion near the equator and the poles
 
-The pex polar variables (x, ψθ) are singular for equatorial orbits (x = ±1). There ψθ is undefined, and its equation contains a term proportional to F_θ / √(1 − x²), so in these variables a force with a θ component cannot lift an orbit out of the plane. The current code avoids this by holding equatorial orbits in the plane (see "Before Phase 0"), which rules out such forces.
+The pex polar variables (x, ψθ) are singular for equatorial orbits (x = ±1). There ψθ is undefined, and its equation contains a term proportional to F_θ / √(1 − x²), so in these variables a force with a θ component cannot lift an orbit out of the plane. The earlier solvers avoid this by holding equatorial orbits in the plane (see "Before Phase 0"), which rules out such forces.
 
-**Planned replacement:** evolve the 3-vector (αθ, βθ, x), which satisfies αθ² + βθ² + x² = 1, where
+**The regular solver behind `OsculatingInspiral` (phase 3)** instead evolves the 3-vector (αθ, βθ, x), which satisfies αθ² + βθ² + x² = 1, where
 
 ```
 αθ = √zm sin ψθ,    βθ = √zm cos ψθ = cos θ,    zm = 1 − x²
@@ -115,15 +115,35 @@ dx/dλ  = −Σ αθ [ x W a_θ / sin θ − αθ ( a²E x a_t + (L/x) a_φ / si
 4. The equations preserve αθ² + βθ² + x² = 1 exactly, so any drift measures the integration error.
 5. The derivation assumes u^μ a_μ = 0. The polar form of dQ and pex's radial form of dK agree only then.
 
-**Checked so far, at the level of the equations only, not yet in a solver:** they match pex's (x, ψθ) equations to 10⁻¹² or better for a = 0, 0.5 and 0.9, prograde and retrograde, and x from 0.999 down to ±0.01.
+**Checks:**
+
+- The equations match pex's (x, ψθ) equations through the chain rule. The agreement is 10⁻¹³ or better for a = 0, 0.5 and 0.9, prograde and retrograde, x from 0.8 down to ±0.01, and near the axis (sin θ = 0.01). It is 10⁻¹¹ at x = 0.999, where pex itself loses digits.
+- In a solve (`Tests/OsculatingInspiral.wlt`):
+  - a θ force on an inclined orbit agrees with REG;
+  - starting exactly equatorial, the same force lifts the orbit out of the plane, with the 3-vector staying at unit length to 10⁻¹³;
+  - the solution is continuous at the equator;
+  - a torque drives an inspiral from prograde to retrograde through x = 0, and p, e, x and r agree with REG.
+- Mutation tests: dropping one force term, or making a 1% error in one, fails at least 3 tests.
+
+**Constants of motion at x = 0.** `RegularEnergy` and `RegularLOverX` (in `Utilities.wl`) give E and ℓ = L/x from (a, p, e², x). They use Schmidt's construction with two changes:
+- L is replaced by xℓ, which turns x² times Schmidt's h(r) into r² − 2r + a²zm.
+- The conditions at r1 and r2 are replaced by their mean and divided difference, which are sums of products of r1 and r2 with positive coefficients.
+
+So they are regular at x = 0 and at e = 0 with no special cases. They agree with KerrGeodesics to 50 digits, and to 10⁻¹³ at machine precision, including at e = 10⁻⁸, x = 10⁻⁸ and x = 0. (An earlier note here said the package's `Energy`, `AngularMomentum` and `CarterConstant` lose half their digits near x = 0. That was wrong: they are accurate there, and only fail exactly at x = 0, as 0/0.)
+
+**The Boyer–Lindquist axis.** An orbit with small |x| passes sin θ = |x| from the axis. There dφ/dλ ≈ L/sin²θ, so φ swings by nearly π in a time of order |x|.
+- **The swing can be missed.** NDSolve's default multistep method (LSODA) can step over it entirely. At default goals it got φ wrong by 0.4 rad for a gas-drag inspiral at x = 0.01, and meaninglessly wrong at x = 0.001.
+- **REG only gets it right by accident.** Its ψθ equation has force terms that spike at the same moment and force small steps.
+- **The regular solver's choice.** An 8th-order explicit Runge–Kutta method with goals of 11 or more resolves the swing down to |x| = 0.001. That is the regular solver's default, with goals 12. On generic orbits it is about 4 times more accurate in r than the earlier solvers' defaults, and about twice as slow.
+- **Tried and rejected: evolving sin θ e^{iφ} in place of φ.** Its equation divides by sin θ e^{−iφ}, which amplifies any inconsistency with (αθ, βθ, x) near the axis. It did worse, and with Runge–Kutta NDSolve judged the system stiff.
+- **A fully robust option for later.** Near the poles, evolve the node angle Ω = φ − χ, with χ = arg(−αθ + i x βθ). In Schwarzschild, χ is exactly the azimuth measured from the node. In Kerr, Ω's geodesic rate is the bounded −xβ/(ℓ + W) plus the smooth frame-dragging terms, so no variable swings and |x| can be arbitrarily small.
+  - Ω is undefined for equatorial orbits, so this needs two patches: Ω near the poles and φ near the equator. The integration would have to switch between them when |x| crosses a threshold.
+- **Exactly polar orbits** (x = 0, so L = 0 for a force without a φ component) pass through the axis, and are rejected.
 
 **Open issues:**
 
-- `Energy`, `AngularMomentum` and `CarterConstant` give 0/0 at x = 0, and lose about half their digits near it (L is off by 2×10⁻⁸ at x = 10⁻⁸). They need forms that are safe at x = 0, for example KerrGeodesics' polar-orbit formulas.
-- **The Boyer–Lindquist axis.** Orbits with x ≈ 0 pass close to θ = 0, π, where the 1/sin θ terms grow and φ swings by nearly π. These terms stay bounded for smooth forces and are only 0/0 exactly on the axis.
-  - An inspiral crossing x = 0 generically misses the axis, so it only costs small steps.
-  - An exactly polar orbit (L held at 0) crosses the axis every half polar period. Treat exactly polar orbits as unsupported.
-- The current pex solver can already cross x = 0, because NDSolve steps over the 0/0 in its dx/dλ. Its accuracy there is limited by the constants-of-motion problem above.
+- `OrbitalElementRates` still gives dx/dλ as −(dzm/dλ)/(2x), which is 0/0 at x = 0. The regular solver takes x's rate from the polar equations instead, but a flux given as (dE, dL, dQ) will need the 1/x cancelled (phase 5).
+- The polar rate of x uses the polar form of dQ, while p and e² use the radial form of dK. They agree only for forces orthogonal to the velocity.
 - This formulation does not seem to be in the literature, so it is worth writing up.
 
 ## Code layout
@@ -175,8 +195,9 @@ OsculatingOrbitalElements/
 
 When each file is created:
 
-- `Interface.wl`: phase 2, for the shared NDSolve driver. The new entry point follows in phase 3.
-- `InspiralObject.wl` and `ForceObject.wl`: phases 3 and 4 of the checklist.
+- `Interface.wl`: phase 2, for the shared NDSolve driver. Phase 3 added the entry point, `OsculatingInspiral`.
+- `InspiralObject.wl`: phase 3.
+- `ForceObject.wl`: phase 4.
 - `FluxModels/`: phase 5.
 - `Documentation/`: phase 7.
 
@@ -304,21 +325,40 @@ They were regenerated in phase 2, when pex switched to the shared rate map (see 
 
 ### Phase 3: New interface and inspiral object
 
-- [ ] Decide the keys and defaults of the parameter Association, following WaSABI. Accept a "Flux" entry alongside "Force", each as one object or a list.
-- [ ] Decide the name and signature of the entry function
-- [ ] Validate inputs: bound orbit, parameter ranges, missing keys
-- [ ] Make the pex solver the default, reporting in Boyer–Lindquist coordinate time with the Darwin (ψr) and Hughes (ψθ) angles
-- [ ] Decide whether Mino time remains available as an option
-- [ ] Switch to p, α, β at small e:
-  - [ ] Decide the criterion: based on the initial e₀ (as now), or switching during the integration
-  - [ ] Merge the pex small-e branch with the REG equations
-- [ ] Replace the (x, ψθ) polar equations with the (αθ, βθ, x) formulation, and remove the equatorial safeguard (see "Polar motion near the equator and the poles")
-- [ ] Make the constants of motion safe at x = 0
-- [ ] Decide whether Schwarzschild stays a separate solver or becomes the a = 0 case of the Kerr solver (this needs the equatorial support above)
-- [ ] Build the inspiral object, modelled on `KerrGeoOrbitFunction`:
-  - [ ] Properties: trajectory, orbital elements, constants of motion, phases, domain, stop reason, input parameters, and the force or flux
-  - [ ] Summary box
-  - [ ] Record the forces and fluxes that drove the inspiral
+Decisions made at the start of phase 3:
+
+- **Entry function:** `OsculatingInspiral[params, opts]` returns an `OsculatingInspiralFunction`, as `KerrGeoOrbit` returns a `KerrGeoOrbitFunction`.
+- **Parameters:** an Association with short keys, as in WaSABI.
+  - Required: `"a"`, `"ε"` (the small mass ratio, which scales the force), `"p"`, `"e"`, `"x"` and `"Force"`.
+  - Optional, defaulting to 0: the initial phases `"ψr"`, `"ψθ"` and `"φ"`.
+  - Solver settings stay as options: `Parametrisation`, `IntegrationLimit`, `SeparatrixBuffer`, `pMin`, `TimeMonitor`, and any NDSolve option.
+- **Time:** Boyer–Lindquist coordinate time by default, with Mino time still available through `Parametrisation`.
+- **Small eccentricity:** always integrate the regular radial variables (p, αp, βp). They are exact at every e, so there is no threshold or switch. e and ψr are reconstructed for output, and ψr is undefined at e = 0. The pex small-e branch stays only in the legacy `GenericKerrpexBL`.
+- **Schwarzschild:** handled as the a = 0 case of the Kerr solver, which the regular polar variables make possible for equatorial orbits. The current Schwarzschild functions keep working until they move to legacy in phase 6.
+
+- [x] Decide the keys and defaults of the parameter Association, following WaSABI. Accept a "Flux" entry alongside "Force", each as one object or a list.
+- [x] Decide the name and signature of the entry function
+- [x] Validate inputs: bound orbit, parameter ranges, missing keys
+  - Unknown and missing keys, a "Flux" entry (for now), values out of range, x = 0, an invalid force or `Parametrisation`, and an initial orbit not outside the separatrix by more than the buffer each give `$Failed` with a message.
+- [x] Make the regular p, e, x solver the default, reporting in Boyer–Lindquist coordinate time with the Darwin (ψr) and Hughes (ψθ) angles
+  - `regularSystem` in `Solvers/KerrPEX.wl`. It integrates (p, αp, βp) radially with the REG equations, (αθ, βθ, x) for the polar motion, and φ.
+  - ψr and ψθ are reported in (−π, π], and as `Missing` where they are undefined: ψr at e = 0, and ψθ on an equatorial orbit. φ is continuous.
+  - By default NDSolve uses an 8th-order explicit Runge–Kutta method with goals 12 (see "The Boyer–Lindquist axis" above). Stops are located to 8 digits.
+  - Normal stops are recorded in `"StopReason"` without a message. Only an early stop by NDSolve is reported.
+- [x] Decide whether Mino time remains available as an option
+- [x] Small e: always use the regular (p, αp, βp) variables (decided above), so no criterion or switch is needed
+- [x] Replace the (x, ψθ) polar equations with the (αθ, βθ, x) formulation, and remove the equatorial safeguard (see "Polar motion near the equator and the poles")
+  - The new solver has no safeguard. The earlier `GenericKerrpexBL` and `GenericKerrREGBL` keep theirs until they move to legacy.
+- [x] Make the constants of motion safe at x = 0 (`RegularEnergy`, `RegularLOverX`)
+- [x] Decide whether Schwarzschild stays a separate solver or becomes the a = 0 case of the Kerr solver: the a = 0 case
+  - It agrees with `SchwarzOsculatingOrbitalElementsTP` to 10⁻⁴ over a full inspiral, and with the geodesic at a = 0.
+- [x] Build the inspiral object, modelled on `KerrGeoOrbitFunction`:
+  - [x] Properties: trajectory, orbital elements, constants of motion, phases, domain, stop reason, input parameters, and the force or flux
+    - `inspiral[t]` gives {t, r, θ, φ}, `inspiral["Properties"]` lists the properties, and every property that varies along the inspiral is a listable function of the time variable.
+  - [x] Summary box
+  - [x] Record the forces and fluxes that drove the inspiral (the force now; fluxes in phase 5)
+- [x] `SeparatrixP` (in `Utilities.wl`) wraps `KerrGeoSeparatrix`, which does not evaluate at machine x = ±1. or 0., at |x| > 1, or within machine tolerance of ±1. Inspirals now reach those values.
+- [x] Tests: `Tests/OsculatingInspiral.wlt`, and new sections in the constants of motion, caching, geodesic limit, solver agreement and regression tests. There are 165 tests in 9 files.
 - [ ] Later: offer ELK as an option. Its `"p"` and `"e"` outputs are slow because every evaluation solves the radial quartic, and its gas drag (`KerrGasDrag`, `KerrGasDragVec`) still divides by zero at a = 0.
 
 ### Phase 4: Force objects
