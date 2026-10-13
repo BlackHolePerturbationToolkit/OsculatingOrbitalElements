@@ -105,8 +105,12 @@ OsculatingOrbitalElements/
 ├── Data/FastGSF/                     a_n_jk, b_n_jk, c_n_jk, d_n_jk (currently DataFiles/)
 ├── Documentation/                    Reference pages, guide page and tutorials
 ├── Tests/
-│   ├── AllTests.wls                  Runs every test file
-│   └── *.wlt                         VerificationTest files, one per area
+│   ├── AllTests.wls                  Runs every test file, or the ones named on the command line
+│   ├── TestSetup.wl                  Loads this copy of the package and defines shared helpers
+│   ├── *.wlt                         VerificationTest files, one per area
+│   ├── RegressionCases.wl            Fixed solver outputs checked by Regression.wlt
+│   ├── MakeReferenceOutputs.wls      Regenerates ReferenceOutputs.wl when a change in results is intended
+│   └── ReferenceOutputs.wl           Saved outputs, with the Wolfram version and commit that produced them
 ├── tutorial.nb                       To be replaced by Documentation/
 ├── Data generation.nb                Unchanged
 ├── TestingELKvspex.nb                Unchanged
@@ -166,14 +170,30 @@ Legacy later: each current public function (`SchwarzOsculatingOrbitalElements`, 
 
 ### Phase 0: Tests before any restructuring
 
-- [ ] Set up `Tests/` with `.wlt` files and an `AllTests.wls` runner, and run it against the current single-file package
-- [ ] Geodesic limit (η → 0) against `KerrGeoOrbit` for every solver
-- [ ] Agreement between the ELK, pex and REG solvers
-- [ ] Continuity across the Schwarzschild e₀ = 0.05 switch, in both χ and coordinate time
-- [ ] Constants of motion against `KerrGeoConstantsOfMotion`, including e = 0
-- [ ] Bad input returns `$Failed` with a message: unbound orbit, invalid force, invalid `Parametrisation`
-- [ ] Memo caches stay bounded after a solve
-- [ ] Save reference outputs, so phase 1 can be checked for identical results
+Run the suite with `wolframscript -file Tests/AllTests.wls` (about a minute). It has 84 tests in 7 files.
+
+- [x] Set up `Tests/` with `.wlt` files and an `AllTests.wls` runner, and run it against the current single-file package
+- [x] Geodesic limit (η → 0) against `KerrGeoOrbit` for every solver
+- [x] Agreement between the ELK, pex and REG solvers
+- [x] Continuity across the Schwarzschild e₀ = 0.05 switch, in both χ and coordinate time
+- [x] Constants of motion against `KerrGeoConstantsOfMotion`, including e = 0
+- [x] Bad input returns `$Failed` with a message: unbound orbit, invalid force, invalid `Parametrisation`
+- [x] Memo caches stay bounded after a solve
+- [x] Save reference outputs, so phase 1 can be checked for identical results
+- [x] Also covered:
+  - each stop message;
+  - `IntegrationLimit` units;
+  - `Parametrisation` as a string or a symbol;
+  - Kerr at a = 0, x = 1 against the Schwarzschild solver;
+  - the equatorial safeguard (temporary; `Equatorial.wlt`).
+- [x] Checked that the suite catches reintroduced bugs:
+  - the old Schwarzschild r sign;
+  - the old small-e fallback to the χ solver;
+  - unbounded memoisation;
+  - the hidden ×1000 in `IntegrationLimit`;
+  - a 1% error in one pex force term. Catching this needs tight NDSolve goals in the Kerr comparison.
+
+The reference outputs were made with Mathematica 13.1, because Wolfram 14.3's licence had lapsed, at commit `8ce9ffe`. They match exactly only on the same Wolfram version and system. Elsewhere the regression test uses a relative tolerance of 10⁻⁸. If Phase 1 is done on another version, regenerate them first with `MakeReferenceOutputs.wls`.
 
 ### Phase 1: Restructure with no change in behaviour
 
