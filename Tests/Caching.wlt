@@ -36,7 +36,7 @@ VerificationTest[
 ]
 
 VerificationTest[
-	OsculatingInspiral[<|"a" -> 0.5, "\[Epsilon]" -> 10^-5, "p" -> 10, "e" -> 0.2, "x" -> 0.8, "Force" -> KerrGasDrag|>, IntegrationLimit -> 2000];
+	OsculatingInspiral[<|"a" -> 0.5, "\[Epsilon]" -> 10^-5, "p" -> 10, "e" -> 0.2, "x" -> 0.8, "Force" -> ForceModel["GasDrag", "Coefficient" -> 10^-5]|>, IntegrationLimit -> 2000];
 	Length[DownValues[OsculatingOrbitalElements`Private`cachedRegularConstants]]
 	,
 	(* The definition plus one cached value *)

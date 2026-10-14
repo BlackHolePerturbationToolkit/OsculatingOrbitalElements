@@ -220,6 +220,38 @@ NullTetradForce[g_Association, {at_, ar_, a\[Theta]_, a\[Phi]_}] := Module[{a, E
 ];
 
 
+(* ::Text:: *)
+(*The time component a_t of a force from its other covariant components, so that the force is orthogonal to the velocity: u^\[Mu] a_\[Mu] = 0, with u^t = (dt/d\[Lambda])/\[CapitalSigma], u^r = \[CapitalDelta] u_r/\[CapitalSigma], u^\[Theta] = u_\[Theta]/\[CapitalSigma] and u^\[Phi] = (d\[Phi]/d\[Lambda])/\[CapitalSigma].*)
+
+
+OrthogonalTimeComponent[g_Association, {ar_, a\[Theta]_, a\[Phi]_}] :=
+	-(g["\[CapitalDelta]"] g["ur"] ar + g["u\[Theta]"] a\[Theta] + g["d\[Phi]d\[Lambda]"] a\[Phi])/g["dtd\[Lambda]"];
+
+
+(* ::Text:: *)
+(*The geometry of the geodesic with elements p, e, x and phases \[Psi]r, \[Psi]\[Theta], as numbers, for force models that need the velocity, with d\[Psi]r/d\[Lambda] added under the key "d\[Psi]rd\[Lambda]". It uses the regular constants of motion and the polar-component form of KerrOrbitGeometry, so it holds at e = 0, x = 0 and x = \[PlusMinus]1.*)
+
+
+NumericOrbitGeometry[a_?NumericQ, p_?NumericQ, e_?NumericQ, x_?NumericQ, \[Psi]r_?NumericQ, \[Psi]\[Theta]_?NumericQ] := Module[
+	{e2, En, \[ScriptL], L, Q, K, \[Alpha]p, \[Beta]p, w, Z, zm},
+	e2 = e^2;
+	En = RegularEnergy[a, p, e2, x];
+	\[ScriptL] = RegularLOverX[a, p, e2, x];
+	L = x \[ScriptL];
+	Q = (1 - x^2) (a^2 (1 - En^2) + \[ScriptL]^2);
+	K = Q + (L - a En)^2;
+	\[Alpha]p = e Sin[\[Psi]r];
+	\[Beta]p = e Cos[\[Psi]r];
+	w = 1 + \[Beta]p;
+	(* Z = (d\[Psi]r/d\[Lambda])^2, as in the REG and regular solvers *)
+	Z = p - K (3 - e2 + 2 \[Beta]p)/p + a^2 Q (4 - e2 + 4 \[Beta]p + \[Beta]p^2)/p^2;
+	zm = 1 - x^2;
+	Append[
+		KerrOrbitGeometry[a, {En, L, Q}, {p/w, x, Sqrt[zm] Sin[\[Psi]\[Theta]], Sqrt[zm] Cos[\[Psi]\[Theta]]}, p \[Alpha]p Sqrt[Z]/w^2],
+		"d\[Psi]rd\[Lambda]" -> Sqrt[Z]]
+];
+
+
 (* ::Subsubsection::Closed:: *)
 (*Rates of change of the constants of motion and the orbital elements*)
 
@@ -242,33 +274,48 @@ ConstantsOfMotionRates[g_Association, {at_, ar_, a\[Theta]_, a\[Phi]_}] := Modul
 (*It gives e^2 rather than e, because the rate of e^2 has no division by e and stays finite for circular orbits; that of e is "e2"/(2 e). It does divide by x, so it is singular for polar orbits (x = 0).*)
 
 
-OrbitalElementRates[a_, {p_, e2_, x_}, {En_, L_, Q_}, {dEn_, dL_, dQ_}] := Module[
-	{K, V, dK, dV, Dp, h0p, h1p, B0, B1, zm, \[Beta], \[Beta]zp, dzm},
-	K = Q + (L - a En)^2;
-	V = a^2 (1 - En^2) + L^2 + Q;
+OrbitalElementRates[a_, {p_, e2_, x_}, {En_, L_, Q_}, rates:{dEn_, dL_, dQ_}] := Module[{dK, zm, \[Beta], \[Beta]zp, dzm},
 	dK = dQ + 2 (L - a En) (dL - a dEn);
-	dV = -2 a^2 En dEn + 2 L dL + dQ;
-
-	(* p and e^2 *)
-	Dp = (p^3 - K p (3 - e2) + 4 a^2 Q)^2 - 4 e2 (K p - 2 a^2 Q)^2;
-	h0p = -4 (1 - En^2) p^3 + 6 p^2 - 2 V p (1 + e2) + 2 K (1 + 3 e2);
-	h1p = 6 p^2 - 4 V p + 2 K (3 + e2);
-	B0 = 2 p^4 En dEn - p^2 (1 + e2) dV + 2 p (1 + 3 e2) dK - a^2 (1 + 6 e2 + e2^2) dQ;
-	B1 = -2 p^2 dV + 2 p (3 + e2) dK - 4 a^2 (1 + e2) dQ;
-
 	(* x, through zm = 1 - x^2 *)
 	zm = 1 - x^2;
 	\[Beta] = a^2 (1 - En^2);
 	\[Beta]zp = \[Beta] + L^2/x^2;
 	dzm = ((1 - zm) dK - 2 (L - a (1 - zm) En) (dL - a (1 - zm) dEn))/(\[Beta]zp - \[Beta] zm);
+	Append[SlowElementRates[a, {p, e2}, {En, L, Q}, rates], "x" -> -dzm/(2 x)]
+];
 
+
+(* ::Text:: *)
+(*The p and e^2 parts of OrbitalElementRates, an Association with the keys "p" and "e2"*)
+
+
+SlowElementRates[a_, {p_, e2_}, {En_, L_, Q_}, {dEn_, dL_, dQ_}] := Module[
+	{K, V, dK, dV, Dp, h0p, h1p, B0, B1},
+	K = Q + (L - a En)^2;
+	V = a^2 (1 - En^2) + L^2 + Q;
+	dK = dQ + 2 (L - a En) (dL - a dEn);
+	dV = -2 a^2 En dEn + 2 L dL + dQ;
+	Dp = (p^3 - K p (3 - e2) + 4 a^2 Q)^2 - 4 e2 (K p - 2 a^2 Q)^2;
+	h0p = -4 (1 - En^2) p^3 + 6 p^2 - 2 V p (1 + e2) + 2 K (1 + 3 e2);
+	h1p = 6 p^2 - 4 V p + 2 K (3 + e2);
+	B0 = 2 p^4 En dEn - p^2 (1 + e2) dV + 2 p (1 + 3 e2) dK - a^2 (1 + 6 e2 + e2^2) dQ;
+	B1 = -2 p^2 dV + 2 p (3 + e2) dK - 4 a^2 (1 + e2) dQ;
 	<|
 		"p" -> p/Dp (
 			-2 p^4 (K p - 2 a^2 Q) En dEn +
 			p^2 (p^3 - 2 (1 - e2) (K p - a^2 Q)) dV -
 			p (p^3 (3 + e2) - (1 - e2) ((7 + e2) K p - 8 a^2 Q)) dK +
 			a^2 (2 p^3 (1 + e2) - (1 - e2) ((5 + 3 e2) K p - 2 a^2 Q (3 + e2))) dQ),
-		"e2" -> p (h1p B0 - h0p B1)/(2 Dp),
-		"x" -> -dzm/(2 x)
+		"e2" -> p (h1p B0 - h0p B1)/(2 Dp)
 	|>
+];
+
+
+(* ::Text:: *)
+(*The rate of x from the rates of (En, L, Q), in a form that is regular at x = 0. It uses \[ScriptL] = L/x: with L = x \[ScriptL] the factor x in dzm cancels the 1/x, and \[Beta] zp - \[Beta] zm = \[ScriptL]^2 + \[Beta] x^2. At x = 0 it is dL/\[ScriptL].*)
+
+
+RegularXRate[a_, x_, {En_, \[ScriptL]_}, {dEn_, dL_, dQ_}] := Module[{dK},
+	dK = dQ + 2 (x \[ScriptL] - a En) (dL - a dEn);
+	-(x dK - 2 (\[ScriptL] - a x En) (dL - a x^2 dEn))/(2 (\[ScriptL]^2 + a^2 (1 - En^2) x^2))
 ];

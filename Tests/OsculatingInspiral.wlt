@@ -4,7 +4,8 @@
    (alpha_theta, beta_theta, x) polar variables allow: equatorial orbits pushed out of the plane, and inspirals that pass
    through x = 0. *)
 
-params = <|"a" -> 0.5, "\[Epsilon]" -> 10^-5, "p" -> 10, "e" -> 0.2, "x" -> 0.8, "Force" -> KerrGasDrag|>;
+drag[k_] := ForceModel["GasDrag", "Coefficient" -> k];
+params = <|"a" -> 0.5, "\[Epsilon]" -> 10^-5, "p" -> 10, "e" -> 0.2, "x" -> 0.8, "Force" -> drag[10^-5]|>;
 
 
 (* ::Section:: *)
@@ -76,6 +77,13 @@ VerificationTest[
 ]
 
 VerificationTest[
+	OsculatingInspiral[Append[params, "Force" -> KerrGasDrag]]
+	,
+	$Failed, {OsculatingInspiral::force},
+	TestID -> "The earlier force forms are not accepted"
+]
+
+VerificationTest[
 	OsculatingInspiral[params, Parametrisation -> "foo"]
 	,
 	$Failed, {OsculatingInspiral::param},
@@ -85,7 +93,7 @@ VerificationTest[
 VerificationTest[
 	(* \[CurlyEpsilon] and \[CurlyPhi] are accepted for \[Epsilon] and \[Phi] *)
 	insp = OsculatingInspiral[<|"a" -> 0.5, "\[CurlyEpsilon]" -> 10^-5, "p" -> 10, "e" -> 0.2, "x" -> 0.8, "\[CurlyPhi]" -> 1,
-		"Force" -> KerrGasDrag|>, IntegrationLimit -> 100];
+		"Force" -> drag[10^-5]|>, IntegrationLimit -> 100];
 	{insp["Parameters"]["\[Epsilon]"], insp["\[Phi]"][0]}
 	,
 	{10^-5, 1.},
@@ -102,7 +110,7 @@ VerificationTest[
 	,
 	{OsculatingInspiralFunction, {0, 500.}, "IntegrationLimit", "CoordinateTime",
 		<|"a" -> 0.5, "\[Epsilon]" -> 10^-5, "p" -> 10, "e" -> 0.2, "x" -> 0.8, "\[Psi]r" -> 0, "\[Psi]\[Theta]" -> 0, "\[Phi]" -> 0,
-			"Force" -> KerrGasDrag|>, KerrGasDrag},
+			"Force" -> drag[10^-5], "Flux" -> None|>, {drag[10^-5]}},
 	TestID -> "Reaching IntegrationLimit is recorded, with no message"
 ]
 
@@ -186,7 +194,7 @@ VerificationTest[
 (* Stopping, and options *)
 
 VerificationTest[
-	insp = OsculatingInspiral[<|"a" -> 0.9, "\[Epsilon]" -> 10^-3, "p" -> 12, "e" -> 0.3, "x" -> 0.5, "Force" -> KerrGasDrag|>];
+	insp = OsculatingInspiral[<|"a" -> 0.9, "\[Epsilon]" -> 10^-3, "p" -> 12, "e" -> 0.3, "x" -> 0.5, "Force" -> drag[10^-3]|>];
 	end = insp["Domain"][[2]];
 	{insp["StopReason"], insp["p"][end] - KerrGeoSeparatrix[0.9, insp["e"][end], insp["x"][end]]}
 	,
@@ -196,7 +204,7 @@ VerificationTest[
 ]
 
 VerificationTest[
-	insp = OsculatingInspiral[<|"a" -> 0.9, "\[Epsilon]" -> 10^-3, "p" -> 12, "e" -> 0.3, "x" -> 0.5, "Force" -> KerrGasDrag|>,
+	insp = OsculatingInspiral[<|"a" -> 0.9, "\[Epsilon]" -> 10^-3, "p" -> 12, "e" -> 0.3, "x" -> 0.5, "Force" -> drag[10^-3]|>,
 		SeparatrixBuffer -> 0.5];
 	end = insp["Domain"][[2]];
 	{insp["StopReason"], insp["p"][end] - KerrGeoSeparatrix[0.9, insp["e"][end], insp["x"][end]]}
@@ -207,7 +215,7 @@ VerificationTest[
 ]
 
 VerificationTest[
-	insp = OsculatingInspiral[<|"a" -> 0.9, "\[Epsilon]" -> 10^-3, "p" -> 12, "e" -> 0.3, "x" -> 0.5, "Force" -> KerrGasDrag|>, pMin -> 11];
+	insp = OsculatingInspiral[<|"a" -> 0.9, "\[Epsilon]" -> 10^-3, "p" -> 12, "e" -> 0.3, "x" -> 0.5, "Force" -> drag[10^-3]|>, pMin -> 11];
 	{insp["StopReason"], insp["p"][insp["Domain"][[2]]]}
 	,
 	{"pMin", 11},
@@ -307,7 +315,7 @@ VerificationTest[
 
 VerificationTest[
 	(* Near-polar orbits swing phi by nearly pi each time they pass close to the axis; the default method resolves it *)
-	polar = OsculatingInspiral[<|"a" -> 0.9, "\[Epsilon]" -> 10^-5, "p" -> 10, "e" -> 0.2, "x" -> 0.01, "Force" -> KerrGasDrag|>,
+	polar = OsculatingInspiral[<|"a" -> 0.9, "\[Epsilon]" -> 10^-5, "p" -> 10, "e" -> 0.2, "x" -> 0.01, "Force" -> drag[10^-5]|>,
 		IntegrationLimit -> 3000];
 	reg = quietStops@GenericKerrREGBL[10^-5, 0.9, 10, 0.2, 0.01, 0, 0, IntegrationLimit -> 3000, AccuracyGoal -> 13, PrecisionGoal -> 13];
 	Max[Table[With[{a = polar[t], b = reg /@ {"t", "r", "\[Theta]", "\[Phi]"}},

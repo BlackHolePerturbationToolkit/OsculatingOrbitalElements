@@ -105,7 +105,7 @@ pexSystem[\[Eta]_, a_, {p0_, e0_, x0_, \[Psi]r0_, \[Psi]\[Theta]0_}, drivers_Lis
 
   (* The total force, per unit \[Eta] from each driver, and the rates of the slowly varying elements *)
   state = Join[<|"a" -> a, "p" -> p[s], "e" -> e[s], "x" -> x[s], "\[Psi]r" -> \[Psi]r[s], "\[Psi]\[Theta]" -> \[Psi]\[Theta][s]|>, geometry];
-  {at, ar, a\[Theta], a\[Phi]} = \[Eta] TotalForce[drivers, state];
+  {at, ar, a\[Theta], a\[Phi]} = TotalForce[drivers, state, \[Eta]];
   elementRates = OrbitalElementRates[a, {p[s], e[s]^2, x[s]}, {En, L, Q},
     Lookup[ConstantsOfMotionRates[geometry, {at, ar, a\[Theta], a\[Phi]}], {"En", "L", "Q"}]];
   dpd\[Lambda] = elementRates["p"];
@@ -283,7 +283,7 @@ regSystem[\[Eta]_, a_, {p0_, e0_, x0_, \[Psi]r0_, \[Psi]\[Theta]0_}, drivers_Lis
      same arguments as in pex; the gas drag driver uses the geometry, so that it never reconstructs the radial phase. *)
   state = Join[<|"a" -> a, "p" -> p[s], "e" -> e, "x" -> x[s], "\[Psi]r" -> radialPhase[\[Alpha]p[s], \[Beta]p[s]],
     "\[Psi]\[Theta]" -> \[Psi]\[Theta][s]|>, geometry];
-  {at, ar, a\[Theta], a\[Phi]} = \[Eta] TotalForce[drivers, state];
+  {at, ar, a\[Theta], a\[Phi]} = TotalForce[drivers, state, \[Eta]];
   rates = ConstantsOfMotionRates[geometry, {at, ar, a\[Theta], a\[Phi]}];
   elementRates = OrbitalElementRates[a, {p[s], e2, x[s]}, {En, L, Q}, Lookup[rates, {"En", "L", "Q"}]];
   dpd\[Lambda] = elementRates["p"];
@@ -381,7 +381,7 @@ regularSystem[\[Epsilon]_, a_, {p0_, e0_, x0_, \[Psi]r0_, \[Psi]\[Theta]0_, \[Ph
   {
     minoQ, s, initialConditions, unknowns, EoM, events, outputs,
     p, \[Alpha]p, \[Beta]p, x, \[Alpha]\[Theta], \[Beta]\[Theta], \[Phi], t, \[Lambda],
-    e2, En, \[ScriptL], L, Q, K, w, r, Z, P, geometry, \[CapitalSigma], \[CapitalDelta],
+    e2, En, \[ScriptL], L, Q, K, w, r, Z, P, geometry, \[CapitalSigma], \[CapitalDelta], flux,
     state, at, ar, a\[Theta], a\[Phi], rates, elementRates, polarRates,
     Zp, Ze2, Z\[Beta], ZK, ZQ, dpd\[Lambda], de2d\[Lambda], d\[Alpha]d\[Lambda], d\[Beta]d\[Lambda],
     dtd\[Lambda], toS, minimumP, pMinQ, deltaPSep, initialPSep
@@ -417,11 +417,19 @@ regularSystem[\[Epsilon]_, a_, {p0_, e0_, x0_, \[Psi]r0_, \[Psi]\[Theta]0_, \[Ph
   geometry = KerrOrbitGeometry[a, {En, L, Q}, {r, x[s], \[Alpha]\[Theta][s], \[Beta]\[Theta][s]}, p[s] \[Alpha]p[s] P/w^2];
   {\[CapitalSigma], \[CapitalDelta]} = Lookup[geometry, {"\[CapitalSigma]", "\[CapitalDelta]"}];
 
-  (* The total force, per unit \[Epsilon] from each driver. Force callbacks get the phases, which are set to 0 where
-     they are undefined (e = 0, or an equatorial orbit); a physical force does not depend on them there. *)
+  (* The total force. Force models get the phases, which are set to 0 where they are undefined (e = 0, or an
+     equatorial orbit); a physical force does not depend on them there. They also get \[Phi] and the coordinate time
+     t, so that a force need not be axisymmetric or stationary. *)
   state = Join[<|"a" -> a, "p" -> p[s], "e" -> Sqrt[e2], "x" -> x[s], "\[Psi]r" -> phaseAngle[\[Alpha]p[s], \[Beta]p[s]],
-    "\[Psi]\[Theta]" -> phaseAngle[\[Alpha]\[Theta][s], \[Beta]\[Theta][s]]|>, geometry];
-  {at, ar, a\[Theta], a\[Phi]} = \[Epsilon] TotalForce[drivers, state];
+    "\[Psi]\[Theta]" -> phaseAngle[\[Alpha]\[Theta][s], \[Beta]\[Theta][s]], "\[Phi]" -> \[Phi][s], "t" -> If[minoQ, t[s], s],
+    "\[Alpha]p" -> \[Alpha]p[s], "\[Beta]p" -> \[Beta]p[s]|>, geometry];
+  {at, ar, a\[Theta], a\[Phi]} = TotalForce[drivers, state, \[Epsilon]];
+
+  (* The fluxes' rates of {p, \[Alpha]p, \[Beta]p, x, \[Alpha]\[Theta], \[Beta]\[Theta]}. They change only the slowly varying parts of these
+     variables, leaving the phases at their geodesic rates (see fluxVariableRates in FluxModels/FluxModel.wl). They are
+     averages with respect to t, so they need coordinate time. *)
+  If[minoQ && MemberQ[drivers, KeyValuePattern["Type" -> "Flux"]], Message[OsculatingInspiral::fluxtime]; Return[$Failed]];
+  flux = TotalFlux[drivers, state, \[Epsilon]];
 
   (* p and the eccentricity components, as in REG. Zp, Ze2, Z\[Beta], ZK and ZQ are the partial derivatives of Z with
      respect to p, e^2, \[Beta]p, K and Q. *)
@@ -448,12 +456,12 @@ regularSystem[\[Epsilon]_, a_, {p0_, e0_, x0_, \[Psi]r0_, \[Psi]\[Theta]0_, \[Ph
   dtd\[Lambda] = geometry["dtd\[Lambda]"];
   toS = If[minoQ, 1, 1/dtd\[Lambda]];
   EoM = {
-    D[p[s], s] == toS dpd\[Lambda],
-    D[\[Alpha]p[s], s] == toS d\[Alpha]d\[Lambda],
-    D[\[Beta]p[s], s] == toS d\[Beta]d\[Lambda],
-    D[x[s], s] == toS polarRates["x"],
-    D[\[Alpha]\[Theta][s], s] == toS polarRates["\[Alpha]\[Theta]"],
-    D[\[Beta]\[Theta][s], s] == toS polarRates["\[Beta]\[Theta]"],
+    D[p[s], s] == toS dpd\[Lambda] + flux[[1]],
+    D[\[Alpha]p[s], s] == toS d\[Alpha]d\[Lambda] + flux[[2]],
+    D[\[Beta]p[s], s] == toS d\[Beta]d\[Lambda] + flux[[3]],
+    D[x[s], s] == toS polarRates["x"] + flux[[4]],
+    D[\[Alpha]\[Theta][s], s] == toS polarRates["\[Alpha]\[Theta]"] + flux[[5]],
+    D[\[Beta]\[Theta][s], s] == toS polarRates["\[Beta]\[Theta]"] + flux[[6]],
     D[\[Phi][s], s] == toS geometry["d\[Phi]d\[Lambda]"],
     If[minoQ, D[t[s], s] == dtd\[Lambda], Nothing]
   };
@@ -557,7 +565,7 @@ derivedOutputs[a_, psol_, esol_, xsol_, \[Psi]\[Theta]sol_, equatorialQ_] := Mod
 
 
 (* ::Text:: *)
-(*The Force option, or the "Force" parameter, as a list of drivers (see RunSolver in Interface.wl). pex computes the gas drag from its elements, and the other solvers from the geometry, so each has its own resolver. Force objects (phase 4 of the refactor) will replace this.*)
+(*The Force option of GenericKerrpexBL and GenericKerrREGBL as a list of drivers (see RunSolver in Interface.wl). pex computes the gas drag from its elements, and REG from the geometry, so each has its own resolver. OsculatingInspiral uses ForceModels instead (ForceModels/ForceModel.wl).*)
 
 
 callbackForceDriver[force_] := <|"Type" -> "Force", "Function" -> Function[state,
@@ -578,12 +586,7 @@ regForceDrivers[force_] := Switch[force,
 	KerrGasDrag, {gasDragDriver},
 	_, Message[KerrOsculatingOrbitalElements::InvalidForce, force]; $Failed];
 
-(* The "Force" parameter of OsculatingInspiral. None means no force, so the orbit is a geodesic. *)
-regularForceDrivers[force_] := Switch[force,
-	None, {},
-	{_, _, _, _}, {callbackForceDriver[force]},
-	KerrGasDrag, {gasDragDriver},
-	_, Message[OsculatingInspiral::force, force]; $Failed];
+
 
 
 (* ::Section:: *)

@@ -26,9 +26,10 @@ BeginPackage["OsculatingOrbitalElements`",{"KerrGeodesics`","KerrGeodesics`Speci
 MessageName[OsculatingInspiral, "usage"] =
 "OsculatingInspiral[params] integrates the osculating geodesic equations for an inspiral in Kerr spacetime and returns an OsculatingInspiralFunction. params is an Association with these keys:
 \"a\": the spin, 0 \[LessEqual] a < 1.
-\"\[Epsilon]\": the small mass ratio, which multiplies the force.
+\"\[Epsilon]\": the small mass ratio, which multiplies the forces and fluxes that scale with it.
 \"p\", \"e\", \"x\": the initial semi-latus rectum, eccentricity and inclination x = cos \[Iota], with x \[NotEqual] 0. x = \[PlusMinus]1 is an equatorial orbit, and a = 0 is Schwarzschild.
-\"Force\": KerrGasDrag, a list of four functions {a_t, a_r, a_\[Theta], a_\[Phi]} of (a, p, e, x, \[Psi]r, \[Psi]\[Theta]) giving the covariant force per unit \[Epsilon], or None for a geodesic.
+\"Force\": a ForceModel, the name of a built-in model (\"GasDrag\", \"EMConservative\" or \"FastGSF\"), a list of these, whose forces add, or None.
+\"Flux\": a FluxModel, the name of a built-in model (\"Peters\"), a list of these, or None. A flux changes only the slowly varying elements, at its orbit-averaged rates with respect to t; the phases advance at their geodesic rates, plus the effect of any force. Give \"Force\", \"Flux\" or both; with neither force nor flux the orbit is a geodesic.
 \"\[Psi]r\", \"\[Psi]\[Theta]\", \"\[Phi]\" (optional, default 0): the initial Darwin and Hughes phases and azimuth.
 The options are Parametrisation, IntegrationLimit, SeparatrixBuffer, pMin, TimeMonitor, AccuracyGoal, PrecisionGoal, and any option of NDSolve. By default NDSolve uses an 8th-order explicit Runge-Kutta method with AccuracyGoal and PrecisionGoal 12, which resolves the rapid swings of \[Phi] as near-polar orbits pass close to the poles; looser settings, or another Method, may not."
 
@@ -45,9 +46,13 @@ MessageName[OsculatingInspiral, "range"] = "The parameter \"`1`\" is `2`, but sh
 
 MessageName[OsculatingInspiral, "polar"] = "Orbits that start exactly polar (x = 0) are not supported, since they pass through the poles, where Boyer-Lindquist coordinates are singular."
 
-MessageName[OsculatingInspiral, "flux"] = "Fluxes are not supported yet."
+MessageName[OsculatingInspiral, "flux"] = "`1` is not a valid flux. Use a FluxModel, the name of a built-in model, a list of these, or None."
 
-MessageName[OsculatingInspiral, "force"] = "`1` is not a valid force. Use KerrGasDrag, a list of four functions {a_t, a_r, a_\[Theta], a_\[Phi]} of (a, p, e, x, \[Psi]r, \[Psi]\[Theta]), or None."
+MessageName[OsculatingInspiral, "nodriver"] = "Give a \"Force\", a \"Flux\", or both. Use \"Force\" -> None for a geodesic."
+
+MessageName[OsculatingInspiral, "fluxtime"] = "Fluxes are averages with respect to coordinate time, so an inspiral with a flux needs Parametrisation -> \"CoordinateTime\"."
+
+MessageName[OsculatingInspiral, "force"] = "`1` is not a valid force. Use a ForceModel, the name of a built-in model, a list of these, or None."
 
 MessageName[OsculatingInspiral, "sep"] = "The initial orbit must lie outside the separatrix by more than the separatrix buffer, `1`: p = `2`, and the separatrix is at p = `3`."
 
@@ -58,6 +63,51 @@ MessageName[OsculatingInspiral, "nosol"] = "NDSolve did not return a solution."
 MessageName[OsculatingInspiral, "early"] = "Warning: NDSolve stopped at `1` = `2`, before reaching IntegrationLimit or a stopping condition."
 
 MessageName[OsculatingInspiralFunction, "prop"] = "\"`1`\" is not a property of the inspiral. The properties are `2`."
+
+MessageName[ForceModel, "usage"] =
+"ForceModel[f, opts] is a force for OsculatingInspiral. f[a, p, e, x, \[Psi]r, \[Psi]\[Theta], \[Phi], t] returns the covariant components {F_r, F_\[Theta], F_\[Phi]} of the force at the point with azimuth \[Phi] and coordinate time t on the geodesic with those elements and phases, or f[a, p, e, x, \[Psi]r, \[Psi]\[Theta], \[Phi], t, params] if the model has parameters. A force may ignore \[Phi] and t; they allow forces that are not axisymmetric or stationary. F_t follows from orthogonality to the velocity. f is only called with numbers; where a phase is undefined (\[Psi]r at e = 0, \[Psi]\[Theta] on an equatorial orbit) it is 0. The options are \"Name\", \"Description\", \"Parameters\" (an Association), \"ScalesWithMassRatio\" (True: the force is multiplied by \[Epsilon]), \"ValidityCondition\" (a function of a, p, e, x), \"ValidityDescription\" and \"Citation\".
+ForceModel[\"name\", param -> value, ...] is a built-in model: \"GasDrag\" (parameter \"Coefficient\", not scaled by \[Epsilon]), \"EMConservative\" and \"FastGSF\" (Schwarzschild).
+ForceModel[model, param -> value, ...] changes a model's parameters. model[\"prop\"] gives a property, and model[a, p, e, x, \[Psi]r, \[Psi]\[Theta], \[Phi], t] the covariant {F_t, F_r, F_\[Theta], F_\[Phi]} before any factor of \[Epsilon]."
+
+MessageName[ForceModel, "name"] = "Unknown force model `1`. The built-in models are `2`."
+
+MessageName[ForceModel, "opt"] = "Unknown option `1`. The options are `2`."
+
+MessageName[ForceModel, "optval"] = "\"Name\" must be a string, \"Parameters\" an Association, and \"ScalesWithMassRatio\" True or False."
+
+MessageName[ForceModel, "param"] = "`1` is not a parameter of the force model `2`. Its parameters are `3`."
+
+MessageName[ForceModel, "required"] = "The force model `1` needs a value for its parameter \"`2`\"."
+
+MessageName[ForceModel, "output"] = "The force model `1` returned `2` at {a, p, e, x, \[Psi]r, \[Psi]\[Theta], \[Phi], t} = `3`. It must return three real numbers {F_r, F_\[Theta], F_\[Phi]}."
+
+MessageName[ForceModel, "range"] = "Warning: the force model `1` is valid for `2`, but the inspiral starts at a = `3`, p = `4`, e = `5`, x = `6`."
+
+MessageName[ForceModel, "prop"] = "\"`1`\" is not a property of the force model. The properties are `2`."
+
+MessageName[FluxModel, "usage"] =
+"FluxModel[f, opts] is a flux for OsculatingInspiral: orbit-averaged rates of change of the slowly varying elements, with respect to coordinate time. f[a, p, e, x] returns the rates of the quantities given by the option \"Rates\": {\"p\", \"e\", \"x\"} (the default) or {\"En\", \"L\", \"Q\"}. With parameters, f[a, p, e, x, params]. f is only called with numbers. A physical flux has de/dt \[Proportional] e near e = 0 and dx/dt \[Proportional] 1 - x^2 near x = \[PlusMinus]1; a flux keeps a circular orbit circular and an equatorial orbit equatorial. The other options are those of ForceModel: \"Name\", \"Description\", \"Parameters\", \"ScalesWithMassRatio\" (True by default), \"ValidityCondition\", \"ValidityDescription\" and \"Citation\".
+FluxModel[\"name\", param -> value, ...] is a built-in model: \"Peters\", the leading-order gravitational-wave fluxes.
+FluxModel[force] is the orbit average of a ForceModel that depends on neither \[Phi] nor t: its rates of E, L and Q averaged over the geodesic's radial and polar motion with respect to t, using its parameter \"Points\" points in each phase.
+FluxModel[model, param -> value, ...] changes a model's parameters. model[\"prop\"] gives a property, and model[a, p, e, x] the rates, before any factor of \[Epsilon]."
+
+MessageName[FluxModel, "name"] = "Unknown flux model `1`. The built-in models are `2`."
+
+MessageName[FluxModel, "opt"] = "Unknown option `1`. The options are `2`."
+
+MessageName[FluxModel, "optval"] = "\"Name\" must be a string, \"Parameters\" an Association, and \"ScalesWithMassRatio\" True or False."
+
+MessageName[FluxModel, "rates"] = "\"Rates\" is `1`, but must be {\"p\", \"e\", \"x\"} or {\"En\", \"L\", \"Q\"}."
+
+MessageName[FluxModel, "param"] = "`1` is not a parameter of the flux model `2`. Its parameters are `3`."
+
+MessageName[FluxModel, "required"] = "The flux model `1` needs a value for its parameter \"`2`\"."
+
+MessageName[FluxModel, "output"] = "The flux model `1` returned `2` at {a, p, e, x} = `3`. It must return three real numbers."
+
+MessageName[FluxModel, "range"] = "Warning: the flux model `1` is valid for `2`, but the inspiral starts at a = `3`, p = `4`, e = `5`, x = `6`."
+
+MessageName[FluxModel, "prop"] = "\"`1`\" is not a property of the flux model. The properties are `2`."
 
 MessageName[Parametrisation, "usage"] = "Parametrisation is an option for OsculatingInspiral, KerrOsculatingOrbitalElements, GenericKerrpexBL and GenericKerrREGBL which specifies the time variable: \"CoordinateTime\" (the default) for Boyer-Lindquist coordinate time t, or \"Mino\" for Mino time \[Lambda]."
 
@@ -158,6 +208,12 @@ MessageName[KerrEMCons, "usage"]= "KerrEMCons[a,p,e,x, \[Psi]r, \[Psi]\[Theta]] 
 (*Options and Syntax Information*)
 
 
+Options[ForceModel] = {"Name" -> "Custom", "Description" -> None, "Parameters" -> <||>, "ScalesWithMassRatio" -> True,
+	"ValidityCondition" -> (True &), "ValidityDescription" -> None, "Citation" -> None};
+
+Options[FluxModel] = {"Name" -> "Custom", "Description" -> None, "Parameters" -> <||>, "Rates" -> {"p", "e", "x"},
+	"ScalesWithMassRatio" -> True, "ValidityCondition" -> (True &), "ValidityDescription" -> None, "Citation" -> None};
+
 Options[OsculatingInspiral] = {Parametrisation -> "CoordinateTime", IntegrationLimit -> Automatic, SeparatrixBuffer -> Automatic, pMin -> None, TimeMonitor -> False, AccuracyGoal -> 12, PrecisionGoal -> 12};
 SyntaxInformation[OsculatingInspiral] = {"ArgumentsPattern" -> {_, OptionsPattern[]}, "OptionNames" -> ToString /@ Union[Keys[Options[OsculatingInspiral]], Keys[Options[NDSolve]]]};
 
@@ -193,9 +249,13 @@ $packageDirectory = DirectoryName[$InputFileName];
 $dataDirectory = FileNameJoin[{ParentDirectory[$packageDirectory], "Data"}];
 
 Get[FileNameJoin[{$packageDirectory, "Utilities.wl"}]];
+Get[FileNameJoin[{$packageDirectory, "Models.wl"}]];
+Get[FileNameJoin[{$packageDirectory, "ForceModels", "ForceModel.wl"}]];
 Get[FileNameJoin[{$packageDirectory, "ForceModels", "GasDrag.wl"}]];
 Get[FileNameJoin[{$packageDirectory, "ForceModels", "EMConservative.wl"}]];
 Get[FileNameJoin[{$packageDirectory, "ForceModels", "FastGSF.wl"}]];
+Get[FileNameJoin[{$packageDirectory, "FluxModels", "FluxModel.wl"}]];
+Get[FileNameJoin[{$packageDirectory, "FluxModels", "PostNewtonian.wl"}]];
 Get[FileNameJoin[{$packageDirectory, "Solvers", "Schwarzschild.wl"}]];
 Get[FileNameJoin[{$packageDirectory, "Solvers", "KerrELK.wl"}]];
 Get[FileNameJoin[{$packageDirectory, "Solvers", "KerrPEX.wl"}]];

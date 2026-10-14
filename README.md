@@ -4,7 +4,8 @@ OsculatingOrbitalElements
 The OsculatingOrbitalElements package solves the forced geodesic motion in either Schwarzshild or Kerr spacetime 
 using the Method of Osculating Orbital Elements (also known as the Method of Osculating Geodeiscs).
 
-The user can specify the function for the force or make use of the following models included with the package:
+The user can specify the function for the force or make use of the models included with the package (see the example below).
+The earlier functions use these:
 
 SchwarzFastGSF[p, e, &xi;]: Fast first order Gravitational Self Force Model for p<12 and e<0.2.
 
@@ -59,12 +60,36 @@ Example
 An inspiral driven by relativistic gas drag, around a black hole with spin a = 0.9:
 
 ```mathematica
-inspiral = OsculatingInspiral[<|"a" -> 0.9, "\[Epsilon]" -> 10^-5, "p" -> 10, "e" -> 0.2, "x" -> 0.8, "Force" -> KerrGasDrag|>];
+drag = ForceModel["GasDrag", "Coefficient" -> 10^-5];
+inspiral = OsculatingInspiral[<|"a" -> 0.9, "\[Epsilon]" -> 10^-5, "p" -> 10, "e" -> 0.2, "x" -> 0.8, "Force" -> drag|>];
 inspiral["StopReason"]      (* why the integration stopped *)
 inspiral["p"][1000.]        (* p at coordinate time t = 1000 *)
 inspiral[1000.]             (* {t, r, \[Theta], \[Phi]} at t = 1000 *)
 inspiral["Properties"]      (* everything that can be queried *)
 ```
+
+A custom force is a function of the elements, the phases, the azimuth φ and the coordinate time t that returns the
+covariant {F_r, F_θ, F_φ}; F_t follows from orthogonality to the velocity. Forces in a list add:
+
+```mathematica
+kick = ForceModel[Function[{a, p, e, x, ψr, ψθ, φ, t}, {0, 0.1, 0}], "Name" -> "Vertical"];
+OsculatingInspiral[<|"a" -> 0.9, "\[Epsilon]" -> 10^-5, "p" -> 10, "e" -> 0.2, "x" -> 1, "Force" -> {drag, kick}|>]
+```
+
+The built-in models are `"GasDrag"`, `"EMConservative"` and `"FastGSF"` (Schwarzschild).
+
+An inspiral can also be driven by a flux: orbit-averaged rates of change of p, e and x, or of E, L and Q, with respect
+to coordinate time. A flux changes only the slowly varying elements, and can be combined with forces. `"Peters"` is the
+leading-order gravitational-wave flux, and `FluxModel[force]` is the orbit average of a force:
+
+```mathematica
+OsculatingInspiral[<|"a" -> 0.9, "\[Epsilon]" -> 10^-2, "p" -> 12, "e" -> 0.3, "x" -> 0.7, "Flux" -> "Peters", "Force" -> drag|>]
+OsculatingInspiral[<|"a" -> 0.9, "\[Epsilon]" -> 10^-5, "p" -> 10, "e" -> 0.2, "x" -> 1, "Flux" -> FluxModel[drag]|>,
+  IntegrationLimit -> 5000]
+```
+
+Orbit-averaging a force is slow, since every evaluation averages it over the orbit; its parameter `"Points"` sets the
+number of points in each phase (16 by default).
 
 Older examples, using the earlier functions, are included in tutorial.nb.
 

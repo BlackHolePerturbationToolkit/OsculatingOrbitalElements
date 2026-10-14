@@ -16,7 +16,7 @@ summary[sol_, keys_List] := Join[{sol["limit"]}, endValues[sol, keys]];
 
 (* The same for an inspiral from OsculatingInspiral *)
 inspiralSummary[insp_, keys_List] := With[{end = insp["Domain"][[2]]}, Join[{end}, insp[#][end] & /@ keys]];
-inspiralParams = <|"a" -> 0.5, "\[Epsilon]" -> 10^-5, "p" -> 10, "e" -> 0.2, "x" -> 0.8, "\[Psi]r" -> 0.3, "\[Psi]\[Theta]" -> 0.4, "Force" -> KerrGasDrag|>;
+inspiralParams = <|"a" -> 0.5, "\[Epsilon]" -> 10^-5, "p" -> 10, "e" -> 0.2, "x" -> 0.8, "\[Psi]r" -> 0.3, "\[Psi]\[Theta]" -> 0.4, "Force" -> ForceModel["GasDrag", "Coefficient" -> 10^-5]|>;
 
 regressionCases = <|
 
@@ -104,12 +104,43 @@ regressionCases = <|
 			{"t", "p", "e", "x", "\[Phi]"}],
 
 	"OsculatingInspiral, electromagnetic force" :>
-		inspiralSummary[OsculatingInspiral[<|inspiralParams, "Force" -> emForce|>, IntegrationLimit -> 2000],
+		inspiralSummary[OsculatingInspiral[<|inspiralParams, "Force" -> "EMConservative"|>, IntegrationLimit -> 2000],
 			{"p", "e", "x", "\[Psi]r", "\[Phi]"}],
 
 	"OsculatingInspiral, to the separatrix buffer" :>
-		inspiralSummary[OsculatingInspiral[<|inspiralParams, "a" -> 0.9, "\[Epsilon]" -> 10^-3, "p" -> 12, "e" -> 0.3, "x" -> 0.5|>],
+		inspiralSummary[OsculatingInspiral[<|inspiralParams, "a" -> 0.9, "\[Epsilon]" -> 10^-3, "p" -> 12, "e" -> 0.3, "x" -> 0.5,
+			"Force" -> ForceModel["GasDrag", "Coefficient" -> 10^-3]|>],
 			{"p", "e", "x", "\[Phi]"}],
+
+	"OsculatingInspiral, FastGSF" :>
+		inspiralSummary[OsculatingInspiral[<|inspiralParams, "a" -> 0, "\[Epsilon]" -> 10^-3, "p" -> 10, "e" -> 0.1, "x" -> 1, "Force" -> "FastGSF"|>,
+			IntegrationLimit -> 2000], {"p", "e", "\[Psi]r", "\[Phi]", "r"}],
+
+	"Force models" :>
+		Flatten[{
+			ForceModel["GasDrag", "Coefficient" -> 1][0.5, 10., 0.2, 0.8, 0.3, 0.4, 1.1, 50.],
+			ForceModel["EMConservative"][0.5, 10., 0.2, 0.8, 0.3, 0.4, 1.1, 50.],
+			ForceModel["FastGSF"][0, 10., 0.1, 1., 0.3, 0., 1.1, 50.],
+			ForceModel["FastGSF"][0, 10., 0.1, 0.6, 0.3, 0.7, 1.1, 50.]}],
+
+	"OsculatingInspiral, Peters flux" :>
+		inspiralSummary[OsculatingInspiral[<|inspiralParams, "a" -> 0.9, "\[Epsilon]" -> 10^-2, "p" -> 12, "e" -> 0.3, "x" -> 0.7, "Force" -> None,
+			"Flux" -> "Peters"|>, IntegrationLimit -> 3000], {"p", "e", "x", "\[Psi]r", "\[Psi]\[Theta]", "\[Phi]", "r"}],
+
+	"OsculatingInspiral, averaged gas drag flux on the equator" :>
+		inspiralSummary[OsculatingInspiral[<|inspiralParams, "x" -> 1, "Force" -> None,
+			"Flux" -> FluxModel[ForceModel["GasDrag", "Coefficient" -> 10^-5]]|>, IntegrationLimit -> 1000], {"p", "e", "x", "\[Psi]r", "\[Phi]"}],
+
+	"OsculatingInspiral, force and flux" :>
+		inspiralSummary[OsculatingInspiral[<|inspiralParams, "Flux" -> "Peters"|>, IntegrationLimit -> 2000],
+			{"p", "e", "x", "\[Psi]r", "\[Psi]\[Theta]", "\[Phi]"}],
+
+	"Flux models" :>
+		Flatten[{
+			FluxModel["Peters"][0.9, 12., 0.3, 0.7],
+			FluxModel[ForceModel["GasDrag", "Coefficient" -> 1], "Points" -> 8][0.5, 10., 0.2, 0.8],
+			OsculatingOrbitalElements`Private`constantsToElementRates[0.9, 9., 0.09, 0.4, {-2. 10^-5, -3. 10^-4, 10^-3}],
+			OsculatingOrbitalElements`Private`constantsToElementRates[0.9, 9., 0.09, 0., {-2. 10^-5, -3. 10^-4, 10^-3}]}] + 0.,
 
 	"Regular constants of motion" :>
 		Flatten[Table[

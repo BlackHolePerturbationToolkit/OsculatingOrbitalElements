@@ -14,7 +14,7 @@
 (*"StopReason": why the integration stopped;*)
 (*"Parametrisation": "CoordinateTime" or "Mino";*)
 (*"Parameters": the parameters, with the defaults filled in;*)
-(*"Force": the force that drove the inspiral.*)
+(*"Force" and "Flux": the forces and fluxes that drove the inspiral, as lists of ForceModels and FluxModels.*)
 
 
 (* ::Section:: *)
@@ -37,7 +37,7 @@ OsculatingInspiralFunction /: Keys[OsculatingInspiralFunction[assoc_Association]
 (*Summary box*)
 
 
-inspiralForceName[force_] := Replace[force, {None -> "None (geodesic)", _List -> "Custom {a_t, a_r, a_\[Theta], a_\[Phi]}"}];
+inspiralModelNames[models_List] := If[models === {}, "None", Row[#["Name"] & /@ models, ", "]];
 
 OsculatingInspiralFunction /: MakeBoxes[inspiral:OsculatingInspiralFunction[assoc_Association], form:(StandardForm | TraditionalForm)] :=
 Module[{parameters = assoc["Parameters"], end = assoc["Domain"][[2]], summary, extended},
@@ -45,7 +45,8 @@ Module[{parameters = assoc["Parameters"], end = assoc["Domain"][[2]], summary, e
 		Row[{BoxForm`SummaryItem[{"a: ", parameters["a"]}], "  ", BoxForm`SummaryItem[{"\[Epsilon]: ", parameters["\[Epsilon]"]}]}],
 		Row[{BoxForm`SummaryItem[{"Initial p: ", parameters["p"]}], "  ", BoxForm`SummaryItem[{"e: ", parameters["e"]}], "  ",
 			BoxForm`SummaryItem[{"x: ", parameters["x"]}]}],
-		BoxForm`SummaryItem[{"Force: ", inspiralForceName[parameters["Force"]]}]};
+		BoxForm`SummaryItem[{"Force: ", inspiralModelNames[assoc["Force"]]}],
+		BoxForm`SummaryItem[{"Flux: ", inspiralModelNames[assoc["Flux"]]}]};
 	extended = {
 		BoxForm`SummaryItem[{If[assoc["Parametrisation"] === "Mino", "Mino time: ", "Coordinate time: "], assoc["Domain"]}],
 		BoxForm`SummaryItem[{"Stop reason: ", assoc["StopReason"]}],

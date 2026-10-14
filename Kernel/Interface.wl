@@ -17,12 +17,12 @@
 
 
 (* ::Text:: *)
-(*The parameters: their keys, which are required, the defaults of the others, and the allowed values. \[CurlyEpsilon] and \[CurlyPhi] are accepted for \[Epsilon] and \[Phi], since both forms are easy to type. "Flux" is reserved for phase 5.*)
+(*The parameters: their keys, which are required, the defaults of the others, and the allowed values. At least one of "Force" and "Flux" is required too. \[CurlyEpsilon] and \[CurlyPhi] are accepted for \[Epsilon] and \[Phi], since both forms are easy to type.*)
 
 
 $inspiralParameterKeys = {"a", "\[Epsilon]", "p", "e", "x", "\[Psi]r", "\[Psi]\[Theta]", "\[Phi]", "Force", "Flux"};
-$requiredInspiralParameters = {"a", "\[Epsilon]", "p", "e", "x", "Force"};
-$inspiralParameterDefaults = <|"\[Psi]r" -> 0, "\[Psi]\[Theta]" -> 0, "\[Phi]" -> 0|>;
+$requiredInspiralParameters = {"a", "\[Epsilon]", "p", "e", "x"};
+$inspiralParameterDefaults = <|"\[Psi]r" -> 0, "\[Psi]\[Theta]" -> 0, "\[Phi]" -> 0, "Force" -> None, "Flux" -> None|>;
 $inspiralParameterAliases = {"\[CurlyEpsilon]" -> "\[Epsilon]", "\[CurlyPhi]" -> "\[Phi]"};
 
 realQ[v_] := NumericQ[v] && TrueQ[Im[v] == 0];
@@ -47,7 +47,7 @@ InspiralParameters[params_Association] := Module[{parameters, unknown, missing, 
 	If[unknown =!= {}, Message[OsculatingInspiral::unknown, unknown, $inspiralParameterKeys]; Return[$Failed]];
 	missing = Complement[$requiredInspiralParameters, Keys[parameters]];
 	If[missing =!= {}, Message[OsculatingInspiral::missing, missing]; Return[$Failed]];
-	If[KeyExistsQ[parameters, "Flux"], Message[OsculatingInspiral::flux]; Return[$Failed]];
+	If[!KeyExistsQ[parameters, "Force"] && !KeyExistsQ[parameters, "Flux"], Message[OsculatingInspiral::nodriver]; Return[$Failed]];
 	parameters = Join[$inspiralParameterDefaults, parameters];
 	bad = SelectFirst[$inspiralParameterRanges, !TrueQ[#[[2]][parameters[#[[1]]]]] &];
 	If[!MissingQ[bad], Message[OsculatingInspiral::range, bad[[1]], parameters[bad[[1]]], bad[[3]]]; Return[$Failed]];
@@ -60,18 +60,29 @@ InspiralParameters[params_Association] := Module[{parameters, unknown, missing, 
 (*The entry point. It uses the regular solver (regularSystem in Solvers/KerrPEX.wl). Normal stops are recorded in "StopReason" rather than reported with a message; only an early stop by NDSolve is reported.*)
 
 
-OsculatingInspiral[params_Association, opts:OptionsPattern[{OsculatingInspiral, NDSolve}]] := Module[{parameters, result},
+OsculatingInspiral[params_Association, opts:OptionsPattern[{OsculatingInspiral, NDSolve}]] := Module[{parameters, forces, fluxes, result},
 	parameters = InspiralParameters[params];
 	If[FailureQ[parameters], Return[$Failed]];
-	result = RunSolver[OsculatingInspiral, regularSystem, regularForceDrivers, parameters["\[Epsilon]"], parameters["a"],
-		Lookup[parameters, {"p", "e", "x", "\[Psi]r", "\[Psi]\[Theta]", "\[Phi]"}], {opts},
-		<|"Force" -> parameters["Force"], "MessageHead" -> OsculatingInspiral, "ReportStops" -> {"Other"}|>];
+	(* The forces and fluxes as lists of models, each checked at the initial orbit (ForceModels/ForceModel.wl and
+	   FluxModels/FluxModel.wl) *)
+	forces = inspiralForceModels[parameters["Force"]];
+	If[FailureQ[forces], Return[$Failed]];
+	forces = checkForceModels[forces, Append[Lookup[parameters, {"a", "p", "e", "x", "\[Psi]r", "\[Psi]\[Theta]", "\[Phi]"}], 0]];
+	If[FailureQ[forces], Return[$Failed]];
+	fluxes = inspiralFluxModels[parameters["Flux"]];
+	If[FailureQ[fluxes], Return[$Failed]];
+	fluxes = checkFluxModels[fluxes, Lookup[parameters, {"a", "p", "e", "x"}]];
+	If[FailureQ[fluxes], Return[$Failed]];
+	result = RunSolver[OsculatingInspiral, regularSystem, Join[forceModelDriver /@ #["Forces"], fluxModelDriver /@ #["Fluxes"]] &,
+		parameters["\[Epsilon]"], parameters["a"], Lookup[parameters, {"p", "e", "x", "\[Psi]r", "\[Psi]\[Theta]", "\[Phi]"}], {opts},
+		<|"Force" -> <|"Forces" -> forces, "Fluxes" -> fluxes|>, "MessageHead" -> OsculatingInspiral, "ReportStops" -> {"Other"}|>];
 	If[FailureQ[result], Return[$Failed]];
 	OsculatingInspiralFunction[Join[KeyDrop[result, "limit"], <|
 		"Domain" -> {0, result["limit"]},
 		"Parametrisation" -> If[MinoParametrisationQ[OptionValue[Parametrisation], OsculatingInspiral], "Mino", "CoordinateTime"],
 		"Parameters" -> parameters,
-		"Force" -> parameters["Force"]|>]]
+		"Force" -> forces,
+		"Flux" -> fluxes|>]]
 ];
 
 OsculatingInspiral[params_ /; !AssociationQ[params], ___] := (Message[OsculatingInspiral::params, params]; $Failed);
@@ -170,7 +181,7 @@ IntegrateSystem[system_Association, s_, limit_, settings_Association] := Module[
 (* ::Text:: *)
 (*A solver is described by two functions.*)
 (*The builder takes the mass ratio, the spin, the initial elements {p0, e0, x0, \[Psi]r0, \[Psi]\[Theta]0}, a list of drivers and the settings "Mino", "pMin" and "SeparatrixBuffer". It returns a system with the keys IntegrateSystem needs, plus "Variable", the independent variable, and "Outputs", a function that makes the result from NDSolve's solution. It returns $Failed, with a message, if it cannot build the system.*)
-(*The force resolver turns the Force option into a list of drivers, or returns $Failed with a message. A force driver is <|"Type" -> "Force", "Function" -> f|>, where f takes the orbit's state as an Association and returns the covariant components {a_t, a_r, a_\[Theta], a_\[Phi]} per unit \[Eta]. The state has the keys "a", "p", "e", "x", "\[Psi]r" and "\[Psi]\[Theta]", and those of KerrOrbitGeometry (Utilities.wl). Several forces are added. Fluxes, which will only change the slowly varying elements, come later.*)
+(*The force resolver turns the force into a list of drivers, or returns $Failed with a message. A force driver is <|"Type" -> "Force", "Function" -> f|>, where f takes the orbit's state as an Association and returns the covariant components {a_t, a_r, a_\[Theta], a_\[Phi]}. The state has the keys "a", "p", "e", "x", "\[Psi]r" and "\[Psi]\[Theta]" (and in the regular solver "\[Phi]" and the coordinate time "t"), and those of KerrOrbitGeometry (Utilities.wl). The driver's force is multiplied by the mass ratio unless it also has "ScalesWithMassRatio" -> False. Several forces are added. A flux driver has "Type" -> "Flux" (see TotalFlux); only the regular solver takes them.*)
 (*RunSolver reads the options, resolves the force, builds and integrates the system, and returns the result with "limit" and "StopReason" added. The optional settings are:*)
 (*"Force": the force, when it is not given by the Force option (as in OsculatingInspiral);*)
 (*"MessageHead": the symbol for the Parametrisation and stop messages, KerrOsculatingOrbitalElements by default;*)
@@ -201,11 +212,21 @@ RunSolver[function_, buildSystem_, forceDrivers_, \[Eta]_, a_, initial_List, {op
 
 
 (* ::Text:: *)
-(*The sum of the force drivers' components {a_t, a_r, a_\[Theta], a_\[Phi]} for the orbit's state, per unit \[Eta]. Builders call this.*)
+(*The sum of the force drivers' components {a_t, a_r, a_\[Theta], a_\[Phi]} for the orbit's state, each multiplied by the mass ratio \[Eta] unless its driver says otherwise. Builders call this.*)
 
 
-TotalForce[drivers_List, state_Association] := With[{forces = Cases[drivers, KeyValuePattern["Type" -> "Force"]]},
-	If[forces === {}, {0, 0, 0, 0}, Total[#["Function"][state] & /@ forces]]];
+TotalForce[drivers_List, state_Association, \[Eta]_] := With[{forces = Cases[drivers, KeyValuePattern["Type" -> "Force"]]},
+	If[forces === {}, {0, 0, 0, 0},
+		Total[If[TrueQ[Lookup[#, "ScalesWithMassRatio", True]], \[Eta], 1] #["Function"][state] & /@ forces]]];
+
+
+(* ::Text:: *)
+(*The same for flux drivers, <|"Type" -> "Flux", "Function" -> f|>, whose f gives the rates with respect to t of the regular solver's {p, \[Alpha]p, \[Beta]p, x, \[Alpha]\[Theta], \[Beta]\[Theta]} (see fluxVariableRates in FluxModels/FluxModel.wl). The state needs "\[Alpha]p", "\[Beta]p", "\[Alpha]\[Theta]" and "\[Beta]\[Theta]".*)
+
+
+TotalFlux[drivers_List, state_Association, \[Eta]_] := With[{fluxes = Cases[drivers, KeyValuePattern["Type" -> "Flux"]]},
+	If[fluxes === {}, {0, 0, 0, 0, 0, 0},
+		Total[If[TrueQ[Lookup[#, "ScalesWithMassRatio", True]], \[Eta], 1] #["Function"][state] & /@ fluxes]]];
 
 
 (* ::Text:: *)

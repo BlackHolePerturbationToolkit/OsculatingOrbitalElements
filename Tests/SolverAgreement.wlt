@@ -126,10 +126,11 @@ VerificationTest[
 
 
 (* ::Section:: *)
-(* OsculatingInspiral's regular solver against REG, at the regular solver's default goals and REG at tight goals *)
+(* OsculatingInspiral's regular solver against REG, at the regular solver's default goals and REG at tight goals. The
+   GasDrag model with Coefficient k is the earlier solvers' KerrGasDrag with eta = k. *)
 
 regularVsREG[a_, p_, e_, x_] := Module[{regular, reg},
-	regular = OsculatingInspiral[<|"a" -> a, "\[Epsilon]" -> 10^-5, "p" -> p, "e" -> e, "x" -> x, "Force" -> KerrGasDrag|>, IntegrationLimit -> 5000];
+	regular = OsculatingInspiral[<|"a" -> a, "\[Epsilon]" -> 10^-5, "p" -> p, "e" -> e, "x" -> x, "Force" -> ForceModel["GasDrag", "Coefficient" -> 10^-5]|>, IntegrationLimit -> 5000];
 	reg = quietStops@GenericKerrREGBL[10^-5, a, p, e, x, 0, 0, IntegrationLimit -> 5000, AccuracyGoal -> 13, PrecisionGoal -> 13];
 	maxDifference[regular, reg, {"p", "e", "x", "r", "\[Phi]"}, kerrSamples]];
 
@@ -155,7 +156,7 @@ VerificationTest[
 ]
 
 VerificationTest[
-	regular = OsculatingInspiral[<|"a" -> 0, "\[Epsilon]" -> 10^-4, "p" -> 12, "e" -> 0.3, "x" -> 1, "\[Psi]r" -> 0.7, "Force" -> KerrGasDrag|>,
+	regular = OsculatingInspiral[<|"a" -> 0, "\[Epsilon]" -> 10^-4, "p" -> 12, "e" -> 0.3, "x" -> 1, "\[Psi]r" -> 0.7, "Force" -> ForceModel["GasDrag", "Coefficient" -> 10^-4]|>,
 		IntegrationLimit -> 20000];
 	maxDifference[regular, schwarzschild, {"p", "e", "r", "\[Phi]"}, Subdivide[0., 0.95 schwarzschild["limit"], 8]]
 	,
