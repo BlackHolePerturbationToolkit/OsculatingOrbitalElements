@@ -1,3 +1,0 @@
-(* ::Package:: *)
-
-Get["OsculatingOrbitalElements`OsculatingOrbitalElements`"];
