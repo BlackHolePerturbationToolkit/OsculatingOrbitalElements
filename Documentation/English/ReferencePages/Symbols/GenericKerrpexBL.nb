@@ -1,0 +1,166 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 13.1' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[      5833,        157]
+NotebookOptionsPosition[      3522,        120]
+NotebookOutlinePosition[      3946,        136]
+CellTagsIndexPosition[      3903,        133]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell["GenericKerrpexBL", "ObjectName"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  RowBox[{"GenericKerrpexBL", "[", 
+   RowBox[{
+   "\[Eta]", ",", " ", "a", ",", " ", "p", ",", " ", "e", ",", " ", "x", ",", 
+    " ", "\[Psi]r", ",", " ", "\[Psi]\[Theta]"}], "]"}]], "InlineFormula"],
+ "\[LineSeparator]",
+ "GenericKerrpexBL[\[Eta], a, p, e, x, \[Psi]r, \[Psi]\[Theta], Force->{at, \
+ar, a\[Theta] a\[Phi]}] calculates  p, e, x, \[Psi]r, and \[Psi]\[Theta] as \
+functions of Mino time (\[Lambda]) or coordinate time(t) using a given by \
+covariant components of an acceleration (at, ar, a\[Theta], a\[Phi]) a mass \
+ratio given by \[Eta]. For equatorial orbits (x = \[PlusMinus]1), x is held \
+fixed, the \[Psi]\[Theta] argument is ignored, \"\[Psi]\[Theta]\" is Missing, \
+and force callbacks receive \[Psi]\[Theta] = 0; the force must have no \
+\[Theta] component on the equatorial plane. The result's \"StopReason\" says \
+why the integration stopped: \"Separatrix\", \"SeparatrixBuffer\", \"pMin\", \
+\"IntegrationLimit\", or \"Other\" if NDSolve stopped early. Options of \
+NDSolve are passed to NDSolve."
+}], "Usage"],
+
+Cell[TextData[{
+ "Legacy: this is one of the earlier functions of the package. It keeps \
+working, but ",
+ Cell[BoxData[
+  ButtonBox["OsculatingInspiral",
+   BaseStyle->"Link",
+   ButtonData->"paclet:OsculatingOrbitalElements/ref/OsculatingInspiral"]], 
+  "InlineFormula"],
+ " supersedes it."
+}], "Notes"],
+
+Cell["Tech Notes", "TechNotesSection"],
+
+Cell[TextData[ButtonBox["Osculating Orbital Elements",
+ BaseStyle->"Link",
+ ButtonData->
+  "paclet:OsculatingOrbitalElements/tutorial/OsculatingOrbitalElements"]], \
+"Tutorials"],
+
+Cell["See Also", "SeeAlsoSection"],
+
+Cell[TextData[Cell[BoxData[
+ ButtonBox["OsculatingInspiral",
+  BaseStyle->"Link",
+  ButtonData->
+   "paclet:OsculatingOrbitalElements/ref/OsculatingInspiral"]], \
+"InlineSeeAlsoFunction"]], "SeeAlso"],
+
+Cell["Related Guides", "MoreAboutSection"],
+
+Cell[TextData[ButtonBox["Osculating Orbital Elements",
+ BaseStyle->"Link",
+ ButtonData->
+  "paclet:OsculatingOrbitalElements/guide/OsculatingOrbitalElements"]], \
+"MoreAbout"],
+
+Cell["Metadata", "MetadataSection"],
+
+Cell[TextData[{
+ "New in: ",
+ Cell["0.1", "HistoryData",
+  CellTags->"New"],
+ " | Modified in: ",
+ Cell[" ", "HistoryData",
+  CellTags->"Modified"],
+ " | Obsolete in: ",
+ Cell[" ", "HistoryData",
+  CellTags->"Obsolete"]
+}], "History"],
+
+Cell[CellGroupData[{
+
+Cell["Categorization", "CategorizationSection"],
+
+Cell["Symbol", "Categorization",
+ CellLabel->"Entity Type"],
+
+Cell["OsculatingOrbitalElements", "Categorization",
+ CellLabel->"Paclet Name"],
+
+Cell["OsculatingOrbitalElements`", "Categorization",
+ CellLabel->"Context"],
+
+Cell["OsculatingOrbitalElements/ref/GenericKerrpexBL", "Categorization",
+ CellLabel->"URI"]
+}, Closed]],
+
+Cell[CellGroupData[{
+
+Cell["Keywords", "KeywordsSection"],
+
+Cell["osculating orbital elements", "Keywords"],
+
+Cell["inspiral", "Keywords"],
+
+Cell["Kerr", "Keywords"]
+}, Closed]]
+},
+TaggingRules-><|"Paclet" -> "OsculatingOrbitalElements"|>,
+CellContext->"Global`",
+FrontEndVersion->"13.1 for Mac OS X ARM (64-bit) (June 16, 2022)",
+StyleDefinitions->FrontEnd`FileName[{"Wolfram"}, "FunctionPageStylesExt.nb", 
+  CharacterEncoding -> "UTF-8"]
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[558, 20, 38, 0, 70, "ObjectName",ExpressionUUID->"3b817f5c-ee28-487f-b2ef-9e19cb60f560"],
+Cell[599, 22, 1072, 18, 70, "Usage",ExpressionUUID->"6ba5063b-9fab-4332-b340-4c82e41db1b9"],
+Cell[1674, 42, 305, 9, 70, "Notes",ExpressionUUID->"9b0d089a-c1b4-42e5-9c87-a1bcc5615337"],
+Cell[1982, 53, 38, 0, 70, "TechNotesSection",ExpressionUUID->"a459944c-63bb-465b-ba83-893727e91a62"],
+Cell[2023, 55, 178, 4, 70, "Tutorials",ExpressionUUID->"42d0760f-81d8-41ba-b33b-ae8f157ccc1d"],
+Cell[2204, 61, 34, 0, 70, "SeeAlsoSection",ExpressionUUID->"1461d2ad-bbba-48e2-9267-f988476cb26a"],
+Cell[2241, 63, 200, 5, 70, "SeeAlso",ExpressionUUID->"5a37cd3a-08aa-4e8c-9fe3-66c0be867aa7"],
+Cell[2444, 70, 42, 0, 70, "MoreAboutSection",ExpressionUUID->"d5219024-c990-4b4e-b814-2e54bcffcd8b"],
+Cell[2489, 72, 175, 4, 70, "MoreAbout",ExpressionUUID->"ec346142-7f41-47b5-b32f-5ed2c23374cc"],
+Cell[2667, 78, 35, 0, 70, "MetadataSection",ExpressionUUID->"3d29cfbc-2adb-4f16-be9c-cd74310ae0dd"],
+Cell[2705, 80, 234, 10, 70, "History",ExpressionUUID->"26907f5e-adfb-4ea3-b432-e1ea0a53a6bf"],
+Cell[CellGroupData[{
+Cell[2964, 94, 47, 0, 70, "CategorizationSection",ExpressionUUID->"9f4b911d-952a-4d7c-bfee-d202ac9dd84d"],
+Cell[3014, 96, 59, 1, 70, "Categorization",ExpressionUUID->"3ee9a9f8-b08a-4f0b-a044-6669271cda7c"],
+Cell[3076, 99, 78, 1, 70, "Categorization",ExpressionUUID->"58d12958-18b6-4d48-b3aa-7973d75bb6d3"],
+Cell[3157, 102, 75, 1, 70, "Categorization",ExpressionUUID->"7c74deb0-6c2b-4ab2-a342-b571832371a6"],
+Cell[3235, 105, 91, 1, 70, "Categorization",ExpressionUUID->"fcb1d1cd-a89b-4cc5-87d9-63cfdbab8f35"]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[3363, 111, 35, 0, 70, "KeywordsSection",ExpressionUUID->"1e365701-db11-4497-976c-f242e765044e"],
+Cell[3401, 113, 47, 0, 70, "Keywords",ExpressionUUID->"1b825ea4-7e99-44ca-bab5-881d6e8ade37"],
+Cell[3451, 115, 28, 0, 70, "Keywords",ExpressionUUID->"18b0f4b5-6aaa-4260-9b64-be6a84fe4e86"],
+Cell[3482, 117, 24, 0, 70, "Keywords",ExpressionUUID->"57b29799-b501-4157-8342-da2151fd1dc3"]
+}, Closed]]
+}
+]
+*)
+
+(* End of internal cache information *)

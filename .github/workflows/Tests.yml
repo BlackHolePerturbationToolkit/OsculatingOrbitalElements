@@ -1,0 +1,50 @@
+# Runs the test suite on every push and pull request, as KerrGeodesics does. It needs the repository (or organisation)
+# secret WOLFRAM_LICENSE_ENTITLEMENT_ID, a Wolfram Engine entitlement ID. The tests run with the latest Wolfram Engine, so
+# the regression tests compare with a relative tolerance rather than exactly (see Tests/Regression.wlt).
+name: Tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  tests:
+    runs-on: macos-latest
+    env:
+      WOLFRAMENGINE_CACHE_KEY: WolframEngine-A
+      WOLFRAMENGINE_INSTALLATION_DIRECTORY: "/Applications/Wolfram Engine.app"
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+        with:
+          path: OsculatingOrbitalElements
+
+      - name: Check out KerrGeodesics
+        uses: actions/checkout@v4
+        with:
+          repository: BlackHolePerturbationToolkit/KerrGeodesics
+          path: KerrGeodesics
+
+      - name: Cache or restore the Wolfram Engine
+        id: cache-restore
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.WOLFRAMENGINE_INSTALLATION_DIRECTORY }}
+          key: wolframengine-${{ runner.os }}-${{ env.WOLFRAMENGINE_CACHE_KEY }}
+
+      - name: Install the Wolfram Engine
+        if: steps.cache-restore.outputs.cache-hit != 'true'
+        run: brew install --cask wolfram-engine
+
+      - name: Run the tests
+        env:
+          WOLFRAMSCRIPT_ENTITLEMENTID: ${{ secrets.WOLFRAM_LICENSE_ENTITLEMENT_ID }}
+          WOLFRAMSCRIPT_KERNELPATH: "${{ env.WOLFRAMENGINE_INSTALLATION_DIRECTORY }}/Contents/MacOS/WolframKernel"
+        run: |
+          export PATH="${{ env.WOLFRAMENGINE_INSTALLATION_DIRECTORY }}/Contents/Resources/Wolfram Player.app/Contents/MacOS:$PATH"
+          # Install KerrGeodesics in the Applications folder of the user base directory, which depends on the version
+          applications=$(wolframscript -code 'FileNameJoin[{$UserBaseDirectory, "Applications"}]')
+          mkdir -p "$applications"
+          mv KerrGeodesics "$applications/"
+          wolframscript -file OsculatingOrbitalElements/Tests/AllTests.wls

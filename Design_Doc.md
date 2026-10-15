@@ -45,8 +45,8 @@ As well as an oscillatory force, an inspiral can be driven by orbit-averaged rat
 - **Contributions add.** The osculating equations are linear in the force, so several forces add to one total force, and their rates add to those of any fluxes.
 - **Mixed variables need care.** Where slow and fast variables are mixed, the flux must be added in that form:
   - In the REG components (αp, βp) = e (sin ψr, cos ψr), a flux contributes (ė/e)(αp, βp).
-  - In the polar components (αθ, βθ), it contributes (ż_m/2z_m)(αθ, βθ) = −(xẋ/z_m)(αθ, βθ), alongside ẋ for x. z_m is taken as αθ² + βθ², which does not lose digits near the equator as 1 − x² does, and which keeps αθ² + βθ² + x² = 1 exactly.
-  - These ratios stay finite for physical fluxes (ė ∝ e as e → 0, and ż_m ∝ z_m near the equator). At exactly e = 0, or on an equatorial orbit, they are 0/0, and the contribution is set to 0: a flux keeps a circular orbit circular and an equatorial orbit equatorial.
+  - In (x, ψθ) it contributes ẋ to x and nothing to ψθ. (In the polar components (αθ, βθ) of the regular polar formulation, now on hold, it would contribute (ż_m/2z_m)(αθ, βθ) = −(xẋ/z_m)(αθ, βθ), alongside ẋ for x.)
+  - The ratio ė/e stays finite for physical fluxes (ė ∝ e as e → 0). At exactly e = 0 it is 0/0, and the contribution is set to 0: a flux keeps a circular orbit circular. On an equatorial orbit x is held fixed, and a flux that changes x is rejected.
   - A flux must not be passed through REG's osculating relations. Those assume r and u_r stay continuous, which only holds for a force.
 - **The same small-e and equatorial treatments** therefore apply to fluxes as to forces.
 
@@ -82,7 +82,9 @@ As well as an oscillatory force, an inspiral can be driven by orbit-averaged rat
 
 The pex polar variables (x, ψθ) are singular for equatorial orbits (x = ±1). There ψθ is undefined, and its equation contains a term proportional to F_θ / √(1 − x²), so in these variables a force with a θ component cannot lift an orbit out of the plane. The earlier solvers avoid this by holding equatorial orbits in the plane (see "Before Phase 0"), which rules out such forces.
 
-**The regular solver behind `OsculatingInspiral` (phase 3)** instead evolves the 3-vector (αθ, βθ, x), which satisfies αθ² + βθ² + x² = 1, where
+**Status: on hold** (decided after phase 7). The regular solver behind `OsculatingInspiral` is back to (x, ψθ), with equatorial orbits as the same special case as in the earlier solvers, because the formulation below may still change. Its code is kept, unused, in `Kernel/Legacy/RegularPolar.wl`, and the solver that used it is at commit 7e644fe. See "After phase 7" below. The rest of this section describes the formulation as it was.
+
+**The regular polar formulation**, which `OsculatingInspiral` used from phase 3 until it was put on hold, evolves the 3-vector (αθ, βθ, x), which satisfies αθ² + βθ² + x² = 1, where
 
 ```
 αθ = √zm sin ψθ,    βθ = √zm cos ψθ = cos θ,    zm = 1 − x²
@@ -118,7 +120,7 @@ dx/dλ  = −Σ αθ [ x W a_θ / sin θ − αθ ( a²E x a_t + (L/x) a_φ / si
 **Checks:**
 
 - The equations match pex's (x, ψθ) equations through the chain rule. The agreement is 10⁻¹³ or better for a = 0, 0.5 and 0.9, prograde and retrograde, x from 0.8 down to ±0.01, and near the axis (sin θ = 0.01). It is 10⁻¹¹ at x = 0.999, where pex itself loses digits.
-- In a solve (`Tests/OsculatingInspiral.wlt`):
+- In a solve, while `OsculatingInspiral` used it (these tests were replaced when it was put on hold):
   - a θ force on an inclined orbit agrees with REG;
   - starting exactly equatorial, the same force lifts the orbit out of the plane, with the 3-vector staying at unit length to 10⁻¹³;
   - the solution is continuous at the equator;
@@ -142,7 +144,7 @@ So they are regular at x = 0 and at e = 0 with no special cases. They agree with
 
 **Open issues:**
 
-- `OrbitalElementRates` still gives dx/dλ as −(dzm/dλ)/(2x), which is 0/0 at x = 0, for the earlier solvers. The regular solver takes x's rate from the polar equations, and fluxes given as (dE, dL, dQ) use `RegularXRate`.
+- `OrbitalElementRates` still gives dx/dλ as −(dzm/dλ)/(2x), which is 0/0 at x = 0, for the earlier solvers. The regular solver, and fluxes given as (dE, dL, dQ), use `RegularXRate`.
 - The polar rate of x uses the polar form of dQ, while p and e² use the radial form of dK. They agree only for forces orthogonal to the velocity.
 - This formulation does not seem to be in the literature, so it is worth writing up.
 
@@ -166,9 +168,7 @@ OsculatingOrbitalElements/
 │   │                                 index raising/lowering, F_t from orthogonality, the map from (E, L, Q)
 │   │                                 rates to (p, e², x) rates, caching
 │   ├── Solvers/
-│   │   ├── KerrPEX.wl                Default: p, e, x equations, plus the p, α, β equations used at small e
-│   │   ├── KerrELK.wl                En, L, K equations (to be supported later)
-│   │   └── Schwarzschild.wl          Existing Schwarzschild solvers
+│   │   └── KerrPEX.wl                The regular solver: p, αp, βp, x and ψθ, with equatorial orbits as a special case
 │   ├── ForceModels/
 │   │   ├── ForceModel.wl             Force object (ForceModel): parameters, evaluation, use in a solver
 │   │   ├── GasDrag.wl                Gas drag (Schwarzschild and Kerr)
@@ -178,10 +178,21 @@ OsculatingOrbitalElements/
 │   │   ├── FluxModel.wl              Flux object (FluxModel): averaged rates, the quantities and time they refer to,
 │   │   │                             parameters, combining fluxes, orbit-averaging a Force object
 │   │   └── PostNewtonian.wl          Peters' leading-order rates; later, Kerr post-Newtonian fluxes
-│   └── Legacy/
-│       └── LegacyEquations.wl        Unused code kept for reference (see Legacy code below)
-├── Data/FastGSF/                     a_n_jk, b_n_jk, c_n_jk, d_n_jk (currently DataFiles/)
-├── Documentation/                    Reference pages, guide page and tutorials
+│   └── Legacy/                       Code that OsculatingInspiral does not use (see Legacy code below)
+│       ├── Utilities.wl              Radial roots, SeparatrixEqELK, cached constants of motion
+│       ├── ForceFunctions.wl         The force functions with the old signatures (SchwarzGasDrag, KerrGasDrag, ...)
+│       ├── Schwarzschild.wl          SchwarzOsculatingOrbitalElements, SchwarzOsculatingOrbitalElementsTP
+│       ├── KerrELK.wl                KerrOsculatingOrbitalElements (En, L, K equations)
+│       ├── GenericKerr.wl            GenericKerrpexBL, GenericKerrREGBL
+│       ├── RegularPolar.wl           The regular polar formulation (αθ, βθ, x), on hold
+│       └── LegacyEquations.wl        Equations that were never called, and stale usage messages
+├── Data/FastGSF/                     a_n_jk, b_n_jk, c_n_jk, d_n_jk
+├── Documentation/
+│   ├── MakeDocumentation.wls         Generates the notebooks below; edit it, not the notebooks
+│   └── English/                      Reference pages, the guide page and the tutorial
+├── Notes/RegularFormulation.md       The regular variables and equations, and why they were chosen
+├── Notebooks/Legacy/                 The earlier tutorial and research notebooks, outputs stripped
+├── .github/workflows/Tests.yml       Runs the tests on GitHub
 ├── Tests/
 │   ├── AllTests.wls                  Runs every test file, or the ones named on the command line
 │   ├── TestSetup.wl                  Loads this copy of the package and defines shared helpers
@@ -189,9 +200,6 @@ OsculatingOrbitalElements/
 │   ├── RegressionCases.wl            Fixed solver outputs checked by Regression.wlt
 │   ├── MakeReferenceOutputs.wls      Regenerates ReferenceOutputs.wl when a change in results is intended
 │   └── ReferenceOutputs.wl           Saved outputs, with the Wolfram version and commit that produced them
-├── tutorial.nb                       To be replaced by Documentation/
-├── Data generation.nb                Unchanged
-├── TestingELKvspex.nb                Unchanged
 └── README.md, LICENSE, .gitignore
 ```
 
@@ -225,33 +233,33 @@ Unused code is kept but separated from the active code:
 - Legacy public functions keep working. Their usage messages move to a marked legacy section at the end of the header (public symbols must be declared there) and say that the function is legacy.
 - Usage messages for functions that no longer exist are kept as comments in the legacy file, so they do not create undefined public symbols.
 
-Legacy now:
+Legacy (phase 1):
 
 - `KerrOscGeoEqs`, `KerrOscGeoEqsTP` and `KerrOscGeoEqsTPVecLessArg`, which are never called.
 - The usage messages for `KerrOsculatingOrbitalElementsTP` and `KerrOsculatingOrbitalElementsTPVec`, which have no definitions.
 
-Legacy later: each current public function (`SchwarzOsculatingOrbitalElements`, `SchwarzOsculatingOrbitalElementsTP`, `KerrOsculatingOrbitalElements`, `GenericKerrpexBL`, `GenericKerrREGBL`) and the force functions with the old signatures. Each moves once the new interface reproduces its results.
+Legacy (phase 6): the earlier public functions (`SchwarzOsculatingOrbitalElements`, `SchwarzOsculatingOrbitalElementsTP`, `KerrOsculatingOrbitalElements`, `GenericKerrpexBL`, `GenericKerrREGBL`), the force functions with the old signatures (`SchwarzGasDrag`, `KerrGasDrag`, `KerrGasDragVec`, `KerrGasDragapex`, `KerrEMCons`, `SchwarzFastGSF`), the pex and REG systems behind `GenericKerrpexBL` and `GenericKerrREGBL`, and the utilities only they use. `OsculatingInspiral` reproduces their results (the solver agreement tests), and they keep working.
 
 ### Where the current code goes
 
-| Current code in `OsculatingOrbitalElements.m` | New file |
-|---|---|
-| Usage messages, options, `SyntaxInformation`, message texts | `OsculatingOrbitalElements.wl` |
-| `SchwarzOscGeoEqs1`, `…TP`, `…2`, `…2TP` and the two Schwarzschild public functions | `Solvers/Schwarzschild.wl` |
-| `KerrOsculatingOrbitalElements` | `Solvers/KerrELK.wl` |
-| `GenericKerrpexBL`, `GenericKerrREGBL` | `Solvers/KerrPEX.wl` |
-| `SchwarzGasDrag`, `KerrGasDrag`, `KerrGasDragVec`, `KerrGasDragapex` | `ForceModels/GasDrag.wl` |
-| `KerrEMCons` | `ForceModels/EMConservative.wl` |
-| `SchwarzFastGSF` and its data loading | `ForceModels/FastGSF.wl` |
-| Radial roots, `SeparatrixEqELK`, constants of motion and `memoLast` | `Utilities.wl` |
-| `StopMessage`, `MinoParametrisationQ` | `Utilities.wl` in phase 1, then `Interface.wl` in phase 2 |
-| `KerrOscGeoEqs`, `…TP`, `…TPVecLessArg`, and the stale usage messages | `Legacy/LegacyEquations.wl` |
+| Current code in `OsculatingOrbitalElements.m` | Phase 1 file | After phase 6 |
+|---|---|---|
+| Usage messages, options, `SyntaxInformation`, message texts | `OsculatingOrbitalElements.wl` | Legacy ones in the header's legacy section |
+| `SchwarzOscGeoEqs1`, `…TP`, `…2`, `…2TP` and the two Schwarzschild public functions | `Solvers/Schwarzschild.wl` | `Legacy/Schwarzschild.wl` |
+| `KerrOsculatingOrbitalElements` | `Solvers/KerrELK.wl` | `Legacy/KerrELK.wl` |
+| `GenericKerrpexBL`, `GenericKerrREGBL` | `Solvers/KerrPEX.wl` | `Legacy/GenericKerr.wl` |
+| `SchwarzGasDrag`, `KerrGasDrag`, `KerrGasDragVec`, `KerrGasDragapex` | `ForceModels/GasDrag.wl` | `Legacy/ForceFunctions.wl` |
+| `KerrEMCons` | `ForceModels/EMConservative.wl` | `Legacy/ForceFunctions.wl` |
+| `SchwarzFastGSF` and its data loading | `ForceModels/FastGSF.wl` | `SchwarzFastGSF` in `Legacy/ForceFunctions.wl`; the data stays |
+| Radial roots, `SeparatrixEqELK`, constants of motion and `memoLast` | `Utilities.wl` | `Legacy/Utilities.wl`, except `memoLast` |
+| `StopMessage`, `MinoParametrisationQ` | `Utilities.wl` in phase 1, then `Interface.wl` in phase 2 | `Interface.wl` |
+| `KerrOscGeoEqs`, `…TP`, `…TPVecLessArg`, and the stale usage messages | `Legacy/LegacyEquations.wl` | Unchanged |
 
 ## Checklist for improvements that should be made
 
 ### Before Phase 0: fixes to the current code
 
-- [x] Equatorial orbits (x = ±1) in the pex and REG solvers: x is held at exactly ±1, the polar equations are dropped, and a force with a θ component on the plane is rejected. This is temporary until the regular polar formulation replaces it (see "Polar motion near the equator and the poles").
+- [x] Equatorial orbits (x = ±1) in the pex and REG solvers: x is held at exactly ±1, the polar equations are dropped, and a force with a θ component on the plane is rejected. The regular solver behind `OsculatingInspiral` does the same, since the regular polar formulation was put on hold (see "Polar motion near the equator and the poles").
 - [x] pex gas drag at a = 0: `KerrGasDragapex` divided by a²(1 − E²) to get zm; it now uses zm = 1 − x²
 - [x] `IntegrationLimit` is in the units of the chosen time variable, with no hidden ×1000. The Kerr default is `Automatic`: 10⁷ in coordinate time and 10⁴ in Mino time.
 - [x] `Print` replaced by messages that say why the integration stopped, and `Monitor` only used when a front end is present (Kerr solvers)
@@ -322,7 +330,7 @@ They were regenerated in phase 2, when pex switched to the shared rate map (see 
   - [x] Store why the integration stopped in the output: `"StopReason"` is `"Separatrix"`, `"SeparatrixBuffer"`, `"pMin"`, `"IntegrationLimit"` or `"Other"`
   - [x] Pass NDSolve options straight through, ahead of the solver's own settings
 - [x] Move the orbit geometry (Σ, Δ, roots, velocities), currently repeated in several functions, into `Utilities.wl`
-  - `KerrOrbitGeometry`, `NullTetradForce` and `ConstantsOfMotionRates` are used by pex and REG. The polar phase equation they share is `polarPhaseRate` in `KerrPEX.wl`, until the regular polar formulation replaces it.
+  - `KerrOrbitGeometry`, `NullTetradForce` and `ConstantsOfMotionRates` are used by pex and REG. The polar phase equation they share is `polarPhaseRate` in `KerrPEX.wl`, which the regular solver also uses.
   - The force models and ELK still compute their own geometry. They should use the shared one when the force models are rewritten (phase 4) and when ELK is supported.
 
 ### Phase 3: New interface and inspiral object
@@ -336,21 +344,21 @@ Decisions made at the start of phase 3:
   - Solver settings stay as options: `Parametrisation`, `IntegrationLimit`, `SeparatrixBuffer`, `pMin`, `TimeMonitor`, and any NDSolve option.
 - **Time:** Boyer–Lindquist coordinate time by default, with Mino time still available through `Parametrisation`.
 - **Small eccentricity:** always integrate the regular radial variables (p, αp, βp). They are exact at every e, so there is no threshold or switch. e and ψr are reconstructed for output, and ψr is undefined at e = 0. The pex small-e branch stays only in the legacy `GenericKerrpexBL`.
-- **Schwarzschild:** handled as the a = 0 case of the Kerr solver, which the regular polar variables make possible for equatorial orbits. The current Schwarzschild functions keep working until they move to legacy in phase 6.
+- **Schwarzschild:** handled as the a = 0 case of the Kerr solver, with equatorial orbits as a special case. The current Schwarzschild functions keep working until they move to legacy in phase 6.
 
 - [x] Decide the keys and defaults of the parameter Association, following WaSABI. Accept a "Flux" entry alongside "Force", each as one object or a list.
 - [x] Decide the name and signature of the entry function
 - [x] Validate inputs: bound orbit, parameter ranges, missing keys
   - Unknown and missing keys, a "Flux" entry (for now), values out of range, x = 0, an invalid force or `Parametrisation`, and an initial orbit not outside the separatrix by more than the buffer each give `$Failed` with a message.
 - [x] Make the regular p, e, x solver the default, reporting in Boyer–Lindquist coordinate time with the Darwin (ψr) and Hughes (ψθ) angles
-  - `regularSystem` in `Solvers/KerrPEX.wl`. It integrates (p, αp, βp) radially with the REG equations, (αθ, βθ, x) for the polar motion, and φ.
+  - `regularSystem` in `Solvers/KerrPEX.wl`. It integrates (p, αp, βp) radially with the REG equations, (x, ψθ) for the polar motion, with equatorial orbits as a special case, and φ. (Until the regular polar formulation was put on hold, (αθ, βθ, x) for the polar motion.)
   - ψr and ψθ are reported in (−π, π], and as `Missing` where they are undefined: ψr at e = 0, and ψθ on an equatorial orbit. φ is continuous.
   - By default NDSolve uses an 8th-order explicit Runge–Kutta method with goals 12 (see "The Boyer–Lindquist axis" above). Stops are located to 8 digits.
   - Normal stops are recorded in `"StopReason"` without a message. Only an early stop by NDSolve is reported.
 - [x] Decide whether Mino time remains available as an option
 - [x] Small e: always use the regular (p, αp, βp) variables (decided above), so no criterion or switch is needed
-- [x] Replace the (x, ψθ) polar equations with the (αθ, βθ, x) formulation, and remove the equatorial safeguard (see "Polar motion near the equator and the poles")
-  - The new solver has no safeguard. The earlier `GenericKerrpexBL` and `GenericKerrREGBL` keep theirs until they move to legacy.
+- [ ] Replace the (x, ψθ) polar equations with the (αθ, βθ, x) formulation, and remove the equatorial safeguard (see "Polar motion near the equator and the poles")
+  - Done in phase 3, then put on hold after phase 7: the regular solver is back to (x, ψθ) with the equatorial special case, and the formulation's code is in `Kernel/Legacy/RegularPolar.wl`.
 - [x] Make the constants of motion safe at x = 0 (`RegularEnergy`, `RegularLOverX`)
 - [x] Decide whether Schwarzschild stays a separate solver or becomes the a = 0 case of the Kerr solver: the a = 0 case
   - It agrees with `SchwarzOsculatingOrbitalElementsTP` to 10⁻⁴ over a full inspiral, and with the geodesic at a = 0.
@@ -413,7 +421,7 @@ Decisions made at the start of phase 4:
 
 Decisions made at the start of phase 5:
 
-- **Variables.** Flux-driven inspirals use the same variables as force-driven ones: (p, αp, βp) radially, the polar unit vector (αθ, βθ, x), and φ. A flux adds only to the slow parts:
+- **Variables.** Flux-driven inspirals use the same variables as force-driven ones: (p, αp, βp) radially, the polar unit vector (αθ, βθ, x), and φ. (Since the polar formulation was put on hold, x and ψθ: a flux adds ẋ to x and nothing to ψθ, and on an equatorial orbit it must not change x.) A flux adds only to the slow parts:
   - ṗ to p;
   - (ė/e)(αp, βp) to the eccentricity components;
   - ẋ to x, and (ż_m/2z_m)(αθ, βθ) = −(xẋ/z_m)(αθ, βθ) to the polar components.
@@ -442,22 +450,47 @@ Decisions made at the start of phase 5:
     - On the equator the changes agree to 10⁻⁷ in p (out of −0.475) and 10⁻⁶ in e.
     - Inclined, with 4×4 points, they agree to 2×10⁻⁴ relative in p, 6×10⁻⁵ in e (out of 1.2×10⁻³, an O(η) difference) and 0.1% in x.
   - [x] One force plus the averaged flux of another agrees with both forces together, to O(η) in p, e and x. Drag plus the averaged FastGSF agrees with drag and FastGSF together to 2×10⁻⁴ in p, out of −0.65.
-  - Also: a flux that changes x keeps (αθ, βθ, x) a unit vector; the conversion from (E, L, Q) rates, including at x = 0; and errors and properties.
+  - Also: a flux that changes x (now: x follows it exactly); the conversion from (E, L, Q) rates, including at x = 0; and errors and properties.
   - The averaging weights are checked against KerrGeodesics: the Mino-time averages of dt/dλ and dφ/dλ match Γ and Υφ to 10⁻⁹. A quantity with near-axis structure, such as dφ/dλ ∝ L/sin²θ on a near-polar orbit, needs more points: 2×10⁻³ error with 16 at x = 0.4, and 3×10⁻¹² with 64. Physical forces are bounded near the axis, so their averages converge faster.
   - There are 224 tests in 11 files.
 
 ### Phase 6: Legacy
 
-- [ ] When the new interface reproduces a current public function's results, move that function to `Kernel/Legacy/` and mark its usage message as legacy
-- [ ] Decide what to do with `Data generation.nb` and `TestingELKvspex.nb`, which call functions that no longer exist
+- [x] When the new interface reproduces a current public function's results, move that function to `Kernel/Legacy/` and mark its usage message as legacy
+  - All the earlier public functions and force functions moved (see Legacy code above). Their usage messages start "Legacy, superseded by …", and their reference pages say the same.
+  - The old header overwrote the usage messages of the System symbols `AccuracyGoal` and `PrecisionGoal`; those lines are now commented out.
+- [x] Decide what to do with `Data generation.nb` and `TestingELKvspex.nb`, which call functions that no longer exist
+  - Moved, with `tutorial.nb`, to `Notebooks/Legacy/`, outputs stripped, with a README that says what each was for and why the last two no longer run.
 
 ### Phase 7: Documentation and distribution
 
-- [ ] Reference pages for every public symbol, a guide page, and tutorials with worked examples
-- [ ] Turn `tutorial.nb` into documentation, fixing its current bugs (undefined `ELKup`, and sin θ and cos θ swapped in the 3D plot)
-- [ ] Update the README: features, installation, links
-- [ ] Write up the regular polar formulation
-- [ ] Strip outputs from committed notebooks
+- [x] Reference pages for every public symbol, a guide page, and tutorials with worked examples
+  - `Documentation/MakeDocumentation.wls` generates them, with the examples evaluated, in the Documentation Tools source format that KerrGeodesics uses. It stops if a public symbol has no page. Edit the script, not the notebooks.
+  - The legacy functions have short pages that say what supersedes them.
+  - The kernel evaluates the examples itself, because `NotebookEvaluate` hangs in a front end started by wolframscript. Message arguments are written on one line, as in a notebook.
+  - The only message cells are in the Possible Issues sections, where they are the point of the example.
+  - The pages that show an inspiral's summary box are large (about 1 MB), since the box embeds the inspiral, as the summary boxes of Wolfram objects do.
+- [x] Turn `tutorial.nb` into documentation, fixing its current bugs (undefined `ELKup`, and sin θ and cos θ swapped in the 3D plot)
+  - The new tutorial (Tutorials/OsculatingOrbitalElements) uses the new interface. The old one, with both bugs fixed, is in `Notebooks/Legacy/`, since it documents the legacy functions.
+- [x] Update the README: features, installation, links
+- [x] Write up the regular polar formulation (`Notes/RegularFormulation.md`)
+- [x] Strip outputs from committed notebooks (those in `Notebooks/Legacy/`; the documentation keeps its outputs)
 - [ ] Build the paclet and publish it to a paclet server
-- [ ] Optional: run the tests automatically on GitHub, as KerrGeodesics does
+  - [x] Build: `PacletInfo.wl` has a Documentation extension and declares `Data/FastGSF` as an asset, without which the build leaves the data out. `PacletTools`PacletBuild` makes `build/OsculatingOrbitalElements-0.1.0.paclet` (`build/` is ignored by git). The archive loads without messages, FastGSF finds its data, and the documentation links resolve.
+  - [ ] Publish: decide the version, then submit the archive (for example to the Wolfram Paclet Repository, or attach it to a GitHub release)
+- [x] Optional: run the tests automatically on GitHub, as KerrGeodesics does
+  - `.github/workflows/Tests.yml` runs `Tests/AllTests.wls` on macOS with the Wolfram Engine. It needs the repository secret `WOLFRAM_LICENSE_ENTITLEMENT_ID`. On a Wolfram version other than the one that made `ReferenceOutputs.wl`, the regression tests use a relative tolerance of 1e-8.
+
+### After phase 7: the regular polar formulation on hold
+
+Decision: hold off on the polar unit vector (αθ, βθ, x), as it may change, and treat equatorial orbits as a special case, as the earlier solvers did.
+
+- [x] `regularSystem` integrates x and ψθ, with `RegularXRate` for x (regular at x = 0) and `polarPhaseRate` for ψθ (moved from `Legacy/GenericKerr.wl` to `Solvers/KerrPEX.wl`, since the active code uses it). The radial variables, the regular constants of motion, φ and the default method are unchanged.
+- [x] Equatorial orbits (x0 = ±1): x is held at exactly ±1 (output as a machine number), the polar equations are dropped, θ = π/2 and ψθ is `Missing`. A force with a θ component in the plane gives `OsculatingInspiral::eqforce`, and a flux that changes x `OsculatingInspiral::eqflux`; both are checked at the start, as before.
+- [x] `KerrOrbitGeometry` takes (r, x, ψθ) only, as before phase 3; `NumericOrbitGeometry` gives it β zp = β + ℓ², so it still holds at x = 0. Fluxes give rates of (p, αp, βp, x). The inspiral no longer has the properties "αθ" and "βθ".
+- [x] The formulation's own code (`polarComponentRates`, the polar-component geometry, the flux terms) is kept, unused, in `Kernel/Legacy/RegularPolar.wl`.
+- [x] Numerical changes, measured before regenerating `ReferenceOutputs.wl`: the regression inspirals, which are sampled at the end of the integration, change by at most 7×10⁻¹⁴ relative. The integration is as accurate as before: a geodesic's e stays within 6×10⁻¹³ of its initial value at the steps over 3000M.
+- [x] Values between steps are less accurate with the default interpolation. The (x, ψθ) variables let the Runge–Kutta method take about 30% longer steps (the bounded (αθ, βθ) had limited the step more than the goals required), and NDSolve's default interpolation between steps is of lower order than the method. Over 3000M a geodesic's e, sampled every 10M, is off by up to 9.5×10⁻⁷ (1.9×10⁻⁷ before); against REG over 5000M, φ is off by 2×10⁻⁵ (2×10⁻⁶ before). `InterpolationOrder -> All` uses the method's own dense output, and brings both formulations to the integration's accuracy (10⁻¹³ for the geodesic, and agreement with REG to REG's own error), at about 1.8 times the time and 11 times the memory. The defaults are unchanged; the documentation mentions the option.
+- [x] Tests: the equatorial special case (stays in the plane, rejects a θ force and an x-changing flux, accepts a force whose θ component vanishes in the plane, continuity at the equator); a flux that changes x is checked against the exact solution. Tests that compare two solutions between steps (with REG, and two ways of writing the same force) use `InterpolationOrder -> All`, and keep their tolerances. The tests of lifting an orbit out of the plane and of the unit length were removed. There are 227 tests.
+- [x] Docs, README and `Notes/RegularFormulation.md`: the examples that lifted an equatorial orbit now use a torque on an inclined orbit, and the text describes the equatorial special case. In (x, ψθ) a force with a θ component makes the equations stiff close to the equator (10⁻⁶ from the plane took 60 times longer than at x = 0.99; 10⁻¹⁰ failed as stiff), which the unit vector avoids.
 

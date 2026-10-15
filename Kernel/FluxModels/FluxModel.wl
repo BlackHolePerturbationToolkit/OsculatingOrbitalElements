@@ -65,22 +65,17 @@ fluxModelRates[model_FluxModel, args__] := callModel[model, {args}, 3];
 
 
 (* ::Text:: *)
-(*The rates of the regular solver's variables {p, \[Alpha]p, \[Beta]p, x, \[Alpha]\[Theta], \[Beta]\[Theta]} from the flux at this state, with respect to t and before any factor of \[Epsilon]. The flux changes e and x but not the phases, so*)
-(*d\[Alpha]p/dt = ((de/dt)/e) \[Alpha]p and d\[Beta]p/dt = ((de/dt)/e) \[Beta]p, and d\[Alpha]\[Theta]/dt = ((dzm/dt)/(2 zm)) \[Alpha]\[Theta] and d\[Beta]\[Theta]/dt = ((dzm/dt)/(2 zm)) \[Beta]\[Theta], with (dzm/dt)/(2 zm) = -x (dx/dt)/zm.*)
-(*These ratios are finite for a physical flux, as de/dt ~ e near e = 0 and dx/dt ~ zm near x = \[PlusMinus]1. At exactly e = 0, or on an equatorial orbit (\[Alpha]\[Theta] = \[Beta]\[Theta] = 0), they are 0/0, and the contribution is 0: a flux keeps a circular orbit circular and an equatorial orbit equatorial. zm is taken as \[Alpha]\[Theta]^2 + \[Beta]\[Theta]^2, which unlike 1 - x^2 does not lose digits near the equator.*)
+(*The rates of the regular solver's variables {p, \[Alpha]p, \[Beta]p, x} from the flux at this state, with respect to t and before any factor of \[Epsilon]. The flux changes e but not \[Psi]r, so d\[Alpha]p/dt = ((de/dt)/e) \[Alpha]p and d\[Beta]p/dt = ((de/dt)/e) \[Beta]p. The ratio is finite for a physical flux, as de/dt ~ e near e = 0; at exactly e = 0 it is 0/0, and the contribution is 0, so a flux keeps a circular orbit circular. The flux does not change \[Psi]\[Theta] either, so it has no term in the \[Psi]\[Theta] equation. On an equatorial orbit the solver holds x fixed, and checks that the flux's rate of x is zero.*)
 
 
-fluxVariableRates[model_FluxModel, a_, p_, \[Alpha]p_, \[Beta]p_, x_, \[Alpha]\[Theta]_, \[Beta]\[Theta]_] := Module[{e2, zm, rates, dp, eRatio, dx, zRatio},
+fluxVariableRates[model_FluxModel, a_, p_, \[Alpha]p_, \[Beta]p_, x_] := Module[{e2, rates, dp, eRatio, dx},
 	e2 = \[Alpha]p^2 + \[Beta]p^2;
-	zm = \[Alpha]\[Theta]^2 + \[Beta]\[Theta]^2;
 	rates = fluxModelRates[model, a, p, Sqrt[e2], x];
 	If[FailureQ[rates], Return[$Failed]];
 	{dp, eRatio, dx} = If[model["Rates"] === {"p", "e", "x"},
 		{rates[[1]], If[e2 == 0, 0, rates[[2]]/Sqrt[e2]], rates[[3]]},
 		constantsToElementRates[a, p, e2, x, rates]];
-	If[zm == 0, dx = 0];
-	zRatio = If[zm == 0, 0, -x dx/zm];
-	{dp, eRatio \[Alpha]p, eRatio \[Beta]p, dx, zRatio \[Alpha]\[Theta], zRatio \[Beta]\[Theta]}
+	{dp, eRatio \[Alpha]p, eRatio \[Beta]p, dx}
 ];
 
 
@@ -113,7 +108,7 @@ checkFluxModels[models_List, {a_, p_, e_, x_}] := Module[{failed},
 
 
 (* ::Text:: *)
-(*A model as a solver driver of type "Flux" (see RunSolver and TotalFlux in Interface.wl). As for forces, its function is called once for each state, only with numbers, and its six rates are separate functions.*)
+(*A model as a solver driver of type "Flux" (see RunSolver and TotalFlux in Interface.wl). As for forces, its function is called once for each state, only with numbers, and its four rates are separate functions.*)
 
 
 fluxModelDriver[model_FluxModel] := Module[{evaluate, component, cache = None},
@@ -121,8 +116,8 @@ fluxModelDriver[model_FluxModel] := Module[{evaluate, component, cache = None},
 	component[i_, args__?NumericQ] := With[{value = evaluate[args]}, If[ListQ[value], value[[i]], Indeterminate]];
 	<|"Type" -> "Flux", "ScalesWithMassRatio" -> model["ScalesWithMassRatio"],
 		"Function" -> Function[state, Table[
-			component[i, state["a"], state["p"], state["\[Alpha]p"], state["\[Beta]p"], state["x"], state["\[Alpha]\[Theta]"], state["\[Beta]\[Theta]"]],
-			{i, 6}]]|>
+			component[i, state["a"], state["p"], state["\[Alpha]p"], state["\[Beta]p"], state["x"]],
+			{i, 4}]]|>
 ];
 
 

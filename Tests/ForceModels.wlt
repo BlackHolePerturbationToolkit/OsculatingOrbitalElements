@@ -180,11 +180,13 @@ VerificationTest[
 
 VerificationTest[
 	(* A custom force scales with the mass ratio by default: epsilon times the drag with k = 1 is the drag with k = epsilon.
-	   The two differ in rounding, which changes the Runge-Kutta steps, so they agree to the integration error. *)
+	   The two differ in rounding, which changes the Runge-Kutta steps, so they agree to the integration error. With
+	   InterpolationOrder -> All that holds between steps too. *)
 	scaled = ForceModel[Function[{a, p, e, x, \[Psi]r, \[Psi]\[Theta], \[Phi], t},
 		Rest[ForceModel["GasDrag", "Coefficient" -> 1][a, p, e, x, \[Psi]r, \[Psi]\[Theta], \[Phi], t]]]];
-	maxDifference[OsculatingInspiral[<|params, "Force" -> scaled|>, IntegrationLimit -> 2000], small, {"p", "e", "x", "r", "\[Phi]"},
-		Range[200., 2000., 200.]]
+	maxDifference[OsculatingInspiral[<|params, "Force" -> scaled|>, IntegrationLimit -> 2000, InterpolationOrder -> All],
+		OsculatingInspiral[<|params, "Force" -> drag|>, IntegrationLimit -> 2000, InterpolationOrder -> All],
+		{"p", "e", "x", "r", "\[Phi]"}, Range[200., 2000., 200.]]
 	,
 	{0, 0, 0, 0, 0},
 	SameTest -> withinTolerance[{10^-9, 10^-6, 10^-10, 10^-5, 10^-5}],
@@ -192,13 +194,14 @@ VerificationTest[
 ]
 
 VerificationTest[
-	(* Two forces against their sum written as one force *)
+	(* Two forces against their sum written as one force, with InterpolationOrder -> All as above *)
 	pair = OsculatingInspiral[<|"a" -> 0, "\[Epsilon]" -> 10^-3, "p" -> 10, "e" -> 0.1, "x" -> 1,
-		"Force" -> {"FastGSF", ForceModel["GasDrag", "Coefficient" -> 10^-4]}|>, IntegrationLimit -> 1000];
+		"Force" -> {"FastGSF", ForceModel["GasDrag", "Coefficient" -> 10^-4]}|>, IntegrationLimit -> 1000, InterpolationOrder -> All];
 	sum = ForceModel[Function[{a, p, e, x, \[Psi]r, \[Psi]\[Theta], \[Phi], t},
 		10^-3 Rest[ForceModel["FastGSF"][a, p, e, x, \[Psi]r, \[Psi]\[Theta], \[Phi], t]] +
 		10^-4 Rest[ForceModel["GasDrag", "Coefficient" -> 1][a, p, e, x, \[Psi]r, \[Psi]\[Theta], \[Phi], t]]], "ScalesWithMassRatio" -> False];
-	single = OsculatingInspiral[<|"a" -> 0, "\[Epsilon]" -> 10^-3, "p" -> 10, "e" -> 0.1, "x" -> 1, "Force" -> sum|>, IntegrationLimit -> 1000];
+	single = OsculatingInspiral[<|"a" -> 0, "\[Epsilon]" -> 10^-3, "p" -> 10, "e" -> 0.1, "x" -> 1, "Force" -> sum|>, IntegrationLimit -> 1000,
+		InterpolationOrder -> All];
 	{#["Name"] & /@ pair["Force"], maxDifference[pair, single, {"p", "e", "r", "\[Phi]"}, Range[100., 1000., 100.]]}
 	,
 	{{"FastGSF", "GasDrag"}, {0, 0, 0, 0}},

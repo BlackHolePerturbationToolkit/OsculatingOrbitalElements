@@ -221,11 +221,11 @@ TotalForce[drivers_List, state_Association, \[Eta]_] := With[{forces = Cases[dri
 
 
 (* ::Text:: *)
-(*The same for flux drivers, <|"Type" -> "Flux", "Function" -> f|>, whose f gives the rates with respect to t of the regular solver's {p, \[Alpha]p, \[Beta]p, x, \[Alpha]\[Theta], \[Beta]\[Theta]} (see fluxVariableRates in FluxModels/FluxModel.wl). The state needs "\[Alpha]p", "\[Beta]p", "\[Alpha]\[Theta]" and "\[Beta]\[Theta]".*)
+(*The same for flux drivers, <|"Type" -> "Flux", "Function" -> f|>, whose f gives the rates with respect to t of the regular solver's {p, \[Alpha]p, \[Beta]p, x} (see fluxVariableRates in FluxModels/FluxModel.wl). The state needs "\[Alpha]p" and "\[Beta]p".*)
 
 
 TotalFlux[drivers_List, state_Association, \[Eta]_] := With[{fluxes = Cases[drivers, KeyValuePattern["Type" -> "Flux"]]},
-	If[fluxes === {}, {0, 0, 0, 0, 0, 0},
+	If[fluxes === {}, {0, 0, 0, 0},
 		Total[If[TrueQ[Lookup[#, "ScalesWithMassRatio", True]], \[Eta], 1] #["Function"][state] & /@ fluxes]]];
 
 

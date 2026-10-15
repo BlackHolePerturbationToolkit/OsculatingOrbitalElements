@@ -1,0 +1,155 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 13.1' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[      5044,        146]
+NotebookOptionsPosition[      2738,        109]
+NotebookOutlinePosition[      3162,        125]
+CellTagsIndexPosition[      3119,        122]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell["SchwarzFastGSF", "ObjectName"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  RowBox[{"SchwarzFastGSF", "[", 
+   RowBox[{"p", ",", " ", "e", ",", " ", "\[Xi]"}], "]"}]], "InlineFormula"],
+ "\[LineSeparator]",
+ "SchwarzFastGSF[p,e,\[Xi]] returns Fr and F\[Phi] in terms of p, e, and \
+\[Xi]. \nThis function is accurate to first order for p < 12 and e< 0.2"
+}], "Usage"],
+
+Cell[TextData[{
+ "Legacy: this is one of the earlier functions of the package. It keeps \
+working, but ",
+ Cell[BoxData[
+  ButtonBox["ForceModel",
+   BaseStyle->"Link",
+   ButtonData->"paclet:OsculatingOrbitalElements/ref/ForceModel"]], 
+  "InlineFormula"],
+ " supersedes it."
+}], "Notes"],
+
+Cell["Tech Notes", "TechNotesSection"],
+
+Cell[TextData[ButtonBox["Osculating Orbital Elements",
+ BaseStyle->"Link",
+ ButtonData->
+  "paclet:OsculatingOrbitalElements/tutorial/OsculatingOrbitalElements"]], \
+"Tutorials"],
+
+Cell["See Also", "SeeAlsoSection"],
+
+Cell[TextData[Cell[BoxData[
+ ButtonBox["ForceModel",
+  BaseStyle->"Link",
+  ButtonData->
+   "paclet:OsculatingOrbitalElements/ref/ForceModel"]], \
+"InlineSeeAlsoFunction"]], "SeeAlso"],
+
+Cell["Related Guides", "MoreAboutSection"],
+
+Cell[TextData[ButtonBox["Osculating Orbital Elements",
+ BaseStyle->"Link",
+ ButtonData->
+  "paclet:OsculatingOrbitalElements/guide/OsculatingOrbitalElements"]], \
+"MoreAbout"],
+
+Cell["Metadata", "MetadataSection"],
+
+Cell[TextData[{
+ "New in: ",
+ Cell["0.1", "HistoryData",
+  CellTags->"New"],
+ " | Modified in: ",
+ Cell[" ", "HistoryData",
+  CellTags->"Modified"],
+ " | Obsolete in: ",
+ Cell[" ", "HistoryData",
+  CellTags->"Obsolete"]
+}], "History"],
+
+Cell[CellGroupData[{
+
+Cell["Categorization", "CategorizationSection"],
+
+Cell["Symbol", "Categorization",
+ CellLabel->"Entity Type"],
+
+Cell["OsculatingOrbitalElements", "Categorization",
+ CellLabel->"Paclet Name"],
+
+Cell["OsculatingOrbitalElements`", "Categorization",
+ CellLabel->"Context"],
+
+Cell["OsculatingOrbitalElements/ref/SchwarzFastGSF", "Categorization",
+ CellLabel->"URI"]
+}, Closed]],
+
+Cell[CellGroupData[{
+
+Cell["Keywords", "KeywordsSection"],
+
+Cell["osculating orbital elements", "Keywords"],
+
+Cell["inspiral", "Keywords"],
+
+Cell["Kerr", "Keywords"]
+}, Closed]]
+},
+TaggingRules-><|"Paclet" -> "OsculatingOrbitalElements"|>,
+CellContext->"Global`",
+FrontEndVersion->"13.1 for Mac OS X ARM (64-bit) (June 16, 2022)",
+StyleDefinitions->FrontEnd`FileName[{"Wolfram"}, "FunctionPageStylesExt.nb", 
+  CharacterEncoding -> "UTF-8"]
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[558, 20, 36, 0, 70, "ObjectName",ExpressionUUID->"89be213b-18f0-45fd-8e6a-c19317660abf"],
+Cell[597, 22, 324, 7, 70, "Usage",ExpressionUUID->"8bb30844-07ed-47d2-8a69-9bebe56ed016"],
+Cell[924, 31, 289, 9, 70, "Notes",ExpressionUUID->"c11bd062-2b96-4f00-a5ad-1e71cd781e95"],
+Cell[1216, 42, 38, 0, 70, "TechNotesSection",ExpressionUUID->"c34570c6-7655-41ff-b74e-e3c6eb0a9567"],
+Cell[1257, 44, 178, 4, 70, "Tutorials",ExpressionUUID->"f39dced0-1a29-4ed2-b24f-ddd1d4912aa1"],
+Cell[1438, 50, 34, 0, 70, "SeeAlsoSection",ExpressionUUID->"d56b7d17-abbb-4ebf-b426-87004c3e1753"],
+Cell[1475, 52, 184, 5, 70, "SeeAlso",ExpressionUUID->"498d6b0b-54ca-4789-a074-aa24f90e9f52"],
+Cell[1662, 59, 42, 0, 70, "MoreAboutSection",ExpressionUUID->"b8cb358f-5cd4-4599-8dd1-95d2e17f1462"],
+Cell[1707, 61, 175, 4, 70, "MoreAbout",ExpressionUUID->"5ca3ad72-80cd-4442-90fb-ee313c883a2f"],
+Cell[1885, 67, 35, 0, 70, "MetadataSection",ExpressionUUID->"a847b5d1-d710-493a-add4-bac211c92791"],
+Cell[1923, 69, 234, 10, 70, "History",ExpressionUUID->"2f525287-adf8-4682-a6ff-8ce0b534d30b"],
+Cell[CellGroupData[{
+Cell[2182, 83, 47, 0, 70, "CategorizationSection",ExpressionUUID->"9751afd8-7078-4dcb-9a06-bb46192bc202"],
+Cell[2232, 85, 59, 1, 70, "Categorization",ExpressionUUID->"dddba022-af9a-4aad-9384-af3dd08dbd15"],
+Cell[2294, 88, 78, 1, 70, "Categorization",ExpressionUUID->"f714ad7e-b4b1-4de5-bda3-1c2d30ca4d01"],
+Cell[2375, 91, 75, 1, 70, "Categorization",ExpressionUUID->"9edf0c23-721d-4ff0-98e1-c44e9f0b93a8"],
+Cell[2453, 94, 89, 1, 70, "Categorization",ExpressionUUID->"d52bb2b3-95fd-4951-90af-ce089b6ac0a8"]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[2579, 100, 35, 0, 70, "KeywordsSection",ExpressionUUID->"42a74017-1a16-4d57-b6be-ca4b5376b831"],
+Cell[2617, 102, 47, 0, 70, "Keywords",ExpressionUUID->"0235fc21-427a-4b26-9be0-f1c341314450"],
+Cell[2667, 104, 28, 0, 70, "Keywords",ExpressionUUID->"221d96a3-52d9-405a-8c28-11fe84a92376"],
+Cell[2698, 106, 24, 0, 70, "Keywords",ExpressionUUID->"2277dc30-b8e1-4f6a-aecc-0fd4a7379f1d"]
+}, Closed]]
+}
+]
+*)
+
+(* End of internal cache information *)

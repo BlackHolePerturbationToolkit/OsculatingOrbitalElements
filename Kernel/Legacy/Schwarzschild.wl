@@ -5,7 +5,7 @@
 
 
 (* ::Text:: *)
-(*Part of the OsculatingOrbitalElements package. Kernel/OsculatingOrbitalElements.wl loads this file into the package's private context, so it cannot be loaded on its own.*)
+(*LEGACY CODE: not used by the current interface, OsculatingInspiral. Kept so that the earlier functions keep working; do not extend it. SchwarzOsculatingOrbitalElements and SchwarzOsculatingOrbitalElementsTP, which OsculatingInspiral replaces as its a = 0 case. Kernel/OsculatingOrbitalElements.wl loads this file last, into the package's private context.*)
 
 
 (* ::Subsection::Closed:: *)

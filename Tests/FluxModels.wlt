@@ -263,15 +263,15 @@ VerificationTest[
 (* A flux that changes x *)
 
 VerificationTest[
-	(* The polar components follow x, so (alpha_theta, beta_theta, x) stays a unit vector, up to the integration error.
-	   Then the largest cos(theta) over a polar oscillation, Sqrt[alpha_theta^2 + beta_theta^2], is Sqrt[1 - x^2]. With
-	   the flux's term in the polar components wrong in sign, the length would change by about 0.2 here. *)
+	(* With no force, x follows the flux exactly: dx/dt = -2 10^-4 (1 - x^2) gives x = Tanh[ArcTanh[0.8] - 2 10^-4 t].
+	   p and e stay as they are. With the default interpolation, e would be up to 10^-6 off between steps. *)
 	tilt = FluxModel[Function[{a, p, e, x}, {0, 0, -2 10^-4 (1 - x^2)}], "Name" -> "Tilt", "ScalesWithMassRatio" -> False];
-	tilted = OsculatingInspiral[<|"a" -> 0.5, "\[Epsilon]" -> 10^-5, "p" -> 10, "e" -> 0.2, "x" -> 0.8, "Flux" -> tilt|>, IntegrationLimit -> 3000];
-	times = Range[0., 3000., 1.];
-	{tilted["x"][3000.] < 0.75, Max[Abs[tilted["\[Alpha]\[Theta]"][times]^2 + tilted["\[Beta]\[Theta]"][times]^2 + tilted["x"][times]^2 - 1]]}
+	tilted = OsculatingInspiral[<|"a" -> 0.5, "\[Epsilon]" -> 10^-5, "p" -> 10, "e" -> 0.2, "x" -> 0.8, "Flux" -> tilt|>, IntegrationLimit -> 3000,
+		InterpolationOrder -> All];
+	times = Range[0., 3000., 100.];
+	{Max[Abs[tilted["x"][times] - Tanh[ArcTanh[0.8] - 2 10^-4 times]]], Max[Abs[tilted["p"][times] - 10]], Max[Abs[tilted["e"][times] - 0.2]]}
 	,
-	{True, 0},
-	SameTest -> (First[#1] && withinTolerance[10^-5][Last[#1], Last[#2]] &),
-	TestID -> "A flux that changes x: the polar components follow it"
+	{0, 0, 0},
+	SameTest -> withinTolerance[10^-9],
+	TestID -> "A flux that changes x: x follows it"
 ]

@@ -1,0 +1,164 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 13.1' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[      5633,        155]
+NotebookOptionsPosition[      3323,        118]
+NotebookOutlinePosition[      3747,        134]
+CellTagsIndexPosition[      3704,        131]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell["KerrOsculatingOrbitalElements", "ObjectName"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  RowBox[{"KerrOsculatingOrbitalElements", "[", 
+   RowBox[{
+   "\[Eta]", ",", " ", "a", ",", " ", "p", ",", " ", "e", ",", " ", "x", ",", 
+    " ", "\[Psi]r", ",", " ", "\[Psi]\[Theta]"}], "]"}]], "InlineFormula"],
+ "\[LineSeparator]",
+ "KerrOsculatingOrbitalElements[\[Eta], a, p, e, x, \[Psi]r, \[Psi]\[Theta], \
+Force->{at, ar, a\[Theta] a\[Phi]}] calculates En, L, K, \[Psi]r and \[Psi]\
+\[Theta] as functions of Mino time (\[Lambda]) or coordinate time(t) using a \
+given by covariant components of an acceleration (at, ar, a\[Theta], a\[Phi]) \
+a mass ratio given by \[Eta]. The result's \"StopReason\" says why the \
+integration stopped: \"Separatrix\", \"SeparatrixBuffer\", \"pMin\", \
+\"IntegrationLimit\", or \"Other\" if NDSolve stopped early. Options of \
+NDSolve are passed to NDSolve."
+}], "Usage"],
+
+Cell[TextData[{
+ "Legacy: this is one of the earlier functions of the package. It keeps \
+working, but ",
+ Cell[BoxData[
+  ButtonBox["OsculatingInspiral",
+   BaseStyle->"Link",
+   ButtonData->"paclet:OsculatingOrbitalElements/ref/OsculatingInspiral"]], 
+  "InlineFormula"],
+ " supersedes it."
+}], "Notes"],
+
+Cell["Tech Notes", "TechNotesSection"],
+
+Cell[TextData[ButtonBox["Osculating Orbital Elements",
+ BaseStyle->"Link",
+ ButtonData->
+  "paclet:OsculatingOrbitalElements/tutorial/OsculatingOrbitalElements"]], \
+"Tutorials"],
+
+Cell["See Also", "SeeAlsoSection"],
+
+Cell[TextData[Cell[BoxData[
+ ButtonBox["OsculatingInspiral",
+  BaseStyle->"Link",
+  ButtonData->
+   "paclet:OsculatingOrbitalElements/ref/OsculatingInspiral"]], \
+"InlineSeeAlsoFunction"]], "SeeAlso"],
+
+Cell["Related Guides", "MoreAboutSection"],
+
+Cell[TextData[ButtonBox["Osculating Orbital Elements",
+ BaseStyle->"Link",
+ ButtonData->
+  "paclet:OsculatingOrbitalElements/guide/OsculatingOrbitalElements"]], \
+"MoreAbout"],
+
+Cell["Metadata", "MetadataSection"],
+
+Cell[TextData[{
+ "New in: ",
+ Cell["0.1", "HistoryData",
+  CellTags->"New"],
+ " | Modified in: ",
+ Cell[" ", "HistoryData",
+  CellTags->"Modified"],
+ " | Obsolete in: ",
+ Cell[" ", "HistoryData",
+  CellTags->"Obsolete"]
+}], "History"],
+
+Cell[CellGroupData[{
+
+Cell["Categorization", "CategorizationSection"],
+
+Cell["Symbol", "Categorization",
+ CellLabel->"Entity Type"],
+
+Cell["OsculatingOrbitalElements", "Categorization",
+ CellLabel->"Paclet Name"],
+
+Cell["OsculatingOrbitalElements`", "Categorization",
+ CellLabel->"Context"],
+
+Cell["OsculatingOrbitalElements/ref/KerrOsculatingOrbitalElements", \
+"Categorization",
+ CellLabel->"URI"]
+}, Closed]],
+
+Cell[CellGroupData[{
+
+Cell["Keywords", "KeywordsSection"],
+
+Cell["osculating orbital elements", "Keywords"],
+
+Cell["inspiral", "Keywords"],
+
+Cell["Kerr", "Keywords"]
+}, Closed]]
+},
+TaggingRules-><|"Paclet" -> "OsculatingOrbitalElements"|>,
+CellContext->"Global`",
+FrontEndVersion->"13.1 for Mac OS X ARM (64-bit) (June 16, 2022)",
+StyleDefinitions->FrontEnd`FileName[{"Wolfram"}, "FunctionPageStylesExt.nb", 
+  CharacterEncoding -> "UTF-8"]
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[558, 20, 51, 0, 70, "ObjectName",ExpressionUUID->"e073fbc8-c735-47f5-928c-7068c7bb69ea"],
+Cell[612, 22, 845, 15, 70, "Usage",ExpressionUUID->"72802ccc-455a-4a55-8733-0137518b9650"],
+Cell[1460, 39, 305, 9, 70, "Notes",ExpressionUUID->"59d3073e-e1dc-471a-a6db-7178e44a62be"],
+Cell[1768, 50, 38, 0, 70, "TechNotesSection",ExpressionUUID->"bfc6b096-4ea9-4677-8baf-b2df36842112"],
+Cell[1809, 52, 178, 4, 70, "Tutorials",ExpressionUUID->"d40ebcb0-d67c-4c68-8ab0-fddb41efd2d3"],
+Cell[1990, 58, 34, 0, 70, "SeeAlsoSection",ExpressionUUID->"655fa35d-3fd3-441a-a902-6702f3b375a3"],
+Cell[2027, 60, 200, 5, 70, "SeeAlso",ExpressionUUID->"fdbaa66a-6410-46f9-8f21-b3d24c9afaf6"],
+Cell[2230, 67, 42, 0, 70, "MoreAboutSection",ExpressionUUID->"d0364169-d56a-4129-bfc6-96eefd21b28b"],
+Cell[2275, 69, 175, 4, 70, "MoreAbout",ExpressionUUID->"56cbcc10-f4b0-4490-ab34-acea7e22f771"],
+Cell[2453, 75, 35, 0, 70, "MetadataSection",ExpressionUUID->"1280ea9c-9318-459a-9445-ae2420aac1ed"],
+Cell[2491, 77, 234, 10, 70, "History",ExpressionUUID->"729420d7-ec88-4aad-a012-4642fe397864"],
+Cell[CellGroupData[{
+Cell[2750, 91, 47, 0, 70, "CategorizationSection",ExpressionUUID->"36f843d6-7f9b-42d3-809a-23e9603d4753"],
+Cell[2800, 93, 59, 1, 70, "Categorization",ExpressionUUID->"4eb1687b-b33e-42e5-926b-957328b5ea7a"],
+Cell[2862, 96, 78, 1, 70, "Categorization",ExpressionUUID->"b4a028b0-4265-4195-9a0f-19adf5191481"],
+Cell[2943, 99, 75, 1, 70, "Categorization",ExpressionUUID->"4a702f7d-84e6-4d3f-8f17-ddeb7e87a556"],
+Cell[3021, 102, 106, 2, 70, "Categorization",ExpressionUUID->"9d670481-2df1-40b1-8f4a-92084b80578e"]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[3164, 109, 35, 0, 70, "KeywordsSection",ExpressionUUID->"c31b42e7-c745-480a-8c65-62c6d8e14ca2"],
+Cell[3202, 111, 47, 0, 70, "Keywords",ExpressionUUID->"8c20574d-1d2c-49cd-8d68-ff7915811240"],
+Cell[3252, 113, 28, 0, 70, "Keywords",ExpressionUUID->"3e38cdb9-c74f-405e-be02-2d5a21219e87"],
+Cell[3283, 115, 24, 0, 70, "Keywords",ExpressionUUID->"19e205e4-d1ff-4b8a-abae-c03652354bcd"]
+}, Closed]]
+}
+]
+*)
+
+(* End of internal cache information *)

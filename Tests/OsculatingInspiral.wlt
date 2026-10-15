@@ -117,7 +117,7 @@ VerificationTest[
 VerificationTest[
 	Sort[insp["Properties"]] === Sort[Keys[insp]] &&
 	SubsetQ[insp["Properties"], {"Trajectory", "t", "r", "\[Theta]", "\[Phi]", "p", "e", "x", "\[Psi]r", "\[Psi]\[Theta]", "En", "L", "Q",
-		"K", "\[Alpha]p", "\[Beta]p", "\[Alpha]\[Theta]", "\[Beta]\[Theta]", "Domain", "StopReason", "Parametrisation", "Parameters", "Force"}]
+		"K", "\[Alpha]p", "\[Beta]p", "Domain", "StopReason", "Parametrisation", "Parameters", "Force"}]
 	,
 	True,
 	TestID -> "Properties"
@@ -244,10 +244,63 @@ VerificationTest[
 
 
 (* ::Section:: *)
+(* Equatorial orbits: x is held at exactly +-1, so the orbit stays in the plane *)
+
+VerificationTest[
+	Table[With[{equatorial = OsculatingInspiral[<|params, "x" -> x0|>, IntegrationLimit -> 1000]},
+		{equatorial["StopReason"], equatorial["x"][{0., 1000.}], equatorial["\[Theta]"][500.], equatorial["\[Psi]\[Theta]"][500.],
+			equatorial["Q"][500.], equatorial[500.][[3]]}],
+		{x0, {1, -1.}}]
+	,
+	{{"IntegrationLimit", {1., 1.}, N[Pi/2], Missing["UndefinedForEquatorialOrbit"], 0., N[Pi/2]},
+		{"IntegrationLimit", {-1., -1.}, N[Pi/2], Missing["UndefinedForEquatorialOrbit"], 0., N[Pi/2]}},
+	TestID -> "An equatorial orbit stays in the plane: x is +-1, theta is Pi/2, psi_theta is undefined and Q is 0"
+]
+
+VerificationTest[
+	OsculatingInspiral[<|params, "x" -> 1, "Force" -> ForceModel[Function[{a, p, e, x, \[Psi]r, \[Psi]\[Theta], \[Phi], t}, {0, 1, 0}]]|>]
+	,
+	$Failed, {OsculatingInspiral::eqforce},
+	TestID -> "On an equatorial orbit, a force with a theta component in the plane is rejected"
+]
+
+VerificationTest[
+	(* F_theta = cos(theta), which is zero in the plane: the orbit is a geodesic there *)
+	upward = ForceModel[Function[{a, p, e, x, \[Psi]r, \[Psi]\[Theta], \[Phi], t}, {0, Sqrt[1 - x^2] Cos[\[Psi]\[Theta]], 0}]];
+	With[{inspiral = OsculatingInspiral[<|params, "x" -> 1, "Force" -> upward|>, IntegrationLimit -> 500]},
+		{inspiral["StopReason"], inspiral["p"][500.], inspiral["e"][500.], inspiral["x"][500.]}]
+	,
+	{"IntegrationLimit", 10, 0.2, 1.},
+	SameTest -> (#1[[{1, 4}]] === #2[[{1, 4}]] && withinTolerance[10^-9][#1[[2 ;; 3]], #2[[2 ;; 3]]] &),
+	TestID -> "On an equatorial orbit, a force whose theta component vanishes in the plane is accepted"
+]
+
+VerificationTest[
+	OsculatingInspiral[<|"a" -> 0.5, "\[Epsilon]" -> 10^-5, "p" -> 10, "e" -> 0.2, "x" -> 1, "Force" -> None,
+		"Flux" -> FluxModel[Function[{a, p, e, x}, {0, 0, -10^-3}]]|>]
+	,
+	$Failed, {OsculatingInspiral::eqflux},
+	TestID -> "On an equatorial orbit, a flux that changes x is rejected"
+]
+
+VerificationTest[
+	(* Starting 10^-12 from the equator tilts the orbit by Sqrt[2 10^-12], and uses the general polar equations *)
+	equatorial = OsculatingInspiral[<|params, "x" -> 1|>, IntegrationLimit -> 3000];
+	nearEquatorial = OsculatingInspiral[<|params, "x" -> 1 - 10^-12|>, IntegrationLimit -> 3000];
+	maxDifference[equatorial, nearEquatorial, {"p", "e", "x", "r", "\[Theta]", "\[Phi]"}, Range[300., 3000., 300.]]
+	,
+	{0, 0, 0, 0, 0, 0}, SameTest -> withinTolerance[{10^-8, 10^-6, 10^-9, 10^-5, 3*10^-6, 10^-5}],
+	TestID -> "The solution is continuous at the equator"
+]
+
+
+(* ::Section:: *)
 (* Forces with a theta component. These test forces are projected orthogonal to the velocity: for a covector k they are
    k + (k.u) u, which uses u^theta = u_theta/Sigma and u^phi = (dphi/dlambda)/Sigma from the geometry, so they are
-   written as drivers and given to RunSolver directly. The tolerances allow for the regular solver's Runge-Kutta error,
-   about 10^-6 in r over these runs; an error of 1% in a force term changes the results by 10^-3 or more. *)
+   written as drivers and given to RunSolver directly. Where they are compared with REG, the regular solver uses
+   InterpolationOrder -> All, so that its values between steps have the accuracy of the integration; with the default
+   interpolation they are up to about 10^-6 off in r and 2 10^-7 in e, as large as the tolerances. An error of 1% in a
+   force term changes the results by 10^-3 or more. *)
 
 runWithDriver[builder_, driver_, \[Epsilon]_, a_, initial_, opts___] := OsculatingOrbitalElements`Private`RunSolver[
 	OsculatingInspiral, builder, Function[force, {<|"Type" -> "Force", "Function" -> driver|>}], \[Epsilon], a, initial, {opts},
@@ -261,45 +314,23 @@ vertical = Function[state, With[{u\[Theta] = state["u\[Theta]"]/state["\[Capital
 torque = Function[state, With[{s2 = 1 - state["z"], u\[Phi] = state["d\[Phi]d\[Lambda]"]/state["\[CapitalSigma]"]},
 	-2 {-state["En"] s2 u\[Phi], state["ur"] s2 u\[Phi], state["u\[Theta]"] s2 u\[Phi], s2 (1 + state["L"] u\[Phi])}]];
 
-unitLengthDrift[sol_, times_] := Max[Abs[sol["\[Alpha]\[Theta]"][times]^2 + sol["\[Beta]\[Theta]"][times]^2 + sol["x"][times]^2 - 1]];
-
 VerificationTest[
 	regular = runWithDriver[OsculatingOrbitalElements`Private`regularSystem, vertical, 10^-5, 0.5, {10, 0.2, 0.95, 0, 0, 0},
-		IntegrationLimit -> 3000, AccuracyGoal -> 13, PrecisionGoal -> 13];
+		IntegrationLimit -> 3000, AccuracyGoal -> 13, PrecisionGoal -> 13, InterpolationOrder -> All];
 	reg = runWithDriver[OsculatingOrbitalElements`Private`regSystem, vertical, 10^-5, 0.5, {10, 0.2, 0.95, 0, 0},
 		IntegrationLimit -> 3000, AccuracyGoal -> 13, PrecisionGoal -> 13];
 	maxDifference[regular, reg, {"p", "e", "x", "r", "\[Theta]", "\[Phi]"}, Range[300., 3000., 300.]]
 	,
 	{0, 0, 0, 0, 0, 0}, SameTest -> withinTolerance[{10^-9, 10^-7, 10^-10, 10^-6, 10^-6, 10^-6}],
-	TestID -> "A theta force on an inclined orbit: the regular polar equations agree with REG"
-]
-
-VerificationTest[
-	equatorial = runWithDriver[OsculatingOrbitalElements`Private`regularSystem, vertical, 10^-5, 0.5, {10, 0.2, 1, 0, 0, 0},
-		IntegrationLimit -> 3000];
-	{equatorial["x"][3000.] < 1 - 10^-9, Max[Abs[Cos[equatorial["\[Theta]"][Range[0., 3000., 5.]]]]] > 10^-4,
-		unitLengthDrift[equatorial, Range[0., 3000., 10.]] < 10^-12}
-	,
-	{True, True, True},
-	TestID -> "A theta force lifts an equatorial orbit out of the plane, keeping (alpha_theta, beta_theta, x) a unit vector"
-]
-
-VerificationTest[
-	(* Starting 10^-12 from the equator only tilts the orbit by Sqrt[2 10^-12] *)
-	nearEquatorial = runWithDriver[OsculatingOrbitalElements`Private`regularSystem, vertical, 10^-5, 0.5, {10, 0.2, 1 - 10^-12, 0, 0, 0},
-		IntegrationLimit -> 3000];
-	maxDifference[equatorial, nearEquatorial, {"p", "e", "x", "r", "\[Theta]", "\[Phi]"}, Range[300., 3000., 300.]]
-	,
-	{0, 0, 0, 0, 0, 0}, SameTest -> withinTolerance[{10^-8, 10^-6, 10^-9, 10^-5, 3*10^-6, 10^-5}],
-	TestID -> "The solution is continuous at the equator"
+	TestID -> "A theta force on an inclined orbit: the regular solver agrees with REG"
 ]
 
 VerificationTest[
 	crossing = runWithDriver[OsculatingOrbitalElements`Private`regularSystem, torque, 10^-3, 0.9, {20, 0.1, 0.05, 0, 0, 0},
-		IntegrationLimit -> 1500];
-	{crossing["StopReason"], crossing["x"][1500.] < -0.2, unitLengthDrift[crossing, Range[0., 1500., 5.]] < 10^-5}
+		IntegrationLimit -> 1500, InterpolationOrder -> All];
+	{crossing["StopReason"], crossing["x"][1500.] < -0.2}
 	,
-	{"IntegrationLimit", True, True},
+	{"IntegrationLimit", True},
 	TestID -> "A torque drives an inspiral through x = 0, from prograde to retrograde"
 ]
 

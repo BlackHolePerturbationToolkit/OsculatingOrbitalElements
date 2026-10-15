@@ -27,7 +27,7 @@ MessageName[OsculatingInspiral, "usage"] =
 "OsculatingInspiral[params] integrates the osculating geodesic equations for an inspiral in Kerr spacetime and returns an OsculatingInspiralFunction. params is an Association with these keys:
 \"a\": the spin, 0 \[LessEqual] a < 1.
 \"\[Epsilon]\": the small mass ratio, which multiplies the forces and fluxes that scale with it.
-\"p\", \"e\", \"x\": the initial semi-latus rectum, eccentricity and inclination x = cos \[Iota], with x \[NotEqual] 0. x = \[PlusMinus]1 is an equatorial orbit, and a = 0 is Schwarzschild.
+\"p\", \"e\", \"x\": the initial semi-latus rectum, eccentricity and inclination x = cos \[Iota], with x \[NotEqual] 0. x = \[PlusMinus]1 is an equatorial orbit, which stays in the plane, so its force must have no \[Theta] component there and its flux must not change x. a = 0 is Schwarzschild.
 \"Force\": a ForceModel, the name of a built-in model (\"GasDrag\", \"EMConservative\" or \"FastGSF\"), a list of these, whose forces add, or None.
 \"Flux\": a FluxModel, the name of a built-in model (\"Peters\"), a list of these, or None. A flux changes only the slowly varying elements, at its orbit-averaged rates with respect to t; the phases advance at their geodesic rates, plus the effect of any force. Give \"Force\", \"Flux\" or both; with neither force nor flux the orbit is a geodesic.
 \"\[Psi]r\", \"\[Psi]\[Theta]\", \"\[Phi]\" (optional, default 0): the initial Darwin and Hughes phases and azimuth.
@@ -53,6 +53,10 @@ MessageName[OsculatingInspiral, "nodriver"] = "Give a \"Force\", a \"Flux\", or 
 MessageName[OsculatingInspiral, "fluxtime"] = "Fluxes are averages with respect to coordinate time, so an inspiral with a flux needs Parametrisation -> \"CoordinateTime\"."
 
 MessageName[OsculatingInspiral, "force"] = "`1` is not a valid force. Use a ForceModel, the name of a built-in model, a list of these, or None."
+
+MessageName[OsculatingInspiral, "eqforce"] = "The force has a nonzero \[Theta] component, `1`, in the equatorial plane, so the orbit would leave the plane. Equatorial orbits (x = \[PlusMinus]1) are integrated with x held fixed, so they need a force with no \[Theta] component in the plane."
+
+MessageName[OsculatingInspiral, "eqflux"] = "The flux changes x at the rate `1` on an equatorial orbit. Equatorial orbits (x = \[PlusMinus]1) are integrated with x held fixed, so they need a flux that does not change x."
 
 MessageName[OsculatingInspiral, "sep"] = "The initial orbit must lie outside the separatrix by more than the separatrix buffer, `1`: p = `2`, and the separatrix is at p = `3`."
 
@@ -113,16 +117,39 @@ MessageName[Parametrisation, "usage"] = "Parametrisation is an option for Oscula
 
 MessageName[pMin, "usage"] = "pMin is an option for OsculatingInspiral, GenericKerrpexBL and GenericKerrREGBL which stops the integration when p falls to the given value. The default, None, does not."
 
+MessageName[SeparatrixBuffer, "usage"] = "SeparatrixBuffer is an option for OsculatingInspiral, GenericKerrpexBL and GenericKerrREGBL which specifies how far outside the separatrix, in p, the integration stops. A number stops at p_sep plus that number. Automatic stops at p_sep + \[Epsilon] in OsculatingInspiral. In GenericKerrpexBL and GenericKerrREGBL it stops at p_sep + \[Eta] when the eccentricity components are evolved (always in GenericKerrREGBL), and at the separatrix itself otherwise."
 
-(* ::Subsubsection:: *)
-(*Earlier functions*)
+MessageName[IntegrationLimit, "usage"] = "IntegrationLimit is an option which specifies the largest value of the time variable to integrate to. For OsculatingInspiral this is the coordinate time t, or Mino time \[Lambda] with Parametrisation -> \"Mino\"; the default, Automatic, is 10^7 in coordinate time and 10^4 in Mino time. The earlier functions use it too: \[Chi] for SchwarzOsculatingOrbitalElements and t for SchwarzOsculatingOrbitalElementsTP (default 10^6), and as for OsculatingInspiral for KerrOsculatingOrbitalElements, GenericKerrpexBL and GenericKerrREGBL."
+
+MessageName[TimeMonitor, "usage"] = "TimeMonitor is an option for OsculatingInspiral (and the earlier Kerr functions) which shows the time variable's progress while the equations are integrated. The monitor is only shown in a notebook. The default is False for OsculatingInspiral."
+
+
+(* ::Subsection:: *)
+(*Options and Syntax Information*)
+
+
+Options[ForceModel] = {"Name" -> "Custom", "Description" -> None, "Parameters" -> <||>, "ScalesWithMassRatio" -> True,
+	"ValidityCondition" -> (True &), "ValidityDescription" -> None, "Citation" -> None};
+
+Options[FluxModel] = {"Name" -> "Custom", "Description" -> None, "Parameters" -> <||>, "Rates" -> {"p", "e", "x"},
+	"ScalesWithMassRatio" -> True, "ValidityCondition" -> (True &), "ValidityDescription" -> None, "Citation" -> None};
+
+Options[OsculatingInspiral] = {Parametrisation -> "CoordinateTime", IntegrationLimit -> Automatic, SeparatrixBuffer -> Automatic, pMin -> None, TimeMonitor -> False, AccuracyGoal -> 12, PrecisionGoal -> 12};
+SyntaxInformation[OsculatingInspiral] = {"ArgumentsPattern" -> {_, OptionsPattern[]}, "OptionNames" -> ToString /@ Union[Keys[Options[OsculatingInspiral]], Keys[Options[NDSolve]]]};
+
+(* ::Subsection:: *)
+(*Legacy declarations*)
+
+
+(* ::Text:: *)
+(*LEGACY: the functions that OsculatingInspiral, ForceModel and FluxModel supersede, with their messages and options. They keep working, and their code is in Kernel/Legacy, which is loaded last; they should not be extended. They are declared here, before any file is loaded, because public symbols must be declared in the header.*)
 
 
 MessageName[SchwarzOsculatingOrbitalElements, "usage"] = 
-"SchwarzOsculatingOrbitalElements[\[Eta], p, e, \[Xi], Force-> {Fr, F\[Phi]}] calculates p, e, \[Xi], t and \[Phi] as functions of the Darwin Parameter (\[Chi]) using the contravarient components of an acceleration (Fr,F\[Phi]) and a mass ratio given by \[Eta]. The result's \"StopReason\" says why the integration stopped: \"Separatrix\", \"SeparatrixBuffer\", \"pMin\", \"IntegrationLimit\", or \"Other\" if NDSolve stopped early. Options of NDSolve are passed to NDSolve."
+"Legacy, superseded by OsculatingInspiral with \"a\" -> 0. SchwarzOsculatingOrbitalElements[\[Eta], p, e, \[Xi], Force-> {Fr, F\[Phi]}] calculates p, e, \[Xi], t and \[Phi] as functions of the Darwin Parameter (\[Chi]) using the contravarient components of an acceleration (Fr,F\[Phi]) and a mass ratio given by \[Eta]. The result's \"StopReason\" says why the integration stopped: \"Separatrix\", \"SeparatrixBuffer\", \"pMin\", \"IntegrationLimit\", or \"Other\" if NDSolve stopped early. Options of NDSolve are passed to NDSolve."
 
 MessageName[SchwarzOsculatingOrbitalElementsTP, "usage"] = 
-"SchwarzOsculatingOrbitalElementsTP[\[Eta], p, e, \[Xi], Force-> {Fr, F\[Phi]}] calculates p, e, \[Xi], and \[Phi] as functions of the coordinate time (t) using the contravarient components of an acceleration (Fr,F\[Phi]) and a mass ratio given by \[Eta]. The result's \"StopReason\" says why the integration stopped: \"Separatrix\", \"SeparatrixBuffer\", \"pMin\", \"IntegrationLimit\", or \"Other\" if NDSolve stopped early. Options of NDSolve are passed to NDSolve."
+"Legacy, superseded by OsculatingInspiral with \"a\" -> 0. SchwarzOsculatingOrbitalElementsTP[\[Eta], p, e, \[Xi], Force-> {Fr, F\[Phi]}] calculates p, e, \[Xi], and \[Phi] as functions of the coordinate time (t) using the contravarient components of an acceleration (Fr,F\[Phi]) and a mass ratio given by \[Eta]. The result's \"StopReason\" says why the integration stopped: \"Separatrix\", \"SeparatrixBuffer\", \"pMin\", \"IntegrationLimit\", or \"Other\" if NDSolve stopped early. Options of NDSolve are passed to NDSolve."
 
 MessageName[SchwarzOsculatingOrbitalElements, "InvalidForce"] =  "Error: Invalid Expression for Force."
 
@@ -139,15 +166,13 @@ MessageName[SchwarzOsculatingOrbitalElements, "nosol"] = "NDSolve did not return
 MessageName[SchwarzOsculatingOrbitalElements, "early"] = "Warning: NDSolve stopped at `1` = `2`, before reaching IntegrationLimit or the separatrix."
 
 MessageName[KerrOsculatingOrbitalElements, "usage"] = 
-"KerrOsculatingOrbitalElements[\[Eta], a, p, e, x, \[Psi]r, \[Psi]\[Theta], Force->{at, ar, a\[Theta] a\[Phi]}] calculates En, L, K, \[Psi]r and \[Psi]\[Theta] as functions of Mino time (\[Lambda]) or coordinate time(t) using a given by covariant components of an acceleration (at, ar, a\[Theta], a\[Phi]) a mass ratio given by \[Eta]. The result's \"StopReason\" says why the integration stopped: \"Separatrix\", \"SeparatrixBuffer\", \"pMin\", \"IntegrationLimit\", or \"Other\" if NDSolve stopped early. Options of NDSolve are passed to NDSolve."
+"Legacy, superseded by OsculatingInspiral. KerrOsculatingOrbitalElements[\[Eta], a, p, e, x, \[Psi]r, \[Psi]\[Theta], Force->{at, ar, a\[Theta] a\[Phi]}] calculates En, L, K, \[Psi]r and \[Psi]\[Theta] as functions of Mino time (\[Lambda]) or coordinate time(t) using a given by covariant components of an acceleration (at, ar, a\[Theta], a\[Phi]) a mass ratio given by \[Eta]. The result's \"StopReason\" says why the integration stopped: \"Separatrix\", \"SeparatrixBuffer\", \"pMin\", \"IntegrationLimit\", or \"Other\" if NDSolve stopped early. Options of NDSolve are passed to NDSolve."
 
 MessageName[GenericKerrpexBL, "usage"] = 
-"GenericKerrpexBL[\[Eta], a, p, e, x, \[Psi]r, \[Psi]\[Theta], Force->{at, ar, a\[Theta] a\[Phi]}] calculates  p, e, x, \[Psi]r, and \[Psi]\[Theta] as functions of Mino time (\[Lambda]) or coordinate time(t) using a given by covariant components of an acceleration (at, ar, a\[Theta], a\[Phi]) a mass ratio given by \[Eta]. For equatorial orbits (x = \[PlusMinus]1), x is held fixed, the \[Psi]\[Theta] argument is ignored, \"\[Psi]\[Theta]\" is Missing, and force callbacks receive \[Psi]\[Theta] = 0; the force must have no \[Theta] component on the equatorial plane. The result's \"StopReason\" says why the integration stopped: \"Separatrix\", \"SeparatrixBuffer\", \"pMin\", \"IntegrationLimit\", or \"Other\" if NDSolve stopped early. Options of NDSolve are passed to NDSolve."
-
-MessageName[TimeMonitor, "usage"] = "TimeMonitor is an option for KerrOsculatingOrbitalElementsTPVec that controls whether a progress monitor showing elapsed computation time is displayed. Set to True to enable, False to disable. The monitor is only shown when a notebook front end is available."
+"Legacy, superseded by OsculatingInspiral. GenericKerrpexBL[\[Eta], a, p, e, x, \[Psi]r, \[Psi]\[Theta], Force->{at, ar, a\[Theta] a\[Phi]}] calculates  p, e, x, \[Psi]r, and \[Psi]\[Theta] as functions of Mino time (\[Lambda]) or coordinate time(t) using a given by covariant components of an acceleration (at, ar, a\[Theta], a\[Phi]) a mass ratio given by \[Eta]. For equatorial orbits (x = \[PlusMinus]1), x is held fixed, the \[Psi]\[Theta] argument is ignored, \"\[Psi]\[Theta]\" is Missing, and force callbacks receive \[Psi]\[Theta] = 0; the force must have no \[Theta] component on the equatorial plane. The result's \"StopReason\" says why the integration stopped: \"Separatrix\", \"SeparatrixBuffer\", \"pMin\", \"IntegrationLimit\", or \"Other\" if NDSolve stopped early. Options of NDSolve are passed to NDSolve."
 
 MessageName[GenericKerrREGBL, "usage"] =
-"GenericKerrREGBL[\[Eta], a, p, e, x, \[Psi]r, \[Psi]\[Theta], opts] uses the exact regular eccentricity-component equations with the same arguments and options as GenericKerrpexBL. It also returns \"\[Alpha]p\"=e Sin[\[Psi]r] and \"\[Beta]p\"=e Cos[\[Psi]r]. The returned \"\[Psi]r\" is a principal-value phase and is Missing at e=0; its initial argument is ignored when e0=0. Custom covariant force callbacks retain the pex arguments and must be independent of the radial phase at e=0 (where the callback receives zero). Equatorial orbits (x = \[PlusMinus]1), the result's \"StopReason\" and NDSolve options are handled as in GenericKerrpexBL."
+"Legacy, superseded by OsculatingInspiral. GenericKerrREGBL[\[Eta], a, p, e, x, \[Psi]r, \[Psi]\[Theta], opts] uses the exact regular eccentricity-component equations with the same arguments and options as GenericKerrpexBL. It also returns \"\[Alpha]p\"=e Sin[\[Psi]r] and \"\[Beta]p\"=e Cos[\[Psi]r]. The returned \"\[Psi]r\" is a principal-value phase and is Missing at e=0; its initial argument is ignored when e0=0. Custom covariant force callbacks retain the pex arguments and must be independent of the radial phase at e=0 (where the callback receives zero). Equatorial orbits (x = \[PlusMinus]1), the result's \"StopReason\" and NDSolve options are handled as in GenericKerrpexBL."
 
 MessageName[GenericKerrREGBL, "nosol"] = "NDSolve did not return a solution."
 
@@ -175,47 +200,37 @@ MessageName[KerrOsculatingOrbitalElements, "limit"] = "Integration reached Integ
 
 MessageName[KerrOsculatingOrbitalElements, "early"] = "Warning: NDSolve stopped at `1` = `2`, before reaching IntegrationLimit or a stopping condition."
 
-MessageName[SeparatrixBuffer, "usage"] = "SeparatrixBuffer is an option for OsculatingInspiral, GenericKerrpexBL and GenericKerrREGBL which specifies how far outside the separatrix, in p, the integration stops. A number stops at p_sep plus that number. Automatic stops at p_sep + \[Epsilon] in OsculatingInspiral. In GenericKerrpexBL and GenericKerrREGBL it stops at p_sep + \[Eta] when the eccentricity components are evolved (always in GenericKerrREGBL), and at the separatrix itself otherwise."
-
-MessageName[IntegrationLimit, "usage"] = 
-"IntegrationLimit is an option which specifies the largest value of the independent variable to integrate to: \[Chi] for SchwarzOsculatingOrbitalElements, t for SchwarzOsculatingOrbitalElementsTP, and t or \[Lambda] (set by Parametrisation) for KerrOsculatingOrbitalElements, GenericKerrpexBL and GenericKerrREGBL.
-SchwarzOsculatingOrbitalElements Default: 1000000
-KerrOsculatingOrbitalElements Default: Automatic, which is 10^7 in coordinate time and 10^4 in Mino time"
-
-MessageName[Force, "usage"] = "Force is an option for SchwarzOsculatingOrbitalElements and KerrOsculatingOrbitalElements which specifies the model to use when solving the oscualting goedesic euqaitons. 
+MessageName[Force, "usage"] = "Legacy, superseded by the \"Force\" parameter of OsculatingInspiral. Force is an option for SchwarzOsculatingOrbitalElements and KerrOsculatingOrbitalElements which specifies the model to use when solving the oscualting goedesic euqaitons. 
 By default, the appropriate Gas Drag model is used. 
 One can replace this with the name of any of the included models, or provide functions for each component. "
 
+MessageName[SchwarzFastGSF, "usage"]= "Legacy, superseded by ForceModel[\"FastGSF\"]. SchwarzFastGSF[p,e,\[Xi]] returns Fr and F\[Phi] in terms of p, e, and \[Xi]. 
+This function is accurate to first order for p < 12 and e< 0.2"
+
+MessageName[SchwarzGasDrag, "usage"]= "Legacy, superseded by ForceModel[\"GasDrag\", \"Coefficient\" -> k]. SchwarzGasDrag[p,e,\[Xi]] returns contravarient components of a relativistic drag force, {Fr F\[Phi]}, in terms of p, e, and \[Xi]."
+
+MessageName[KerrGasDrag, "usage"]= "Legacy, superseded by ForceModel[\"GasDrag\", \"Coefficient\" -> k]. KerrGasDrag[a,En,L,K, \[Psi]r, \[Psi]\[Theta]] returns covarient components of a relativistic drag force, {at,ar,a\[Theta],a\[Phi]}, in terms of a, En, L and K."
+
+MessageName[KerrGasDragVec, "usage"]= "Legacy, superseded by ForceModel[\"GasDrag\", \"Coefficient\" -> k]. KerrGasDragVec[a,En,L,K, \[Psi]r, \[Psi]\[Theta]] returns vector components of a relativistic drag force, {fr,f\[Theta],f\[Phi]}, in terms of a, En, L and K."
+
+MessageName[KerrEMCons, "usage"]= "Legacy, superseded by ForceModel[\"EMConservative\"]. KerrEMCons[a,p,e,x, \[Psi]r, \[Psi]\[Theta]] returns covarient components of a relativistic electromagnetic force, {at,ar,a\[Theta],a\[Phi]}, in terms of a, p, e and x."
+
+
+MessageName[ForceUpDown, "usage"] = "Legacy, superseded by the \"Force\" parameter of OsculatingInspiral. ForceUpDown is an option for KerrOsculatingOrbitalElements: \"Down\" (the default) when Force gives the covariant components {a_t, a_r, a_\[Theta], a_\[Phi]}, \"Up\" when it gives the contravariant {f^r, f^\[Theta], f^\[Phi]}."
+
+
+(* ::Text:: *)
+(*The earlier header also set usage messages for the built-in AccuracyGoal and PrecisionGoal, which replaced their own. They are kept here only as comments.*)
+
+
+(*
 MessageName[AccuracyGoal, "usage"] = "AccuracyGoal is an option for SchwarzOsculatingOrbitalElements and KerrOsculatingOrbitalElements which specifies the AccuarcyGoal of NDSolve.
 Default: Automatic"
 
 MessageName[PrecisionGoal, "usage"]= "PrecisionGoal is an option for SchwarzOsculatingOrbitalElements and KerrOsculatingOrbitalElements which specifies the PrecisionGoal of NDSolve.
 Default: Automatic"
+*)
 
-MessageName[SchwarzFastGSF, "usage"]= "SchwarzFastGSF[p,e,\[Xi]] returns Fr and F\[Phi] in terms of p, e, and \[Xi]. 
-This function is accurate to first order for p < 12 and e< 0.2"
-
-MessageName[SchwarzGasDrag, "usage"]= "SchwarzGasDrag[p,e,\[Xi]] returns contravarient components of a relativistic drag force, {Fr F\[Phi]}, in terms of p, e, and \[Xi]."
-
-MessageName[KerrGasDrag, "usage"]= "KerrGasDrag[a,En,L,K, \[Psi]r, \[Psi]\[Theta]] returns covarient components of a relativistic drag force, {at,ar,a\[Theta],a\[Phi]}, in terms of a, En, L and K."
-
-MessageName[KerrGasDragVec, "usage"]= "KerrGasDragVec[a,En,L,K, \[Psi]r, \[Psi]\[Theta]] returns vector components of a relativistic drag force, {fr,f\[Theta],f\[Phi]}, in terms of a, En, L and K."
-
-MessageName[KerrEMCons, "usage"]= "KerrEMCons[a,p,e,x, \[Psi]r, \[Psi]\[Theta]] returns covarient components of a relativistic electromagnetic force, {at,ar,a\[Theta],a\[Phi]}, in terms of a, p, e and x."
-
-
-(* ::Subsection:: *)
-(*Options and Syntax Information*)
-
-
-Options[ForceModel] = {"Name" -> "Custom", "Description" -> None, "Parameters" -> <||>, "ScalesWithMassRatio" -> True,
-	"ValidityCondition" -> (True &), "ValidityDescription" -> None, "Citation" -> None};
-
-Options[FluxModel] = {"Name" -> "Custom", "Description" -> None, "Parameters" -> <||>, "Rates" -> {"p", "e", "x"},
-	"ScalesWithMassRatio" -> True, "ValidityCondition" -> (True &), "ValidityDescription" -> None, "Citation" -> None};
-
-Options[OsculatingInspiral] = {Parametrisation -> "CoordinateTime", IntegrationLimit -> Automatic, SeparatrixBuffer -> Automatic, pMin -> None, TimeMonitor -> False, AccuracyGoal -> 12, PrecisionGoal -> 12};
-SyntaxInformation[OsculatingInspiral] = {"ArgumentsPattern" -> {_, OptionsPattern[]}, "OptionNames" -> ToString /@ Union[Keys[Options[OsculatingInspiral]], Keys[Options[NDSolve]]]};
 
 Options[SchwarzOsculatingOrbitalElements] = {IntegrationLimit-> 1000000, AccuracyGoal-> Automatic, PrecisionGoal -> Automatic, Force -> SchwarzGasDrag};
 SyntaxInformation[SchwarzOsculatingOrbitalElements] = {"ArgumentsPattern"-> {_, _, _, _, OptionsPattern[]}, "OptionNames" -> ToString /@ Union[Keys[Options[SchwarzOsculatingOrbitalElements]], Keys[Options[NDSolve]]]};
@@ -256,8 +271,6 @@ Get[FileNameJoin[{$packageDirectory, "ForceModels", "EMConservative.wl"}]];
 Get[FileNameJoin[{$packageDirectory, "ForceModels", "FastGSF.wl"}]];
 Get[FileNameJoin[{$packageDirectory, "FluxModels", "FluxModel.wl"}]];
 Get[FileNameJoin[{$packageDirectory, "FluxModels", "PostNewtonian.wl"}]];
-Get[FileNameJoin[{$packageDirectory, "Solvers", "Schwarzschild.wl"}]];
-Get[FileNameJoin[{$packageDirectory, "Solvers", "KerrELK.wl"}]];
 Get[FileNameJoin[{$packageDirectory, "Solvers", "KerrPEX.wl"}]];
 Get[FileNameJoin[{$packageDirectory, "InspiralObject.wl"}]];
 Get[FileNameJoin[{$packageDirectory, "Interface.wl"}]];
@@ -268,10 +281,16 @@ Get[FileNameJoin[{$packageDirectory, "Interface.wl"}]];
 
 
 (* ::Text:: *)
-(*Unused code, kept for reference and loaded last. It is not used by the current interface and should not be extended. See Kernel/Legacy.*)
+(*The earlier functions, and the code only they use, loaded last. None of it is used by OsculatingInspiral, and it should not be extended. See Kernel/Legacy.*)
 
 
+Get[FileNameJoin[{$packageDirectory, "Legacy", "Utilities.wl"}]];
+Get[FileNameJoin[{$packageDirectory, "Legacy", "ForceFunctions.wl"}]];
+Get[FileNameJoin[{$packageDirectory, "Legacy", "Schwarzschild.wl"}]];
+Get[FileNameJoin[{$packageDirectory, "Legacy", "KerrELK.wl"}]];
+Get[FileNameJoin[{$packageDirectory, "Legacy", "GenericKerr.wl"}]];
 Get[FileNameJoin[{$packageDirectory, "Legacy", "LegacyEquations.wl"}]];
+Get[FileNameJoin[{$packageDirectory, "Legacy", "RegularPolar.wl"}]];
 
 
 (* ::Subsection:: *)

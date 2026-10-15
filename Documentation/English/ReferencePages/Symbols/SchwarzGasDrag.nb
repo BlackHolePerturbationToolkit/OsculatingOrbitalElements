@@ -1,0 +1,155 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 13.1' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[      5033,        146]
+NotebookOptionsPosition[      2727,        109]
+NotebookOutlinePosition[      3151,        125]
+CellTagsIndexPosition[      3108,        122]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell["SchwarzGasDrag", "ObjectName"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  RowBox[{"SchwarzGasDrag", "[", 
+   RowBox[{"p", ",", " ", "e", ",", " ", "\[Xi]"}], "]"}]], "InlineFormula"],
+ "\[LineSeparator]",
+ "SchwarzGasDrag[p,e,\[Xi]] returns contravarient components of a \
+relativistic drag force, {Fr F\[Phi]}, in terms of p, e, and \[Xi]."
+}], "Usage"],
+
+Cell[TextData[{
+ "Legacy: this is one of the earlier functions of the package. It keeps \
+working, but ",
+ Cell[BoxData[
+  ButtonBox["ForceModel",
+   BaseStyle->"Link",
+   ButtonData->"paclet:OsculatingOrbitalElements/ref/ForceModel"]], 
+  "InlineFormula"],
+ " supersedes it."
+}], "Notes"],
+
+Cell["Tech Notes", "TechNotesSection"],
+
+Cell[TextData[ButtonBox["Osculating Orbital Elements",
+ BaseStyle->"Link",
+ ButtonData->
+  "paclet:OsculatingOrbitalElements/tutorial/OsculatingOrbitalElements"]], \
+"Tutorials"],
+
+Cell["See Also", "SeeAlsoSection"],
+
+Cell[TextData[Cell[BoxData[
+ ButtonBox["ForceModel",
+  BaseStyle->"Link",
+  ButtonData->
+   "paclet:OsculatingOrbitalElements/ref/ForceModel"]], \
+"InlineSeeAlsoFunction"]], "SeeAlso"],
+
+Cell["Related Guides", "MoreAboutSection"],
+
+Cell[TextData[ButtonBox["Osculating Orbital Elements",
+ BaseStyle->"Link",
+ ButtonData->
+  "paclet:OsculatingOrbitalElements/guide/OsculatingOrbitalElements"]], \
+"MoreAbout"],
+
+Cell["Metadata", "MetadataSection"],
+
+Cell[TextData[{
+ "New in: ",
+ Cell["0.1", "HistoryData",
+  CellTags->"New"],
+ " | Modified in: ",
+ Cell[" ", "HistoryData",
+  CellTags->"Modified"],
+ " | Obsolete in: ",
+ Cell[" ", "HistoryData",
+  CellTags->"Obsolete"]
+}], "History"],
+
+Cell[CellGroupData[{
+
+Cell["Categorization", "CategorizationSection"],
+
+Cell["Symbol", "Categorization",
+ CellLabel->"Entity Type"],
+
+Cell["OsculatingOrbitalElements", "Categorization",
+ CellLabel->"Paclet Name"],
+
+Cell["OsculatingOrbitalElements`", "Categorization",
+ CellLabel->"Context"],
+
+Cell["OsculatingOrbitalElements/ref/SchwarzGasDrag", "Categorization",
+ CellLabel->"URI"]
+}, Closed]],
+
+Cell[CellGroupData[{
+
+Cell["Keywords", "KeywordsSection"],
+
+Cell["osculating orbital elements", "Keywords"],
+
+Cell["inspiral", "Keywords"],
+
+Cell["Kerr", "Keywords"]
+}, Closed]]
+},
+TaggingRules-><|"Paclet" -> "OsculatingOrbitalElements"|>,
+CellContext->"Global`",
+FrontEndVersion->"13.1 for Mac OS X ARM (64-bit) (June 16, 2022)",
+StyleDefinitions->FrontEnd`FileName[{"Wolfram"}, "FunctionPageStylesExt.nb", 
+  CharacterEncoding -> "UTF-8"]
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[558, 20, 36, 0, 70, "ObjectName",ExpressionUUID->"a763dc39-52f1-4a63-83cc-bc33f340b123"],
+Cell[597, 22, 313, 7, 70, "Usage",ExpressionUUID->"e4dce3a2-bee8-4fbe-aa9f-2400079a354f"],
+Cell[913, 31, 289, 9, 70, "Notes",ExpressionUUID->"7cc77c96-8536-4373-b622-1ee32759e456"],
+Cell[1205, 42, 38, 0, 70, "TechNotesSection",ExpressionUUID->"d4e914fb-7904-4068-b873-66da1eebb9d1"],
+Cell[1246, 44, 178, 4, 70, "Tutorials",ExpressionUUID->"cd52dcd1-48ae-4b98-9910-a39066f52b5c"],
+Cell[1427, 50, 34, 0, 70, "SeeAlsoSection",ExpressionUUID->"9d4ecaba-9724-4c11-9a00-26707c939f3a"],
+Cell[1464, 52, 184, 5, 70, "SeeAlso",ExpressionUUID->"89a99a97-5995-4874-a14d-1767c796320b"],
+Cell[1651, 59, 42, 0, 70, "MoreAboutSection",ExpressionUUID->"f5a9972d-f039-4726-ac03-992eca96c7fb"],
+Cell[1696, 61, 175, 4, 70, "MoreAbout",ExpressionUUID->"b0a5803f-2826-4d72-8ffd-9757b71c3390"],
+Cell[1874, 67, 35, 0, 70, "MetadataSection",ExpressionUUID->"99f07be5-fb87-47f2-a53f-bc31c82ba672"],
+Cell[1912, 69, 234, 10, 70, "History",ExpressionUUID->"46ae5b3f-1a6f-4f99-b8c2-1aa67e0c0884"],
+Cell[CellGroupData[{
+Cell[2171, 83, 47, 0, 70, "CategorizationSection",ExpressionUUID->"5c0db53b-a672-487d-a9e1-3a80ede1d459"],
+Cell[2221, 85, 59, 1, 70, "Categorization",ExpressionUUID->"39debf92-8630-468b-a89d-bc66e0c44390"],
+Cell[2283, 88, 78, 1, 70, "Categorization",ExpressionUUID->"89359b34-bee6-43ac-8c65-fcb805d1153d"],
+Cell[2364, 91, 75, 1, 70, "Categorization",ExpressionUUID->"a15d0014-3a72-4372-b190-e16d6b17a4eb"],
+Cell[2442, 94, 89, 1, 70, "Categorization",ExpressionUUID->"e8819939-5318-4214-861d-170e8c36b1ed"]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[2568, 100, 35, 0, 70, "KeywordsSection",ExpressionUUID->"e6036def-577c-40ea-83ff-47782808aad2"],
+Cell[2606, 102, 47, 0, 70, "Keywords",ExpressionUUID->"d48c0cdf-76cd-4d1e-8ae9-8a8f1e3291a1"],
+Cell[2656, 104, 28, 0, 70, "Keywords",ExpressionUUID->"feff2961-5e02-42e5-a3e8-1f9ac4b6b806"],
+Cell[2687, 106, 24, 0, 70, "Keywords",ExpressionUUID->"6bd5560f-d844-412d-8cdb-f0fd63266bc8"]
+}, Closed]]
+}
+]
+*)
+
+(* End of internal cache information *)

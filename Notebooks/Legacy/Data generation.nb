@@ -1,0 +1,481 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 13.1' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[     16970,        472]
+NotebookOptionsPosition[     14246,        420]
+NotebookOutlinePosition[     14583,        435]
+CellTagsIndexPosition[     14540,        432]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell["Data generation file", "Title"],
+
+Cell[CellGroupData[{
+
+Cell["defining all functions we need:", "Section"],
+
+Cell[CellGroupData[{
+
+Cell["package setup ", "Subsection"],
+
+Cell[BoxData[{
+ RowBox[{"SetDirectory", "[", 
+  RowBox[{"NotebookDirectory", "[", "]"}], "]"}], "\[IndentingNewLine]", 
+ RowBox[{"<<", "OsculatingOrbitalElements`"}]}], "Input"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["forces definitions Kerr", "Subsection"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   RowBox[{"fr2", "[", " ", 
+    RowBox[{
+    "a_", ",", " ", "En_", ",", " ", "L_", ",", " ", "K_", ",", " ", 
+     "\[Psi]r_", ",", " ", "\[Psi]\[Theta]_"}], "]"}], " ", ":=", " ", 
+   RowBox[{
+    RowBox[{"KerrGasDragVec2", "[", 
+     RowBox[{
+     "a", ",", " ", "En", ",", " ", "L", ",", " ", "K", ",", " ", "\[Psi]r", 
+      ",", " ", "\[Psi]\[Theta]"}], "]"}], "[", "\"\<fr\>\"", "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"f\[Theta]2", "[", " ", 
+    RowBox[{
+    "a_", ",", " ", "En_", ",", " ", "L_", ",", " ", "K_", ",", " ", 
+     "\[Psi]r_", ",", " ", "\[Psi]\[Theta]_"}], "]"}], " ", ":=", " ", 
+   RowBox[{
+    RowBox[{"KerrGasDragVec2", "[", 
+     RowBox[{
+     "a", ",", " ", "En", ",", " ", "L", ",", " ", "K", ",", " ", "\[Psi]r", 
+      ",", " ", "\[Psi]\[Theta]"}], "]"}], "[", "\"\<f\[Theta]\>\"", "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"f\[Phi]2", "[", 
+    RowBox[{
+    "a_", ",", " ", "En_", ",", " ", "L_", ",", " ", "K_", ",", " ", 
+     "\[Psi]r_", ",", " ", "\[Psi]\[Theta]_"}], "]"}], " ", ":=", " ", 
+   RowBox[{
+    RowBox[{"KerrGasDragVec2", "[", 
+     RowBox[{
+     "a", ",", " ", "En", ",", " ", "L", ",", " ", "K", ",", " ", "\[Psi]r", 
+      ",", " ", "\[Psi]\[Theta]"}], "]"}], "[", "\"\<f\[Phi]\>\"", "]"}]}], 
+  ";"}]}], "Input"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["forces definition Schwarzschild", "Subsection"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"Fr", "[", 
+     RowBox[{"p_", ",", " ", "e_", ",", " ", "\[Xi]_"}], "]"}], " ", ":=", 
+    RowBox[{
+     RowBox[{"-", "e"}], " ", 
+     RowBox[{"Sin", "[", "\[Xi]", "]"}], 
+     SqrtBox[
+      FractionBox[
+       RowBox[{
+        RowBox[{"-", "6"}], "+", "p", "-", 
+        RowBox[{"2", " ", "e", " ", 
+         RowBox[{"Cos", "[", "\[Xi]", "]"}]}]}], 
+       RowBox[{"p", " ", 
+        RowBox[{"(", 
+         RowBox[{
+          RowBox[{"-", "3"}], "-", 
+          SuperscriptBox["e", "2"], "+", "p"}], ")"}]}]]]}]}], " ", ";"}], 
+  RowBox[{"(*", 
+   RowBox[{
+    RowBox[{"Fr", "[", 
+     RowBox[{"p_", ",", " ", "e_", ",", " ", "\[Xi]_"}], "]"}], " ", ":=", 
+    RowBox[{
+     RowBox[{"-", "e"}], " ", 
+     SqrtBox[
+      FractionBox[
+       RowBox[{
+        RowBox[{"-", "6"}], "+", "p", "-", 
+        RowBox[{"2", " ", "e", 
+         FractionBox[
+          RowBox[{"p", "-", "r"}], 
+          RowBox[{"e", " ", "r"}]]}]}], 
+       RowBox[{"p", " ", 
+        RowBox[{"(", 
+         RowBox[{
+          RowBox[{"-", "3"}], "-", 
+          SuperscriptBox["e", "2"], "+", "p"}], ")"}]}]]]}]}], 
+   "*)"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"F\[Phi]", "[", 
+    RowBox[{"p_", ",", " ", "e_", ",", " ", "\[Xi]_"}], "]"}], " ", ":=", " ", 
+   RowBox[{"-", 
+    FractionBox[
+     SuperscriptBox[
+      RowBox[{"(", 
+       RowBox[{"1", "+", 
+        RowBox[{"e", " ", 
+         RowBox[{"Cos", "[", "\[Xi]", "]"}]}]}], ")"}], "2"], 
+     RowBox[{"p", " ", 
+      SqrtBox[
+       RowBox[{
+        RowBox[{"-", "3"}], "-", 
+        SuperscriptBox["e", "2"], "+", "p"}]]}]]}]}], ";"}]}], "Input"],
+
+Cell[CellGroupData[{
+
+Cell["\<\
+data generation functions (it will create a folder data Kerr or data \
+Schwarzschild in your UserDocumentsDirectory)\
+\>", "Subsubsection"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"datagenerationKerr", "[", 
+   RowBox[{
+   "\[Eta]_", ",", "a0_", " ", ",", "p0_", " ", ",", "e0_", ",", "x0_", ",", 
+    "\[Psi]r0_", ",", "\[Psi]\[Theta]0_"}], "]"}], ":=", 
+  RowBox[{"Module", "[", 
+   RowBox[{
+    RowBox[{"{", 
+     RowBox[{"time1", ",", "kerrOrbitTPVecLessArg2", ",", "data"}], "}"}], 
+    ",", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{"time1", ",", "kerrOrbitTPVecLessArg2"}], "}"}], "=", 
+      RowBox[{"(", " ", 
+       RowBox[{
+        RowBox[{"KerrOsculatingOrbitalElementsTPVecLessArg1", "[", 
+         RowBox[{
+         "\[Eta]", ",", "a0", ",", " ", "p0", ",", " ", "e0", ",", " ", "x0", 
+          ",", " ", "\[Psi]r0", ",", " ", "\[Psi]\[Theta]0", ",", " ", 
+          RowBox[{"Force", " ", "\[Rule]", " ", 
+           RowBox[{"{", 
+            RowBox[{"fr2", ",", "f\[Theta]2", ",", "f\[Phi]2"}], "}"}]}]}], 
+         "]"}], "//", "Timing"}], ")"}]}], ";", "\[IndentingNewLine]", 
+     RowBox[{"data", "=", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{"#", ",", " ", 
+          RowBox[{
+           RowBox[{"kerrOrbitTPVecLessArg2", "[", "\"\<p\>\"", "]"}], "[", 
+           "#", "]"}], ",", 
+          RowBox[{
+           RowBox[{"kerrOrbitTPVecLessArg2", "[", "\"\<e\>\"", "]"}], "[", 
+           "#", "]"}], ",", 
+          RowBox[{
+           RowBox[{"kerrOrbitTPVecLessArg2", "[", "\"\<x\>\"", "]"}], "[", 
+           "#", "]"}], ",", 
+          RowBox[{
+           RowBox[{"kerrOrbitTPVecLessArg2", "[", "\"\<En\>\"", "]"}], "[", 
+           "#", "]"}], ",", " ", 
+          RowBox[{
+           RowBox[{"kerrOrbitTPVecLessArg2", "[", "\"\<L\>\"", "]"}], "[", 
+           "#", "]"}], ",", 
+          RowBox[{
+           RowBox[{"kerrOrbitTPVecLessArg2", "[", "\"\<Q\>\"", "]"}], "[", 
+           "#", "]"}], ",", " ", 
+          RowBox[{
+           RowBox[{"kerrOrbitTPVecLessArg2", "[", "\"\<\[Psi]r\>\"", "]"}], 
+           "[", "#", "]"}], ",", 
+          RowBox[{
+           RowBox[{
+           "kerrOrbitTPVecLessArg2", "[", "\"\<\[Psi]\[Theta]\>\"", "]"}], 
+           "[", "#", "]"}], ",", 
+          RowBox[{
+           RowBox[{"kerrOrbitTPVecLessArg2", "[", "\"\<\[Phi]\>\"", "]"}], 
+           "[", "#", "]"}]}], "}"}], "&"}], "/@", 
+       RowBox[{"First", "[", 
+        RowBox[{
+         RowBox[{"kerrOrbitTPVecLessArg2", "[", "\"\<En\>\"", "]"}], "@", 
+         "\"\<Coordinates\>\""}], "]"}]}]}], ";", "\[IndentingNewLine]", 
+     RowBox[{"Export", "[", 
+      RowBox[{
+       RowBox[{"FileNameJoin", "[", 
+        RowBox[{"{", 
+         RowBox[{"$UserDocumentsDirectory", ",", "\"\<Kerr\>\"", ",", 
+          RowBox[{"DateString", "[", "Today", "]"}], ",", 
+          RowBox[{"\"\<Kerr_sol\>\"", "<>", "\"\<_a=\>\"", "<>", 
+           RowBox[{"ToString", "[", "a0", "]"}], "<>", "\"\<_e=\>\"", "<>", 
+           RowBox[{"ToString", "[", "e0", "]"}], "<>", "\"\<_p=\>\"", "<>", 
+           RowBox[{"ToString", "[", "p0", "]"}], "<>", "\"\<_x=\>\"", "<>", 
+           RowBox[{"ToString", "[", "x0", "]"}], "<>", "\"\<_\[Psi]r0=\>\"", "<>", 
+           RowBox[{"ToString", "[", "\[Psi]r0", "]"}], "<>", 
+           "\"\<_\[Psi]\[Theta]0=\>\"", "<>", 
+           RowBox[{"ToString", "[", "\[Psi]\[Theta]0", "]"}], "<>", 
+           "\"\<_evaluation_time=\>\"", "<>", 
+           RowBox[{"ToString", "[", "time1", "]"}], "<>", "\"\<c_\>\"", "<>", 
+           
+           RowBox[{"ToString", "[", "$SystemID", "]"}], "<>", " ", 
+           "\"\<.dat\>\""}]}], "}"}], "]"}], ",", "data"}], "]"}]}]}], 
+   "]"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"datagenerationSchwarzschild", "[", 
+   RowBox[{"\[Eta]_", ",", " ", "p0_", " ", ",", "e0_", ",", "\[Xi]0_"}], 
+   "]"}], ":=", 
+  RowBox[{"Module", "[", 
+   RowBox[{
+    RowBox[{"{", 
+     RowBox[{"time1", ",", "SchwOrbitTP", ",", "data"}], "}"}], ",", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{"time1", ",", "SchwOrbitTP"}], "}"}], "=", 
+      RowBox[{"(", " ", 
+       RowBox[{
+        RowBox[{"SchwarzOsculatingOrbitalElementsTP", "[", 
+         RowBox[{
+         "\[Eta]", ",", " ", "p0", ",", " ", "e0", ",", " ", "\[Xi]0", ",", 
+          " ", 
+          RowBox[{"Force", " ", "\[Rule]", " ", 
+           RowBox[{"{", 
+            RowBox[{"Fr", ",", " ", "F\[Phi]"}], "}"}]}]}], "]"}], "//", 
+        "Timing"}], ")"}]}], ";", "\[IndentingNewLine]", 
+     RowBox[{"data", "=", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{"#", ",", " ", 
+          RowBox[{
+           RowBox[{"SchwOrbitTP", "[", "\"\<p\>\"", "]"}], "[", "#", "]"}], 
+          ",", 
+          RowBox[{
+           RowBox[{"SchwOrbitTP", "[", "\"\<e\>\"", "]"}], "[", "#", "]"}], 
+          ",", 
+          RowBox[{
+           RowBox[{"SchwOrbitTP", "[", "\"\<\[Xi]\>\"", "]"}], "[", "#", 
+           "]"}], ",", 
+          RowBox[{
+           RowBox[{"SchwOrbitTP", "[", "\"\<\[Phi]\>\"", "]"}], "[", "#", 
+           "]"}]}], "}"}], "&"}], "/@", 
+       RowBox[{"First", "[", 
+        RowBox[{
+         RowBox[{"SchwOrbitTP", "[", "\"\<p\>\"", "]"}], "@", 
+         "\"\<Coordinates\>\""}], "]"}]}]}], ";", "\[IndentingNewLine]", 
+     RowBox[{"Export", "[", 
+      RowBox[{
+       RowBox[{"FileNameJoin", "[", 
+        RowBox[{"{", 
+         RowBox[{"$UserDocumentsDirectory", ",", "\"\<Schwarzschild\>\"", ",", 
+          RowBox[{"DateString", "[", "Today", "]"}], ",", 
+          RowBox[{"\"\<Schwarzschild\>\"", "<>", "\"\<_e=\>\"", "<>", 
+           RowBox[{"ToString", "[", "e0", "]"}], "<>", "\"\<_p=\>\"", "<>", 
+           RowBox[{"ToString", "[", "p0", "]"}], "<>", "\"\<_\[Xi]0=\>\"", "<>", 
+           RowBox[{"ToString", "[", "\[Xi]0", "]"}], "<>", 
+           "\"\<_evaluation_time=\>\"", "<>", 
+           RowBox[{"ToString", "[", "time1", "]"}], "<>", "\"\<c_\>\"", "<>", 
+           
+           RowBox[{"ToString", "[", "$SystemID", "]"}], "<>", " ", 
+           "\"\<.dat\>\""}]}], "}"}], "]"}], ",", "data"}], "]"}]}]}], 
+   "]"}]}]}], "Input"]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Initial conditions:", "Title"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"\[Eta]", " ", "=", " ", 
+   SuperscriptBox["10", 
+    RowBox[{"-", "3"}]]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"a0", " ", "=", " ", "0.9"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"p0", " ", "=", " ", "25"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"e0", " ", "=", " ", "0.5"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"x0", " ", "=", " ", "0.5"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"\[Psi]r0", " ", "=", " ", "0"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"\[Psi]\[Theta]0", " ", "=", "0"}], ";"}]}], "Input"],
+
+Cell[BoxData[""], "Input"],
+
+Cell[CellGroupData[{
+
+Cell["necessary definitions for  ParallelTable[]", "Subsection"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"DistributeDefinitions", "[", 
+    RowBox[{
+    "datagenerationKerr", ",", "KerrOsculatingOrbitalElementsTPVecLessArg1", 
+     ",", "fr2", ",", "f\[Theta]2", ",", "f\[Phi]2"}], "]"}], ";"}], 
+  "\n"}]], "Input"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"ParallelTable", "[", 
+   RowBox[{
+    RowBox[{"datagenerationKerr", "[", 
+     RowBox[{
+     "\[Eta]", ",", "a0", " ", ",", "p0", " ", ",", "i", ",", "x0", ",", 
+      "\[Psi]r0", ",", "\[Psi]\[Theta]0"}], "]"}], ",", 
+    RowBox[{"{", 
+     RowBox[{"i", ",", "0.0001", ",", "1", ",", 
+      RowBox[{"1", "/", "60"}]}], "}"}]}], "]"}], ";"}]], "Input"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"Table", "[", 
+   RowBox[{
+    RowBox[{"datagenerationKerr", "[", 
+     RowBox[{
+     "\[Eta]", ",", "a0", " ", ",", "p0", " ", ",", "i", ",", "x0", ",", 
+      "\[Psi]r0", ",", "\[Psi]\[Theta]0"}], "]"}], ",", 
+    RowBox[{"{", 
+     RowBox[{"i", ",", "0.0001", ",", "1", ",", 
+      RowBox[{"1", "/", "60"}]}], "}"}]}], "]"}], ";"}]], "Input"],
+
+Cell[BoxData[
+ RowBox[{"datagenerationKerr", "[", 
+  RowBox[{
+  "\[Eta]", ",", "a0", " ", ",", "p0", " ", ",", "e0", ",", "x0", ",", 
+   "\[Psi]r0", ",", "\[Psi]\[Theta]0"}], "]"}]], "Input"],
+
+Cell[BoxData[
+ RowBox[{"ParallelTable", "[", 
+  RowBox[{
+   RowBox[{"datagenerationKerr", "[", 
+    RowBox[{
+    "\[Eta]", ",", "a0", " ", ",", "p0", " ", ",", "e0", ",", "x0", ",", "i", 
+     ",", "\[Psi]\[Theta]0"}], "]"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"i", ",", "0.0001", ",", "Pi", ",", 
+     RowBox[{"1", "/", "50"}]}], "}"}]}], "]"}]], "Input"],
+
+Cell[BoxData[
+ RowBox[{"ParallelTable", "[", 
+  RowBox[{
+   RowBox[{"datagenerationKerr", "[", 
+    RowBox[{
+    "\[Eta]", ",", "a0", " ", ",", "p0", " ", ",", "e0", ",", "x0", ",", 
+     "\[Psi]r0", ",", "i"}], "]"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"i", ",", "0.0001", ",", "Pi", ",", 
+     RowBox[{"1", "/", "50"}]}], "}"}]}], "]"}]], "Input"],
+
+Cell[BoxData[
+ RowBox[{"ParallelTable", "[", 
+  RowBox[{
+   RowBox[{"datagenerationKerr", "[", 
+    RowBox[{
+    "\[Eta]", ",", "i", " ", ",", "p0", " ", ",", "e0", ",", "x0", ",", 
+     "\[Psi]r0", ",", "\[Psi]\[Theta]0"}], "]"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"i", ",", "0.0001", ",", "1", ",", 
+     RowBox[{"1", "/", "100"}]}], "}"}]}], "]"}]], "Input"],
+
+Cell[BoxData[
+ RowBox[{"ParallelTable", "[", 
+  RowBox[{
+   RowBox[{"datagenerationKerr", "[", 
+    RowBox[{"\[Eta]", ",", "a0", " ", ",", "p0", " ", ",", "e0", ",", 
+     RowBox[{"Cos", "[", "i", "]"}], ",", "\[Psi]r0", ",", 
+     "\[Psi]\[Theta]0"}], "]"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"i", ",", "0.0001", ",", "Pi", ",", 
+     RowBox[{"1", "/", "50"}]}], "}"}]}], "]"}]], "Input"],
+
+Cell[BoxData[""], "Input"],
+
+Cell[BoxData[
+ RowBox[{"ParallelTable", "[", 
+  RowBox[{
+   RowBox[{"datagenerationKerr", "[", 
+    RowBox[{
+    "\[Eta]", ",", "a0", " ", ",", "i", " ", ",", "e0", ",", "x0", ",", 
+     "\[Psi]r0", ",", "\[Psi]\[Theta]0"}], "]"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"i", ",", "10", ",", "50", ",", "0.4"}], "}"}]}], "]"}]], "Input"]
+}, Open  ]]
+}, Open  ]]
+},
+WindowSize->{808, 740},
+WindowMargins->{{Automatic, 324}, {Automatic, 9}},
+FrontEndVersion->"13.1 for Mac OS X ARM (64-bit) (June 16, 2022)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[580, 22, 37, 0, 70, "Title",ExpressionUUID->"e00c2d5a-ce19-4408-84ab-4a0d5b8abdff"],
+Cell[CellGroupData[{
+Cell[642, 26, 50, 0, 70, "Section",ExpressionUUID->"4d49b5ce-5bd1-4677-b37d-5a86e0386a54"],
+Cell[CellGroupData[{
+Cell[717, 30, 36, 0, 70, "Subsection",ExpressionUUID->"f48800e3-7ca2-409a-9e87-71fd0bd4d209"],
+Cell[756, 32, 177, 3, 70, "Input",ExpressionUUID->"85caacdb-8e0f-454e-9285-6ab2cb3b3903"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[970, 40, 45, 0, 70, "Subsection",ExpressionUUID->"d7cb81d5-4a21-4fdc-9823-8ba4778de460"],
+Cell[1018, 42, 1373, 36, 70, "Input",ExpressionUUID->"e9c3f93f-f406-48bf-b0ce-85ca5c99a56b"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[2428, 83, 53, 0, 70, "Subsection",ExpressionUUID->"8c24b696-755b-47bb-b0e3-70cb58f5f472"],
+Cell[2484, 85, 1672, 55, 70, "Input",ExpressionUUID->"038fab12-8ed9-4ef1-85d5-da34007bc98f"],
+Cell[CellGroupData[{
+Cell[4181, 144, 149, 3, 70, "Subsubsection",ExpressionUUID->"efa2c7c7-f710-4aa0-881b-b7e5b96a6cb8"],
+Cell[4333, 149, 5970, 140, 70, "Input",ExpressionUUID->"c33592f2-eba6-4acd-b276-61ed7883a7c1"]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[10376, 297, 36, 0, 70, "Title",ExpressionUUID->"3a6f9068-9b2f-4775-8573-875e1d0fc1f6"],
+Cell[10415, 299, 625, 16, 70, "Input",ExpressionUUID->"48339ac3-b8a0-47b2-bff5-f3ab03d65f62"],
+Cell[11043, 317, 26, 0, 70, "Input",ExpressionUUID->"613e84a2-cd7f-4ac6-a52e-b044958e03cc"],
+Cell[CellGroupData[{
+Cell[11094, 321, 64, 0, 70, "Subsection",ExpressionUUID->"020cc046-19ab-4049-8134-de7b167aeaae"],
+Cell[11161, 323, 257, 7, 70, "Input",ExpressionUUID->"4cfee4e0-97e1-49ea-863b-a3e4d9a2f35a"],
+Cell[11421, 332, 387, 10, 70, "Input",ExpressionUUID->"76422d6d-b8d0-4b55-87ed-50a650d99a8e"],
+Cell[11811, 344, 379, 10, 70, "Input",ExpressionUUID->"d120c6f3-eba1-4b74-a3f3-cc643d5093c8"],
+Cell[12193, 356, 191, 4, 70, "Input",ExpressionUUID->"e5f2ef5c-0233-4c40-b6eb-d4c78d465a29"],
+Cell[12387, 362, 356, 9, 70, "Input",ExpressionUUID->"bd613ceb-96dd-4c75-97e8-172169d69e55"],
+Cell[12746, 373, 349, 9, 70, "Input",ExpressionUUID->"bf8c74fa-df8d-4f38-bdf8-3368810d50bb"],
+Cell[13098, 384, 362, 9, 70, "Input",ExpressionUUID->"4d0c7771-5488-42c7-9f85-81781c4191ff"],
+Cell[13463, 395, 390, 9, 70, "Input",ExpressionUUID->"f22b9406-52b9-48c3-af1d-296c983d5d4b"],
+Cell[13856, 406, 26, 0, 70, "Input",ExpressionUUID->"6c245ab9-cdbc-4850-83f4-1527d754f67a"],
+Cell[13885, 408, 333, 8, 70, "Input",ExpressionUUID->"af7cec79-919e-4189-a173-41c14c550316"]
+}, Open  ]]
+}, Open  ]]
+}
+]
+*)
+
+(* End of internal cache information *)
