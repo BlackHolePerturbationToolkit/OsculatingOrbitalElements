@@ -12,7 +12,7 @@
 (*Begin Package*)
 
 
-BeginPackage["OsculatingOrbitalElements`",{"KerrGeodesics`","KerrGeodesics`SpecialOrbits`","KerrGeodesics`ConstantsOfMotion`"}]
+BeginPackage["OsculatingOrbitalElements`",{"KerrGeodesics`","KerrGeodesics`SpecialOrbits`","KerrGeodesics`ConstantsOfMotion`","KerrGeodesics`OrbitalFrequencies`"}]
 
 
 (* ::Subsection:: *)
@@ -34,7 +34,7 @@ MessageName[OsculatingInspiral, "usage"] =
 The options are Parametrisation, IntegrationLimit, SeparatrixBuffer, pMin, TimeMonitor, AccuracyGoal, PrecisionGoal, and any option of NDSolve. By default NDSolve uses an 8th-order explicit Runge-Kutta method with AccuracyGoal and PrecisionGoal 12, which resolves the rapid swings of \[Phi] as near-polar orbits pass close to the poles; looser settings, or another Method, may not."
 
 MessageName[OsculatingInspiralFunction, "usage"] =
-"OsculatingInspiralFunction[assoc] represents an inspiral computed by OsculatingInspiral. inspiral[t] gives {t, r, \[Theta], \[Phi]} at coordinate time t, or at Mino time if Parametrisation -> \"Mino\" was used. inspiral[\"prop\"] gives a property, and inspiral[\"Properties\"] lists them. Quantities that change along the inspiral are functions of the time variable, for example inspiral[\"p\"][t]. \"Domain\" is the range of the time variable, and \"StopReason\" why the integration stopped."
+"OsculatingInspiralFunction[assoc] represents an inspiral computed by OsculatingInspiral. inspiral[t] gives {t, r, \[Theta], \[Phi]} at coordinate time t, or at Mino time if Parametrisation -> \"Mino\" was used. inspiral[\"prop\"] gives a property, and inspiral[\"Properties\"] lists them. Quantities that change along the inspiral are functions of the time variable, for example inspiral[\"p\"][t]: the position, the orbital elements and phases, the constants of motion \"En\", \"L\", \"Q\" and \"K\", the Boyer-Lindquist frequencies \"\[CapitalOmega]r\", \"\[CapitalOmega]\[Theta]\" and \"\[CapitalOmega]\[Phi]\", and the Boyer-Lindquist action angles \"\[CapitalPhi]r\", \"\[CapitalPhi]\[Theta]\" and \"\[CapitalPhi]\[Phi]\", of the osculating geodesic. \"Domain\" is the range of the time variable, and \"StopReason\" why the integration stopped."
 
 MessageName[OsculatingInspiral, "params"] = "The first argument, `1`, should be an Association of the inspiral's parameters."
 
@@ -264,6 +264,7 @@ $packageDirectory = DirectoryName[$InputFileName];
 $dataDirectory = FileNameJoin[{ParentDirectory[$packageDirectory], "Data"}];
 
 Get[FileNameJoin[{$packageDirectory, "Utilities.wl"}]];
+Get[FileNameJoin[{$packageDirectory, "OrbitalAngles.wl"}]];
 Get[FileNameJoin[{$packageDirectory, "Models.wl"}]];
 Get[FileNameJoin[{$packageDirectory, "ForceModels", "ForceModel.wl"}]];
 Get[FileNameJoin[{$packageDirectory, "ForceModels", "GasDrag.wl"}]];

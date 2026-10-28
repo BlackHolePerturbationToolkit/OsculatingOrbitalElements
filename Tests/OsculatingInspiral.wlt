@@ -242,6 +242,17 @@ VerificationTest[
 	TestID -> "Mino time gives the same inspiral as coordinate time"
 ]
 
+VerificationTest[
+	(* With NDSolve's default stiffness test this geodesic stopped at lambda = 734 as "stiff", although its steps were
+	   steady (see regularSystem) *)
+	long = OsculatingInspiral[<|"a" -> 0.9, "\[Epsilon]" -> 10^-3, "p" -> 10, "e" -> 0.3, "x" -> 0.8, "\[Psi]r" -> 1, "\[Psi]\[Theta]" -> 2,
+		"\[Phi]" -> 0.5, "Force" -> None|>, Parametrisation -> "Mino", IntegrationLimit -> 800];
+	{long["StopReason"], long["Domain"]}
+	,
+	{"IntegrationLimit", {0, 800.}},
+	TestID -> "A long geodesic in Mino time is not stopped as stiff"
+]
+
 
 (* ::Section:: *)
 (* Equatorial orbits: x is held at exactly +-1, so the orbit stays in the plane *)

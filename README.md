@@ -68,12 +68,20 @@ inspiral = OsculatingInspiral[<|"a" -> 0.9, "\[Epsilon]" -> 10^-5, "p" -> 10, "e
 inspiral["StopReason"]      (* why the integration stopped *)
 inspiral["p"][1000.]        (* p at coordinate time t = 1000 *)
 inspiral[1000.]             (* {t, r, \[Theta], \[Phi]} at t = 1000 *)
+inspiral["\[CapitalOmega]r"][1000.]       (* the Boyer-Lindquist radial frequency of the osculating geodesic *)
+inspiral["\[CapitalPhi]r"][1000.]       (* its Boyer-Lindquist radial action angle *)
 inspiral["Properties"]      (* everything that can be queried *)
 ```
 
 The parameters are the spin `"a"`, the small mass ratio `"\[Epsilon]"`, the initial elements `"p"`, `"e"` and `"x"`
 (x = cos ι), optionally the initial phases `"\[Psi]r"`, `"\[Psi]\[Theta]"` and `"\[Phi]"`, and a `"Force"`, a `"Flux"`, or
 both. The integration stops just outside the separatrix, unless `IntegrationLimit` or `pMin` stops it first.
+
+Besides the position and the elements, the inspiral gives the osculating geodesic's energy, angular momentum and Carter
+constant (`"En"`, `"L"`, `"Q"`), its Boyer-Lindquist frequencies (`"Ωr"`, `"Ωθ"`, `"Ωφ"`, from KerrGeodesics), and its
+Boyer-Lindquist action angles (`"Φr"`, `"Φθ"`, `"Φφ"`), computed as in
+[Lynch and Burke, Class. Quantum Grav. 42, 167001 (2025)](https://arxiv.org/abs/2411.04955) and accumulated over the
+inspiral, all as functions of time.
 
 A custom force is a function of the elements, the phases, the azimuth φ and the coordinate time t that returns the
 covariant {F_r, F_θ, F_φ}; F_t follows from orthogonality to the velocity. Forces in a list add:

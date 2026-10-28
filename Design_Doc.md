@@ -164,6 +164,7 @@ OsculatingOrbitalElements/
 │   ├── InspiralObject.wl             Inspiral object: construction, property access, summary box
 │   ├── Models.wl                     What force and flux models share: parameters, options, properties,
 │   │                                 validity, summary box
+│   ├── OrbitalAngles.wl              Boyer–Lindquist frequencies and action angles of the osculating geodesic
 │   ├── Utilities.wl                  Constants of motion, radial roots, separatrix, orbit geometry,
 │   │                                 index raising/lowering, F_t from orthogonality, the map from (E, L, Q)
 │   │                                 rates to (p, e², x) rates, caching
@@ -220,8 +221,8 @@ The future features fit this structure without changes:
 
 - **One public context, one shared private context.** The header declares the public symbols in `` OsculatingOrbitalElements` ``, then loads the other files inside `` Begin["`Private`"] ``. Those files have no `BeginPackage` of their own, so any private helper can be used from any file, and moving code between files needs no import or export changes.
 - **Public symbols are declared only in the header.** A new public function or option needs its usage message there; otherwise it is created as a private symbol.
-- **The header lists the KerrGeodesics subcontexts explicitly.** The other files are read with the header's `$ContextPath`, and `` "KerrGeodesics`" `` alone does not include `` KerrGeodesics`ConstantsOfMotion` `` or `` KerrGeodesics`SpecialOrbits` ``. Without them, a name such as `KerrGeoEnergy` silently becomes a new private symbol that never evaluates.
-- **Load order:** Utilities, Models, ForceModels, FluxModels, Solvers, InspiralObject, Interface, then Legacy. Only code that runs at load time, such as reading the FastGSF data, depends on it.
+- **The header lists the KerrGeodesics subcontexts explicitly.** The other files are read with the header's `$ContextPath`, and `` "KerrGeodesics`" `` alone does not include `` KerrGeodesics`ConstantsOfMotion` ``, `` KerrGeodesics`SpecialOrbits` `` or `` KerrGeodesics`OrbitalFrequencies` ``. Without them, a name such as `KerrGeoEnergy` silently becomes a new private symbol that never evaluates.
+- **Load order:** Utilities, OrbitalAngles, Models, ForceModels, FluxModels, Solvers, InspiralObject, Interface, then Legacy. Only code that runs at load time, such as reading the FastGSF data, depends on it.
 - **Paths come from the package itself.** The header records its own directory from `$InputFileName`. Nothing calls `SetDirectory` or assumes `$UserBaseDirectory`.
 
 ### Legacy code
@@ -494,3 +495,32 @@ Decision: hold off on the polar unit vector (αθ, βθ, x), as it may change, a
 - [x] Tests: the equatorial special case (stays in the plane, rejects a θ force and an x-changing flux, accepts a force whose θ component vanishes in the plane, continuity at the equator); a flux that changes x is checked against the exact solution. Tests that compare two solutions between steps (with REG, and two ways of writing the same force) use `InterpolationOrder -> All`, and keep their tolerances. The tests of lifting an orbit out of the plane and of the unit length were removed. There are 227 tests.
 - [x] Docs, README and `Notes/RegularFormulation.md`: the examples that lifted an equatorial orbit now use a torque on an inclined orbit, and the text describes the equatorial special case. In (x, ψθ) a force with a θ component makes the equations stiff close to the equator (10⁻⁶ from the plane took 60 times longer than at x = 0.99; 10⁻¹⁰ failed as stiff), which the unit vector avoids.
 
+### After phase 7: frequencies and Boyer–Lindquist action angles
+
+Request: the inspiral should give the osculating geodesic's energy, angular momentum and Carter constant, its Boyer–Lindquist frequencies, and its Boyer–Lindquist action angles, as functions of time, the angles as in Lynch and Burke, "A note on the conversion of orbital angles for extreme mass ratio inspirals", Class. Quantum Grav. 42, 167001 (2025), arXiv:2411.04955, and github.com/Philip-Lynch/KerrOrbitalAngleConversion.
+
+Decisions:
+
+- **Names:** `"Ωr"`, `"Ωθ"`, `"Ωφ"` and `"Φr"`, `"Φθ"`, `"Φφ"`, as in KerrGeoFrequencies and the paper. `"En"`, `"L"`, `"Q"` and `"K"` already existed (from `RegularEnergy` and `RegularLOverX`, which agree with KerrGeodesics to 10⁻¹³ and are regular at x = 0).
+- **The angles accumulate**, as φ does, rather than being wrapped.
+- **Boyer–Lindquist only**: no Mino-time frequencies or angles for now, though they are computed on the way.
+- **No public conversion function yet**, and no Boyer–Lindquist initial phases; the conversion is private (`BoyerLindquistAngles` in `Kernel/OrbitalAngles.wl`).
+
+Implementation:
+
+- [x] `Kernel/OrbitalAngles.wl`: the Mino phases qr and qθ from ψr and ψθ, and the oscillating parts Δt and Δφ, in the Fujita–Hikida form of the paper's notebook, with the regular constants (so the polar parts stay finite at a = 0: zp = √(β + ℓ²)). Then Φr = qr + Ωr Δt, Φθ = qθ + Ωθ Δt, Φφ = φ − Δφ + Ωφ Δt. qr's elliptic modulus uses (r − r2)/(r1 − r2) = sin²(ψr/2)(1 − e)/(1 + e cos ψr), which does not cancel at small e. Δt and Δφ are evaluated at the phases mod 2π, as they are periodic. No special case is needed at e = 0 or x = ±1; x = 0 is excluded, as before.
+- [x] Frequencies from `KerrGeoFrequencies`. Its context, `` KerrGeodesics`OrbitalFrequencies` ``, was added to the header's `BeginPackage`; without it the name became a private symbol.
+- [x] ψr is only known mod 2π from (αp, βp), so its turns are counted at the solver's steps, where it changes by much less than π, starting from the initial ψr0 as given, and interpolated linearly; between steps ψr is the value nearest that. ψθ and φ are integrated, so already continuous.
+- [x] Missing where undefined: Φr at e = 0, Φθ on an equatorial orbit. The other angles do not depend on the undefined phase there.
+- [x] The components only evaluate for numeric times, so `NIntegrate` and `Plot` work (a symbolic time first gave the spin, from `Part` of an unevaluated call).
+
+Checks (`Tests/OrbitalAngles.wlt`, 10 tests):
+
+- Along geodesics Φ − Ω t is constant to 10⁻¹²–10⁻⁹: prograde, retrograde, a = 0, equatorial, circular, near-polar (x = 0.05), and in Mino time.
+- The conversion agrees with the paper's notebook to 5×10⁻¹⁴ (2×10⁻¹² in Φφ) at 24 points, including phases of several turns and negative phases.
+- Over a gas-drag inspiral the accumulated angles differ from ∫Ω dt by 0.03 rad in Φr and less than 10⁻³ in Φθ and Φφ, the force's effect on the angles, with no lost turns.
+- About 1.5 ms per evaluation.
+
+Found on the way: with NDSolve's default stiffness test the (x, ψθ) solver stopped a long Mino-time geodesic at λ = 734 (t ≈ 98000) as "stiff", though its steps were steady; the (αθ, βθ) solver did not. The stiffness test now needs 100 restricted steps in a row (`"StiffnessTest" -> {True, "MaxRepetitions" -> {100, 100}}`), which gives the same steps as the default. Turning the test off instead lets the steps grow by about 20%, doubling the interpolation error between them. Over long runs the (x, ψθ) and (αθ, βθ) solvers agree: a 2×10⁵M gas-drag inspiral to 10⁻¹⁰ in p and 2×10⁻⁷ rad in φ (out of 7741), and a Peters inspiral to the separatrix to 10⁻¹⁰ in its end time.
+
+There are 238 tests in 12 files.
