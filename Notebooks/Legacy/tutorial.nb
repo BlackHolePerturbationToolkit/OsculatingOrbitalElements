@@ -1,0 +1,1142 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 13.1' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[     40801,       1133]
+NotebookOptionsPosition[     31231,        994]
+NotebookOutlinePosition[     31601,       1010]
+CellTagsIndexPosition[     31558,       1007]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell["Tutorial: Using the Osculating Orbital Elements Package", "Title"],
+
+Cell[CellGroupData[{
+
+Cell["Importing the Package", "Section"],
+
+Cell[TextData[{
+ "The package is imported using the following command. This package requires \
+the KerrGeodesics Package, which can be found at ",
+ ButtonBox["github.com/BlackHolePerturbationToolkit/KerrGeodesics",
+  BaseStyle->"Hyperlink",
+  ButtonData->{
+   "github.com/BlackHolePerturbationToolkit/KerrGeodesics", None}]
+}], "Text"],
+
+Cell[BoxData[
+ RowBox[{"<<", "OsculatingOrbitalElements`"}]], "Input"],
+
+Cell[BoxData[
+ RowBox[{"<<", "KerrGeodesics`"}]], "Input"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Schwarzschild Spacetime", "Section"],
+
+Cell[CellGroupData[{
+
+Cell["Information", "Subsection"],
+
+Cell[CellGroupData[{
+
+Cell["Method and Notation", "Subsubsection"],
+
+Cell[TextData[{
+ "This code used the method of Osculating Orbital Elements first derived in \
+Pound and Poisson[1]. This code adopts the notation used in Warburton et al \
+[2]. \n\[Eta] is the ratio of the compact object mass to the background black \
+hole\[CloseCurlyQuote]s mass.\np is the semi-lattice rectum\ne is the \
+eccentricity\n\[Xi] is the phase variable, defined by \[Xi] = \[Chi] - ",
+ Cell[BoxData[
+  FormBox[
+   SubscriptBox["\[Chi]", "0"], TraditionalForm]]],
+ ".\nThe equations are integrated w.r.t the Darwin Parameter \[Chi].\nFr and \
+F\[Phi] are contrvarient componets of the acceleration."
+}], "Text"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["SchwarzOsculatingOrbitalElements", "Subsubsection"],
+
+Cell[BoxData[
+ RowBox[{"?", "SchwarzOsculatingOrbitalElements"}]], "Input"],
+
+Cell[BoxData[
+ RowBox[{"?", "SchwarzOsculatingOrbitalElementsTP"}]], "Input"],
+
+Cell["SchwarzOsculatingOrbitalElements has the following options.", "Text"],
+
+Cell[BoxData[
+ RowBox[{"?", "Force"}]], "Input"],
+
+Cell[BoxData[
+ RowBox[{"?", "IntegrationLimit"}]], "Input"],
+
+Cell[BoxData[
+ RowBox[{"?", "AccuracyGoal"}]], "Input"],
+
+Cell[BoxData[
+ RowBox[{"?", "PrecisionGoal"}]], "Input"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["User Specified Model", "Subsection"],
+
+Cell["\<\
+First, we are going to define force components for use with \
+SchwarzOsculatingOrbitalElements. These components need to be functions of p, \
+e and \[Xi].\
+\>", "Text"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"\"\<Fr\>\"", "\[Rule]", 
+   RowBox[{
+    RowBox[{"-", "e"}], " ", 
+    SqrtBox[
+     FractionBox[
+      RowBox[{
+       RowBox[{"-", "6"}], "+", "p", "-", 
+       RowBox[{"2", " ", "e", " ", 
+        RowBox[{"Cos", "[", "\[Xi]", "]"}]}]}], 
+      RowBox[{"p", " ", 
+       RowBox[{"(", 
+        RowBox[{
+         RowBox[{"-", "3"}], "-", 
+         SuperscriptBox["e", "2"], "+", "p"}], ")"}]}]]], " ", 
+    RowBox[{"Sin", "[", "\[Xi]", "]"}]}]}], ",", 
+  RowBox[{"\"\<F\[Phi]\>\"", "\[Rule]", 
+   RowBox[{"-", 
+    FractionBox[
+     SuperscriptBox[
+      RowBox[{"(", 
+       RowBox[{"1", "+", 
+        RowBox[{"e", " ", 
+         RowBox[{"Cos", "[", "\[Xi]", "]"}]}]}], ")"}], "2"], 
+     RowBox[{"p", " ", 
+      SqrtBox[
+       RowBox[{
+        RowBox[{"-", "3"}], "-", 
+        SuperscriptBox["e", "2"], "+", "p"}]]}]]}]}]}]], "Input"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   RowBox[{"Fr", "[", 
+    RowBox[{"p_", ",", " ", "e_", ",", " ", "\[Xi]_"}], "]"}], " ", ":=", 
+   RowBox[{
+    RowBox[{"-", "e"}], " ", 
+    RowBox[{"Sin", "[", "\[Xi]", "]"}], 
+    SqrtBox[
+     FractionBox[
+      RowBox[{
+       RowBox[{"-", "6"}], "+", "p", "-", 
+       RowBox[{"2", " ", "e", " ", 
+        RowBox[{"Cos", "[", "\[Xi]", "]"}]}]}], 
+      RowBox[{"p", " ", 
+       RowBox[{"(", 
+        RowBox[{
+         RowBox[{"-", "3"}], "-", 
+         SuperscriptBox["e", "2"], "+", "p"}], ")"}]}]]]}]}], " ", 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"F\[Phi]", "[", 
+    RowBox[{"p_", ",", " ", "e_", ",", " ", "\[Xi]_"}], "]"}], " ", ":=", " ", 
+   RowBox[{"-", 
+    FractionBox[
+     SuperscriptBox[
+      RowBox[{"(", 
+       RowBox[{"1", "+", 
+        RowBox[{"e", " ", 
+         RowBox[{"Cos", "[", "\[Xi]", "]"}]}]}], ")"}], "2"], 
+     RowBox[{"p", " ", 
+      SqrtBox[
+       RowBox[{
+        RowBox[{"-", "3"}], "-", 
+        SuperscriptBox["e", "2"], "+", "p"}]]}]]}]}], ";"}]}], "Input"],
+
+Cell["\<\
+Next, we specify the mass ratio along with initial conditions of the orbit.\
+\>", "Text"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"\[Eta]", "=", 
+   RowBox[{"10", "^", 
+    RowBox[{"-", "4"}]}]}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"p0", "=", "30"}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"e0", "=", "0.9"}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{"\[Xi]0", "=", "0"}], ";"}]}], "Input"],
+
+Cell["\<\
+Now we solve the osculating geodesic equations and save the result to the \
+symbol \[OpenCurlyQuote]orbit\[CloseCurlyQuote] for  \[Chi] parametrization \
+and \[OpenCurlyQuote]orbitT\[CloseCurlyQuote] for coordinate time \
+parametrization \
+\>", "Text"],
+
+Cell[BoxData[
+ RowBox[{"orbit", " ", "=", " ", 
+  RowBox[{
+   RowBox[{"SchwarzOsculatingOrbitalElements", "[", 
+    RowBox[{
+    "\[Eta]", ",", " ", "p0", ",", " ", "e0", ",", " ", "\[Xi]0", ",", " ", 
+     RowBox[{"Force", " ", "\[Rule]", " ", 
+      RowBox[{"{", 
+       RowBox[{"Fr", ",", " ", "F\[Phi]"}], "}"}]}]}], "]"}], "//", 
+   "Timing"}]}]], "Input"],
+
+Cell[BoxData[
+ RowBox[{"orbitT", " ", "=", " ", 
+  RowBox[{"SchwarzOsculatingOrbitalElementsTP", "[", 
+   RowBox[{
+   "\[Eta]", ",", " ", "p0", ",", " ", "e0", ",", " ", "\[Xi]0", ",", " ", 
+    RowBox[{"Force", " ", "\[Rule]", " ", 
+     RowBox[{"{", 
+      RowBox[{"Fr", ",", " ", "F\[Phi]"}], "}"}]}]}], "]"}]}]], "Input"],
+
+Cell["\<\
+The output is an association. You can access these functions using the \
+following syntax:\
+\>", "Text"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"orbitT", "[", "\"\<r\>\"", "]"}], "[", "40", "]"}]], "Input"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"orbit", "[", "\"\<r\>\"", "]"}], "[", "40", "]"}]], "Input"],
+
+Cell["To find the limit so that we can plot the whole trajectory", "Text"],
+
+Cell[BoxData[{
+ RowBox[{"plotLimitXi", " ", "=", " ", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"orbit", "[", "\"\<t\>\"", "]"}], "[", "\"\<Domain\>\"", "]"}], 
+   "[", 
+   RowBox[{"[", 
+    RowBox[{"1", ",", "2"}], "]"}], "]"}]}], "\[IndentingNewLine]", 
+ RowBox[{"plotLimitT", "=", " ", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"orbitT", "[", "\"\<p\>\"", "]"}], "[", "\"\<Domain\>\"", "]"}], 
+   "[", 
+   RowBox[{"[", 
+    RowBox[{"1", ",", "2"}], "]"}], "]"}]}]}], "Input"],
+
+Cell["Plots of different parameters for both parametrisations ", "Text"],
+
+Cell[BoxData[
+ RowBox[{"Show", "[", 
+  RowBox[{
+   RowBox[{"ParametricPlot", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"orbit", "[", "\"\<t\>\"", "]"}], "[", "\[Chi]", "]"}], ",", 
+       RowBox[{
+        RowBox[{"orbit", "[", "\"\<p\>\"", "]"}], "[", "\[Chi]", "]"}]}], 
+      "}"}], ",", " ", 
+     RowBox[{"{", 
+      RowBox[{"\[Chi]", ",", " ", "0", ",", " ", "plotLimitXi"}], "}"}], ",", 
+     " ", 
+     RowBox[{"AspectRatio", "\[Rule]", "1"}], ",", " ", 
+     RowBox[{"AxesLabel", "->", 
+      RowBox[{"{", 
+       RowBox[{"\"\<t\>\"", ",", "\"\<p\>\""}], "}"}]}]}], "]"}], ",", 
+   RowBox[{"ParametricPlot", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"t", ",", 
+       RowBox[{
+        RowBox[{"orbitT", "[", "\"\<p\>\"", "]"}], "[", "t", "]"}]}], "}"}], 
+     ",", " ", 
+     RowBox[{"{", 
+      RowBox[{"t", ",", " ", "0", ",", " ", "plotLimitT"}], "}"}], ",", " ", 
+     RowBox[{"AspectRatio", "\[Rule]", "1"}], ",", 
+     RowBox[{"PlotStyle", "->", 
+      RowBox[{"{", 
+       RowBox[{"Dashed", ",", "Orange"}], "}"}]}]}], "]"}]}], "]"}]], "Input"],
+
+Cell[BoxData[
+ RowBox[{"Show", "[", 
+  RowBox[{
+   RowBox[{"ParametricPlot", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"orbit", "[", "\"\<t\>\"", "]"}], "[", "\[Chi]", "]"}], ",", 
+       RowBox[{
+        RowBox[{"orbit", "[", "\"\<e\>\"", "]"}], "[", "\[Chi]", "]"}]}], 
+      "}"}], ",", " ", 
+     RowBox[{"{", 
+      RowBox[{"\[Chi]", ",", " ", "0", ",", " ", "plotLimitXi"}], "}"}], ",", 
+     " ", 
+     RowBox[{"AspectRatio", "\[Rule]", "1"}], ",", 
+     RowBox[{"AxesLabel", "->", 
+      RowBox[{"{", 
+       RowBox[{"\"\<t\>\"", ",", "\"\<e\>\""}], "}"}]}]}], "]"}], ",", 
+   RowBox[{"ParametricPlot", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"t", ",", 
+       RowBox[{
+        RowBox[{"orbitT", "[", "\"\<e\>\"", "]"}], "[", "t", "]"}]}], "}"}], 
+     ",", " ", 
+     RowBox[{"{", 
+      RowBox[{"t", ",", " ", "0", ",", " ", "plotLimitT"}], "}"}], ",", " ", 
+     RowBox[{"AspectRatio", "\[Rule]", "1"}], ",", 
+     RowBox[{"PlotStyle", "->", 
+      RowBox[{"{", 
+       RowBox[{"Dashed", ",", "Orange"}], "}"}]}]}], "]"}]}], "]"}]], "Input"],
+
+Cell[BoxData[
+ RowBox[{"Show", "[", 
+  RowBox[{
+   RowBox[{"ParametricPlot", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"orbit", "[", "\"\<t\>\"", "]"}], "[", "\[Chi]", "]"}], ",", 
+       RowBox[{
+        RowBox[{"orbit", "[", "\"\<\[Phi]\>\"", "]"}], "[", "\[Chi]", "]"}]}],
+       "}"}], ",", " ", 
+     RowBox[{"{", 
+      RowBox[{"\[Chi]", ",", " ", "0", ",", " ", "plotLimitXi"}], "}"}], ",", 
+     " ", 
+     RowBox[{"AspectRatio", "\[Rule]", "1"}], ",", 
+     RowBox[{"AxesLabel", "->", 
+      RowBox[{"{", 
+       RowBox[{"\"\<t\>\"", ",", "\"\<\[Phi]\>\""}], "}"}]}]}], "]"}], ",", 
+   RowBox[{"ParametricPlot", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"t", ",", 
+       RowBox[{
+        RowBox[{"orbitT", "[", "\"\<\[Phi]\>\"", "]"}], "[", "t", "]"}]}], 
+      "}"}], ",", " ", 
+     RowBox[{"{", 
+      RowBox[{"t", ",", " ", "0", ",", " ", "plotLimitT"}], "}"}], ",", " ", 
+     RowBox[{"AspectRatio", "\[Rule]", "1"}], ",", 
+     RowBox[{"PlotStyle", "->", 
+      RowBox[{"{", 
+       RowBox[{"Dashed", ",", "Orange"}], "}"}]}]}], "]"}]}], "]"}]], "Input"],
+
+Cell[BoxData[
+ RowBox[{"?", "Disk"}]], "Input"],
+
+Cell["Comparison between unperturbed orbit and perturbed", "Text"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"phi", "[", "\[Chi]_", "]"}], ":=", 
+  RowBox[{"NIntegrate", "[", 
+   RowBox[{
+    FractionBox[
+     SuperscriptBox["p0", 
+      FractionBox["1", "2"]], 
+     RowBox[{"Sqrt", "[", 
+      RowBox[{"p0", "-", "6", "-", 
+       RowBox[{"2", " ", "e0", " ", 
+        RowBox[{"Cos", "[", 
+         RowBox[{"xi", "+", "\[Xi]0"}], "]"}]}]}], "]"}]], ",", 
+    RowBox[{"{", 
+     RowBox[{"xi", ",", "0", ",", "\[Chi]"}], "}"}]}], "]"}]}]], "Input"],
+
+Cell[BoxData[
+ RowBox[{"Show", "[", 
+  RowBox[{"{", 
+   RowBox[{
+    RowBox[{"ParametricPlot", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{
+          RowBox[{
+           RowBox[{
+            RowBox[{"orbit", "[", "\"\<r\>\"", "]"}], "[", "\[Chi]", "]"}], 
+           RowBox[{"Cos", "[", 
+            RowBox[{
+             RowBox[{"orbit", "[", "\"\<\[Phi]\>\"", "]"}], "[", "\[Chi]", 
+             "]"}], "]"}]}], ",", " ", 
+          RowBox[{
+           RowBox[{
+            RowBox[{"orbit", "[", "\"\<r\>\"", "]"}], "[", "\[Chi]", "]"}], 
+           RowBox[{"Sin", "[", 
+            RowBox[{
+             RowBox[{"orbit", "[", "\"\<\[Phi]\>\"", "]"}], "[", "\[Chi]", 
+             "]"}], "]"}]}]}], "}"}], ",", 
+        RowBox[{"{", 
+         RowBox[{
+          RowBox[{
+           FractionBox[
+            RowBox[{"p0", " "}], 
+            RowBox[{"1", "+", 
+             RowBox[{"e0", " ", 
+              RowBox[{"Cos", "[", 
+               RowBox[{"\[Chi]", "+", "\[Xi]0"}], "]"}]}]}]], " ", 
+           RowBox[{"Cos", "[", 
+            RowBox[{"phi", "[", "\[Chi]", "]"}], "]"}]}], ",", " ", 
+          RowBox[{
+           FractionBox["p0", 
+            RowBox[{"1", "+", 
+             RowBox[{"e0", " ", 
+              RowBox[{"Cos", "[", 
+               RowBox[{"\[Chi]", "+", "\[Xi]0"}], "]"}]}]}]], 
+           RowBox[{"Sin", "[", 
+            RowBox[{"phi", "[", "\[Chi]", "]"}], "]"}]}]}], "}"}]}], "}"}], 
+      ",", " ", 
+      RowBox[{"{", 
+       RowBox[{"\[Chi]", ",", "0", ",", " ", "plotLimitXi"}], "}"}], ",", " ", 
+      RowBox[{"AspectRatio", "\[Rule]", "1"}], ",", 
+      RowBox[{"PlotRange", "->", "All"}], ",", 
+      RowBox[{"AxesLabel", "->", 
+       RowBox[{"{", 
+        RowBox[{"\"\<x\>\"", ",", "\"\<y\>\""}], "}"}]}]}], "]"}], ",", 
+    RowBox[{"Graphics", "[", 
+     RowBox[{"Disk", "[", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"0", ",", "0"}], "}"}], ",", "2"}], "]"}], "]"}], ",", 
+    RowBox[{"ParametricPlot", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{"{", 
+        RowBox[{
+         RowBox[{
+          RowBox[{
+           RowBox[{"orbitT", "[", "\"\<r\>\"", "]"}], "[", "t", "]"}], 
+          RowBox[{"Cos", "[", 
+           RowBox[{
+            RowBox[{"orbitT", "[", "\"\<\[Phi]\>\"", "]"}], "[", "t", "]"}], 
+           "]"}]}], ",", " ", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"orbitT", "[", "\"\<r\>\"", "]"}], "[", "t", "]"}], 
+          RowBox[{"Sin", "[", 
+           RowBox[{
+            RowBox[{"orbitT", "[", "\"\<\[Phi]\>\"", "]"}], "[", "t", "]"}], 
+           "]"}]}]}], "}"}], "}"}], ",", " ", 
+      RowBox[{"{", 
+       RowBox[{"t", ",", "0", ",", " ", 
+        RowBox[{"plotLimitT", "/", "10"}]}], "}"}], ",", " ", 
+      RowBox[{"AspectRatio", "\[Rule]", "1"}], ",", 
+      RowBox[{"PlotRange", "->", "All"}], ",", 
+      RowBox[{"PlotStyle", "->", 
+       RowBox[{"{", 
+        RowBox[{"Gray", ",", "Dashed"}], "}"}]}]}], "]"}]}], "}"}], 
+  "]"}]], "Input"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Included Models", "Subsection"],
+
+Cell[CellGroupData[{
+
+Cell["SchwarzGasDrag", "Subsubsection"],
+
+Cell["\<\
+Not specifying a Force option means that SchwarzOsculatingOrbitalElements \
+uses the SchwarzGasDrag model.\
+\>", "Text"],
+
+Cell[BoxData[
+ RowBox[{"?", "SchwarzGasDrag"}]], "Input"],
+
+Cell[BoxData[
+ RowBox[{"SchwarzGasDrag", "[", 
+  RowBox[{"p", ",", " ", "e", ",", " ", "\[Xi]"}], "]"}]], "Input"],
+
+Cell[BoxData[
+ RowBox[{"SchwarzOsculatingOrbitalElements", "[", 
+  RowBox[{"\[Eta]", ",", " ", "p0", ",", " ", "e0", ",", " ", "\[Xi]0"}], 
+  "]"}]], "Input"],
+
+Cell["One can also specify this option explicitly.", "Text"],
+
+Cell[BoxData[
+ RowBox[{"SchwarzOsculatingOrbitalElements", "[", 
+  RowBox[{
+  "\[Eta]", ",", " ", "p0", ",", " ", "e0", ",", " ", "\[Xi]0", ",", " ", 
+   RowBox[{"Force", " ", "\[Rule]", " ", "SchwarzGasDrag"}]}], "]"}]], "Input"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["SchwarzFastGSF", "Subsubsection"],
+
+Cell["\<\
+One can also choose to use SchwarzFastGSF model. Note that this model is \
+valid for p <= 12 and e<= 0.2. \
+\>", "Text"],
+
+Cell[BoxData[
+ RowBox[{"?", "SchwarzFastGSF"}]], "Input"],
+
+Cell[BoxData[
+ RowBox[{"SchwarzFastGSF", "[", 
+  RowBox[{"p", ",", "e", ",", "\[Xi]"}], "]"}]], "Input"],
+
+Cell[BoxData[
+ RowBox[{"SchwarzOsculatingOrbitalElements", "[", 
+  RowBox[{
+  "\[Eta]", ",", " ", "p0", ",", " ", "e0", ",", " ", "\[Xi]0", ",", " ", 
+   RowBox[{"Force", " ", "\[Rule]", " ", "SchwarzFastGSF"}]}], "]"}]], "Input"]
+}, Open  ]]
+}, Open  ]]
+}, Closed]],
+
+Cell[CellGroupData[{
+
+Cell["Kerr Spacetime", "Section"],
+
+Cell[BoxData[""], "Input"],
+
+Cell[CellGroupData[{
+
+Cell["Information", "Subsection"],
+
+Cell[CellGroupData[{
+
+Cell["Method and Notation", "Subsubsection"],
+
+Cell[TextData[{
+ "This code used the method of Osculating Orbital Elements for Kerr first \
+derived in Gair et al [3] and uses the notation given in that paper.\n\[Eta] \
+is the ratio of the compact object mass to the background black hole\
+\[CloseCurlyQuote]s mass.\np is the semi-lattice rectum.\ne is the \
+eccentricity.\nx is Cos[\[Theta]inc].\nEn is orbital energy.\nL angular \
+momentum about the symmetry axis.\nK is the modified Carter Constant defined \
+by K = Q + (L - a ",
+ Cell[BoxData[
+  FormBox[
+   SuperscriptBox[
+    RowBox[{"En", ")"}], "2"], TraditionalForm]]],
+ "\n\[Psi]r is the radial phase variable.\n\[Psi]\[Theta] is the polar phase \
+variable.\nThe equations are integrated w.r.t Mino time \[Lambda].\nat, ar, a\
+\[Theta], a\[Phi] are covariant components of the acceleration.\nft, fr, f\
+\[Theta], f\[Phi] are vector components of the acceleration."
+}], "Text"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["KerrOsculatingOrbitalElements", "Subsubsection"],
+
+Cell[BoxData[
+ RowBox[{"?", "KerrOsculatingOrbitalElements"}]], "Input"],
+
+Cell[BoxData[
+ RowBox[{"?", "GenericKerrpexBL"}]], "Input"],
+
+Cell["KerrOsculatingOrbitalElements has the following options.", "Text"],
+
+Cell[BoxData[
+ RowBox[{"?", "Force"}]], "Input"],
+
+Cell[BoxData[
+ RowBox[{"?", "IntegrationLimit"}]], "Input"],
+
+Cell[BoxData[
+ RowBox[{"?", "AccuracyGoal"}]], "Input"],
+
+Cell[BoxData[
+ RowBox[{"?", "PrecisionGoal"}]], "Input"],
+
+Cell[BoxData[
+ RowBox[{"?", " ", "TimeMonitor"}]], "Input"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["User Specified Model", "Subsection"],
+
+Cell["\<\
+First, we are going to define force components for use with \
+KerrOsculatingOrbitalElements. These components need to be functions of En, \
+L, K, \[Psi]r and \[Psi]\[Theta]. We\[CloseCurlyQuote]re just going to use \
+the KerrGasDrag model for this example\
+\>", "Text"],
+
+Cell["Force in covariant form", "Text"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   RowBox[{"at", "[", 
+    RowBox[{
+    "a_", ",", " ", "En_", ",", " ", "L_", ",", " ", "K_", ",", " ", 
+     "\[Psi]r_", ",", " ", "\[Psi]\[Theta]_"}], "]"}], " ", ":=", " ", 
+   RowBox[{
+    RowBox[{"KerrGasDrag", "[", 
+     RowBox[{
+     "a", ",", " ", "En", ",", " ", "L", ",", " ", "K", ",", " ", "\[Psi]r", 
+      ",", " ", "\[Psi]\[Theta]"}], "]"}], "[", "\"\<at\>\"", "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"ar", "[", " ", 
+    RowBox[{
+    "a_", ",", " ", "En_", ",", " ", "L_", ",", " ", "K_", ",", " ", 
+     "\[Psi]r_", ",", " ", "\[Psi]\[Theta]_"}], "]"}], " ", ":=", " ", 
+   RowBox[{
+    RowBox[{"KerrGasDrag", "[", 
+     RowBox[{
+     "a", ",", " ", "En", ",", " ", "L", ",", " ", "K", ",", " ", "\[Psi]r", 
+      ",", " ", "\[Psi]\[Theta]"}], "]"}], "[", "\"\<ar\>\"", "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"a\[Theta]", "[", " ", 
+    RowBox[{
+    "a_", ",", " ", "En_", ",", " ", "L_", ",", " ", "K_", ",", " ", 
+     "\[Psi]r_", ",", " ", "\[Psi]\[Theta]_"}], "]"}], " ", ":=", " ", 
+   RowBox[{
+    RowBox[{"KerrGasDrag", "[", 
+     RowBox[{
+     "a", ",", " ", "En", ",", " ", "L", ",", " ", "K", ",", " ", "\[Psi]r", 
+      ",", " ", "\[Psi]\[Theta]"}], "]"}], "[", "\"\<a\[Theta]\>\"", "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"a\[Phi]", "[", 
+    RowBox[{
+    "a_", ",", " ", "En_", ",", " ", "L_", ",", " ", "K_", ",", " ", 
+     "\[Psi]r_", ",", " ", "\[Psi]\[Theta]_"}], "]"}], " ", ":=", " ", 
+   RowBox[{
+    RowBox[{"KerrGasDrag", "[", 
+     RowBox[{
+     "a", ",", " ", "En", ",", " ", "L", ",", " ", "K", ",", " ", "\[Psi]r", 
+      ",", " ", "\[Psi]\[Theta]"}], "]"}], "[", "\"\<a\[Phi]\>\"", "]"}]}], 
+  ";"}]}], "Input"],
+
+Cell["or in vector form", "Text"],
+
+Cell[BoxData[
+ RowBox[{"\[IndentingNewLine]", 
+  RowBox[{
+   RowBox[{
+    RowBox[{
+     RowBox[{"fr", "[", " ", 
+      RowBox[{
+      "a_", ",", " ", "En_", ",", " ", "L_", ",", " ", "K_", ",", " ", 
+       "\[Psi]r_", ",", " ", "\[Psi]\[Theta]_"}], "]"}], " ", ":=", " ", 
+     RowBox[{
+      RowBox[{"KerrGasDragVec", "[", 
+       RowBox[{
+       "a", ",", " ", "En", ",", " ", "L", ",", " ", "K", ",", " ", "\[Psi]r",
+         ",", " ", "\[Psi]\[Theta]"}], "]"}], "[", "\"\<fr\>\"", "]"}]}], 
+    ";"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"f\[Theta]", "[", " ", 
+      RowBox[{
+      "a_", ",", " ", "En_", ",", " ", "L_", ",", " ", "K_", ",", " ", 
+       "\[Psi]r_", ",", " ", "\[Psi]\[Theta]_"}], "]"}], " ", ":=", " ", 
+     RowBox[{
+      RowBox[{"KerrGasDragVec", "[", 
+       RowBox[{
+       "a", ",", " ", "En", ",", " ", "L", ",", " ", "K", ",", " ", "\[Psi]r",
+         ",", " ", "\[Psi]\[Theta]"}], "]"}], "[", "\"\<f\[Theta]\>\"", 
+      "]"}]}], ";"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{
+     RowBox[{"f\[Phi]", "[", 
+      RowBox[{
+      "a_", ",", " ", "En_", ",", " ", "L_", ",", " ", "K_", ",", " ", 
+       "\[Psi]r_", ",", " ", "\[Psi]\[Theta]_"}], "]"}], " ", ":=", " ", 
+     RowBox[{
+      RowBox[{"KerrGasDragVec", "[", 
+       RowBox[{
+       "a", ",", " ", "En", ",", " ", "L", ",", " ", "K", ",", " ", "\[Psi]r",
+         ",", " ", "\[Psi]\[Theta]"}], "]"}], "[", "\"\<f\[Phi]\>\"", "]"}]}],
+     ";"}]}]}]], "Input"],
+
+Cell["\<\
+Next, we specify the mass ratio, the spin and the initial conditions of the \
+orbit.\[LineSeparator]\
+\>", "Text"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"\[Eta]", " ", "=", " ", 
+   SuperscriptBox["10", 
+    RowBox[{"-", "3"}]]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"a0", " ", "=", " ", "0.3"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"p0", " ", "=", " ", "40"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"e0", " ", "=", " ", "0.5"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"x0", " ", "=", " ", 
+   RowBox[{"Cos", "[", 
+    RowBox[{"\[Pi]", "/", "6"}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"\[Psi]r0", " ", "=", " ", "0"}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"\[Psi]\[Theta]0", " ", "=", "0"}], ";"}]}], "Input"],
+
+Cell["\<\
+Now we solve the osculating geodesic equations and save the result to the \
+symbols \[OpenCurlyQuote]ELK\[CloseCurlyQuote], \[OpenCurlyQuote]pex\
+\[CloseCurlyQuote] and  for different types of parametrisation\
+\>", "Text"],
+
+Cell["Comparison between ELK and pex ", "Text"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"(", 
+   RowBox[{"ELK", " ", "=", " ", 
+    RowBox[{"KerrOsculatingOrbitalElements", "[", 
+     RowBox[{
+     "\[Eta]", ",", "a0", ",", " ", "p0", ",", " ", "e0", ",", " ", "x0", ",",
+       " ", "\[Psi]r0", ",", " ", "\[Psi]\[Theta]0", ",", " ", 
+      RowBox[{"Force", " ", "\[Rule]", " ", 
+       RowBox[{"{", 
+        RowBox[{"at", ",", "ar", ",", "a\[Theta]", ",", "a\[Phi]"}], "}"}]}], 
+      ",", 
+      RowBox[{"Parametrisation", "->", "\"\<CoordinateTime\>\""}], ",", " ", 
+      RowBox[{"TimeMonitor", "->", "False"}]}], "]"}]}], ")"}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"AbsoluteTiming", "[", 
+   RowBox[{"pex", " ", "=", " ", 
+    RowBox[{"GenericKerrpexBL", "[", 
+     RowBox[{
+     "\[Eta]", ",", "a0", ",", "p0", ",", "e0", ",", "x0", ",", "\[Psi]r0", 
+      ",", " ", "\[Psi]\[Theta]0", ",", 
+      RowBox[{"Parametrisation", "->", "\"\<CoordinateTime\>\""}]}], "]"}]}], 
+   "]"}], ";"}]}], "Input"],
+
+Cell[BoxData[
+ RowBox[{"LogPlot", "[", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"Abs", "[", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"pex", "[", "\"\<p\>\"", "]"}], "[", "t", "]"}], "-", " ", 
+       RowBox[{
+        RowBox[{"ELK", "[", "\"\<p\>\"", "]"}], "[", "t", "]"}]}], "]"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"Abs", "[", 
+       RowBox[{
+        RowBox[{
+         RowBox[{"pex", "[", "\"\<e\>\"", "]"}], "[", "t", "]"}], "-", " ", 
+        RowBox[{
+         RowBox[{"ELK", "[", "\"\<e\>\"", "]"}], "[", "t", "]"}]}], "]"}], 
+      "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"Abs", "[", 
+       RowBox[{
+        RowBox[{
+         RowBox[{"pex", "[", "\"\<x\>\"", "]"}], "[", "t", "]"}], "-", " ", 
+        RowBox[{
+         RowBox[{"ELK", "[", "\"\<x\>\"", "]"}], "[", "t", "]"}]}], "]"}], 
+      "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"t", ",", "0", ",", 
+     RowBox[{"ELK", "[", "\"\<limit\>\"", "]"}]}], "}"}]}], "]"}]], "Input"],
+
+Cell["\<\
+KerrOsculatingOrbitalElements has several options as example ForceUpDown -> \
+\"Up\" mean that force components are vectors (only fr, f\[Theta], f\[Phi])\
+\>", "Text"],
+
+Cell[BoxData[
+ RowBox[{"ELKupMino", "=", 
+  RowBox[{"KerrOsculatingOrbitalElements", "[", 
+   RowBox[{
+   "\[Eta]", ",", "a0", ",", "p0", ",", "e0", ",", "x0", ",", "\[Psi]r0", ",",
+     "\[Psi]\[Theta]0", ",", 
+    RowBox[{"Force", "->", "KerrGasDragVec"}], ",", 
+    RowBox[{"ForceUpDown", "->", "\"\<Up\>\""}], ",", 
+    RowBox[{"Parametrisation", "->", "\"\<Mino\>\""}]}], "]"}]}]], "Input"],
+
+Cell["comparison with previous ones ", "Text"],
+
+Cell[BoxData[
+ RowBox[{"LogPlot", "[", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"Abs", "[", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"pex", "[", "\"\<p\>\"", "]"}], "[", "t", "]"}], "-", " ", 
+       RowBox[{
+        RowBox[{"ELK", "[", "\"\<p\>\"", "]"}], "[", "t", "]"}]}], "]"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"Abs", "[", 
+       RowBox[{
+        RowBox[{
+         RowBox[{"pex", "[", "\"\<e\>\"", "]"}], "[", "t", "]"}], "-", " ", 
+        RowBox[{
+         RowBox[{"ELK", "[", "\"\<e\>\"", "]"}], "[", "t", "]"}]}], "]"}], 
+      "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"Abs", "[", 
+       RowBox[{
+        RowBox[{
+         RowBox[{"pex", "[", "\"\<x\>\"", "]"}], "[", "t", "]"}], "-", " ", 
+        RowBox[{
+         RowBox[{"ELK", "[", "\"\<x\>\"", "]"}], "[", "t", "]"}]}], "]"}], 
+      "}"}]}], "}"}], ",", 
+   RowBox[{"{", 
+    RowBox[{"t", ",", "0", ",", 
+     RowBox[{"ELK", "[", "\"\<limit\>\"", "]"}]}], "}"}]}], "]"}]], "Input"],
+
+Cell[BoxData[""], "Input"],
+
+Cell["\<\
+The output is an association . You can access these functions using the \
+following syntax :\
+\>", "Text"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"pex", "[", "\"\<r\>\"", "]"}], "[", "100", "]"}]], "Input"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"ELK", "[", "\"\<p\>\"", "]"}], "[", "5", "]"}]], "Input"],
+
+Cell["To find the limit so that we can plot the whole trajectory", "Text"],
+
+Cell[BoxData[{
+ RowBox[{"plotLimitpex", " ", "=", " ", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"pex", "[", "\"\<p\>\"", "]"}], "[", "\"\<Domain\>\"", "]"}], "[", 
+   RowBox[{"[", 
+    RowBox[{"1", ",", "2"}], "]"}], "]"}]}], "\[IndentingNewLine]", 
+ RowBox[{"plotLimitELKMino", " ", "=", " ", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"ELKupMino", "[", "\"\<En\>\"", "]"}], "[", "\"\<Domain\>\"", 
+    "]"}], "[", 
+   RowBox[{"[", 
+    RowBox[{"1", ",", "2"}], "]"}], "]"}]}], "\[IndentingNewLine]"}], "Input"],
+
+Cell["Plots of different parameters for both parametrisations ", "Text"],
+
+Cell[BoxData[
+ RowBox[{"Show", "[", 
+  RowBox[{
+   RowBox[{"ParametricPlot", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"ELKupMino", "[", "\"\<p\>\"", "]"}], "[", "\[Chi]", "]"}], 
+       ",", " ", 
+       RowBox[{
+        RowBox[{"ELKupMino", "[", "\"\<e\>\"", "]"}], "[", "\[Chi]", "]"}]}], 
+      "}"}], ",", " ", 
+     RowBox[{"{", 
+      RowBox[{"\[Chi]", ",", " ", "0", ",", " ", "plotLimitELKMino"}], "}"}], 
+     ",", " ", 
+     RowBox[{"AspectRatio", "\[Rule]", "1"}], ",", " ", 
+     RowBox[{"AxesLabel", "->", 
+      RowBox[{"{", 
+       RowBox[{"\"\<p\>\"", ",", "\"\<e\>\""}], "}"}]}]}], "]"}], ",", 
+   RowBox[{"ParametricPlot", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"pex", "[", "\"\<p\>\"", "]"}], "[", "t", "]"}], ",", " ", 
+       RowBox[{
+        RowBox[{"pex", "[", "\"\<e\>\"", "]"}], "[", "t", "]"}]}], "}"}], ",",
+      " ", 
+     RowBox[{"{", 
+      RowBox[{"t", ",", " ", "0", ",", " ", "plotLimitpex"}], "}"}], ",", " ", 
+     RowBox[{"AspectRatio", "\[Rule]", "1"}], ",", 
+     RowBox[{"PlotStyle", "->", 
+      RowBox[{"{", 
+       RowBox[{"Green", ",", "Dashed"}], "}"}]}]}], "]"}]}], " ", 
+  "]"}]], "Input"],
+
+Cell[BoxData[
+ RowBox[{"Show", "[", 
+  RowBox[{
+   RowBox[{"ParametricPlot", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"ELKupMino", "[", "\"\<p\>\"", "]"}], "[", "t", "]"}], ",", 
+       " ", 
+       RowBox[{
+        RowBox[{"ELKupMino", "[", "\"\<e\>\"", "]"}], "[", "t", "]"}]}], 
+      "}"}], ",", " ", 
+     RowBox[{"{", 
+      RowBox[{"t", ",", " ", "0", ",", " ", "plotLimitELKMino"}], "}"}], ",", 
+     " ", 
+     RowBox[{"AspectRatio", "\[Rule]", "1"}], ",", 
+     RowBox[{"AxesLabel", "->", 
+      RowBox[{"{", 
+       RowBox[{"\"\<p\>\"", ",", "\"\<e\>\""}], "}"}]}], ",", 
+     RowBox[{"PlotStyle", "->", 
+      RowBox[{"{", "Red", "}"}]}]}], "]"}], ",", 
+   RowBox[{"ParametricPlot", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"pex", "[", "\"\<p\>\"", "]"}], "[", "t", "]"}], ",", " ", 
+       RowBox[{
+        RowBox[{"pex", "[", "\"\<e\>\"", "]"}], "[", "t", "]"}]}], "}"}], ",",
+      " ", 
+     RowBox[{"{", 
+      RowBox[{"t", ",", " ", "0", ",", " ", "plotLimitpex"}], "}"}], ",", " ", 
+     RowBox[{"AspectRatio", "\[Rule]", "1"}], ",", 
+     RowBox[{"PlotStyle", "->", 
+      RowBox[{"{", 
+       RowBox[{"Gray", ",", "Dashed"}], "}"}]}]}], "]"}]}], "]"}]], "Input"],
+
+Cell[BoxData[
+ RowBox[{"Show", "[", 
+  RowBox[{"ParametricPlot3D", "[", 
+   RowBox[{
+    RowBox[{"{", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{
+        RowBox[{
+         RowBox[{"pex", "[", "\"\<r\>\"", "]"}], "[", "\[Chi]", "]"}], " ", 
+        RowBox[{"Sin", "[", 
+         RowBox[{
+          RowBox[{"pex", "[", "\"\<\[Theta]\>\"", "]"}], "[", "\[Chi]", "]"}],
+          "]"}], " ", 
+        RowBox[{"Cos", "[", 
+         RowBox[{
+          RowBox[{"pex", "[", "\"\<\[Phi]\>\"", "]"}], "[", "\[Chi]", "]"}], 
+         "]"}]}], ",", 
+       RowBox[{
+        RowBox[{
+         RowBox[{"pex", "[", "\"\<r\>\"", "]"}], "[", "\[Chi]", "]"}], " ", 
+        RowBox[{"Sin", "[", 
+         RowBox[{
+          RowBox[{"pex", "[", "\"\<\[Theta]\>\"", "]"}], "[", "\[Chi]", "]"}],
+          "]"}], " ", 
+        RowBox[{"Sin", "[", 
+         RowBox[{
+          RowBox[{"pex", "[", "\"\<\[Phi]\>\"", "]"}], "[", "\[Chi]", "]"}], 
+         "]"}]}], ",", 
+       RowBox[{
+        RowBox[{
+         RowBox[{"pex", "[", "\"\<r\>\"", "]"}], "[", "\[Chi]", "]"}], " ", 
+        RowBox[{"Cos", "[", 
+         RowBox[{
+          RowBox[{"pex", "[", "\"\<\[Theta]\>\"", "]"}], "[", "\[Chi]", "]"}],
+          "]"}]}]}], "}"}], "}"}], ",", 
+    RowBox[{"{", 
+     RowBox[{"\[Chi]", ",", "0", ",", "plotLimitpex"}], "}"}], ",", 
+    RowBox[{"AxesLabel", "\[Rule]", 
+     RowBox[{"{", 
+      RowBox[{"\"\<x\>\"", ",", "\"\<y\>\"", ",", "\"\<z\>\""}], "}"}]}], ",", 
+    RowBox[{"AspectRatio", "\[Rule]", "1"}]}], "]"}], "]"}]], "Input"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["References", "Section"],
+
+Cell[TextData[{
+ "[1] ",
+ ButtonBox["arxiv.org/abs/0708.3033",
+  BaseStyle->"Hyperlink",
+  ButtonData->{"arxiv.org/abs/0708.3033", None}],
+ "\n[2] ",
+ ButtonBox["arxiv.org/abs/1111.6908",
+  BaseStyle->"Hyperlink",
+  ButtonData->{"arxiv.org/abs/1111.6908", None}],
+ "\n[3] ",
+ ButtonBox["arxiv.org/abs/1012.5111",
+  BaseStyle->"Hyperlink",
+  ButtonData->{"arxiv.org/abs/1012.5111", None}]
+}], "Text"]
+}, Open  ]]
+}, Open  ]]
+},
+WindowSize->{765, 825},
+WindowMargins->{{297, Automatic}, {Automatic, -991}},
+Magnification:>0.7 Inherited,
+FrontEndVersion->"13.1 for Mac OS X ARM (64-bit) (June 16, 2022)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[580, 22, 72, 0, 49, "Title",ExpressionUUID->"817e682f-92e9-4c1c-816a-8bc9aacae01f"],
+Cell[CellGroupData[{
+Cell[677, 26, 40, 0, 49, "Section",ExpressionUUID->"a47b6485-34f9-4786-8568-94777e6ead0c"],
+Cell[720, 28, 335, 7, 49, "Text",ExpressionUUID->"975f3182-1703-4dfd-9e6e-ce2d702a37ba"],
+Cell[1058, 37, 70, 1, 49, "Input",ExpressionUUID->"c9a1645b-1b50-442e-8cf6-f482ded4a6ef"],
+Cell[1131, 40, 58, 1, 49, "Input",ExpressionUUID->"e09df352-bb58-48cf-82b7-9895f08bcdda"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[1226, 46, 42, 0, 49, "Section",ExpressionUUID->"8d07aed2-a2d9-48a2-83ea-e2d9a7604540"],
+Cell[CellGroupData[{
+Cell[1293, 50, 33, 0, 49, "Subsection",ExpressionUUID->"5375bc59-40cc-4ef4-8fc2-53dd49f3747d"],
+Cell[CellGroupData[{
+Cell[1351, 54, 44, 0, 49, "Subsubsection",ExpressionUUID->"6fae90fe-ab97-4ccc-8359-bb700e04bbc4"],
+Cell[1398, 56, 623, 11, 49, "Text",ExpressionUUID->"ee953c6a-2d68-471c-9b9a-d06376ae9ca3"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[2058, 72, 57, 0, 49, "Subsubsection",ExpressionUUID->"5a8f5a8e-d6e4-43d7-8149-4afe4cda55f3"],
+Cell[2118, 74, 75, 1, 49, "Input",ExpressionUUID->"78164ecf-6a4b-41c9-931a-4f9572c8ef6d"],
+Cell[2196, 77, 77, 1, 49, "Input",ExpressionUUID->"f253e061-de34-488e-b8e3-5d53e149fbba"],
+Cell[2276, 80, 75, 0, 49, "Text",ExpressionUUID->"aed28076-70f9-43e5-8d49-88505c7da6b8"],
+Cell[2354, 82, 48, 1, 49, "Input",ExpressionUUID->"439a556f-fdc5-441e-8326-cf8b5e9d7bd6"],
+Cell[2405, 85, 59, 1, 49, "Input",ExpressionUUID->"79e235fa-78be-4a87-8397-a35159051804"],
+Cell[2467, 88, 55, 1, 49, "Input",ExpressionUUID->"048d2658-554a-4a71-a770-331f4859b274"],
+Cell[2525, 91, 56, 1, 49, "Input",ExpressionUUID->"92214eda-07ad-468a-9c20-b787f114cefc"]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[2630, 98, 42, 0, 49, "Subsection",ExpressionUUID->"7ecad7ad-37d8-4a97-abe9-5da336f16d8f"],
+Cell[2675, 100, 178, 4, 49, "Text",ExpressionUUID->"a0795ff5-5786-460f-b013-d897d8221d00"],
+Cell[2856, 106, 874, 29, 49, "Input",ExpressionUUID->"cd2ad777-2e20-4adf-8bc1-7c17748de488"],
+Cell[3733, 137, 1070, 35, 49, "Input",ExpressionUUID->"139a44be-1ff1-4f7a-bf21-7beffdacff94"],
+Cell[4806, 174, 99, 2, 49, "Text",ExpressionUUID->"6e353c96-1aa8-4e81-bdbb-d3b8866723f2"],
+Cell[4908, 178, 282, 10, 49, "Input",ExpressionUUID->"aae7f41f-636e-4ed9-a046-3d52bdcbad2f"],
+Cell[5193, 190, 262, 5, 49, "Text",ExpressionUUID->"d1d4bb84-b4b5-480c-b63e-678936c803d2"],
+Cell[5458, 197, 361, 9, 49, "Input",ExpressionUUID->"e81e7f26-ec39-45ef-b6e4-29b2ee55dff5"],
+Cell[5822, 208, 325, 7, 49, "Input",ExpressionUUID->"47323123-cb2c-4e71-8152-3c95c4349f22"],
+Cell[6150, 217, 114, 3, 49, "Text",ExpressionUUID->"4cff69fd-565c-4dd9-97bd-332b5320f920"],
+Cell[6267, 222, 96, 2, 49, "Input",ExpressionUUID->"15081716-a25f-4758-aea6-205b7e8b4c8d"],
+Cell[6366, 226, 95, 2, 49, "Input",ExpressionUUID->"17f5ae4f-7213-4fc2-a04b-2844a3b579c2"],
+Cell[6464, 230, 74, 0, 49, "Text",ExpressionUUID->"5215fe7f-f3f1-4792-9350-e72b9d211a52"],
+Cell[6541, 232, 466, 14, 49, "Input",ExpressionUUID->"e5431552-ed36-4c85-bf4d-909580af288e"],
+Cell[7010, 248, 72, 0, 49, "Text",ExpressionUUID->"9c7d793a-4ee5-4cbb-8d96-979577e5a83e"],
+Cell[7085, 250, 1112, 31, 49, "Input",ExpressionUUID->"68cab21f-a84d-4c75-a17b-d851ed6657d4"],
+Cell[8200, 283, 1107, 31, 49, "Input",ExpressionUUID->"6c96ad75-62d9-4444-9af2-2d5512e4d996"],
+Cell[9310, 316, 1123, 31, 49, "Input",ExpressionUUID->"47aac327-aa19-44c7-9863-4ca4938baccd"],
+Cell[10436, 349, 47, 1, 49, "Input",ExpressionUUID->"a2edcf9c-e7ad-47a4-8c52-3d8c2518240f"],
+Cell[10486, 352, 66, 0, 49, "Text",ExpressionUUID->"ba2dd9f3-fb76-4892-ac93-349205a04d17"],
+Cell[10555, 354, 473, 14, 49, "Input",ExpressionUUID->"4a3e581f-50e1-4d80-b746-d619057d7285"],
+Cell[11031, 370, 3010, 83, 49, "Input",ExpressionUUID->"989714b1-b06c-468d-acdd-65ee53fd88a0"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[14078, 458, 37, 0, 49, "Subsection",ExpressionUUID->"c8c9a49b-5ea0-442d-871a-72ceef9271b4"],
+Cell[CellGroupData[{
+Cell[14140, 462, 39, 0, 49, "Subsubsection",ExpressionUUID->"6ec3e4dc-0f35-4e5c-9566-b27e4d389869"],
+Cell[14182, 464, 130, 3, 49, "Text",ExpressionUUID->"f8b27e67-6c70-41ae-ba86-66cb71790220"],
+Cell[14315, 469, 57, 1, 49, "Input",ExpressionUUID->"2ad5d2fe-699b-43bc-9336-7c9e6f614b49"],
+Cell[14375, 472, 114, 2, 49, "Input",ExpressionUUID->"d6cf9e3a-62ed-4cba-8da4-59b6935ce134"],
+Cell[14492, 476, 158, 3, 49, "Input",ExpressionUUID->"fd223b2b-ad50-4ed3-a03e-1958baf595c7"],
+Cell[14653, 481, 60, 0, 49, "Text",ExpressionUUID->"8683e70c-ad36-434c-91b9-e32010935965"],
+Cell[14716, 483, 230, 4, 49, "Input",ExpressionUUID->"562a3635-ca8d-414c-b237-bf25d69ecf51"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[14983, 492, 39, 0, 49, "Subsubsection",ExpressionUUID->"ae593413-7a0a-49b4-b847-6dce63260545"],
+Cell[15025, 494, 130, 3, 49, "Text",ExpressionUUID->"3898afde-13b0-4be4-a6e8-89e92458c1cf"],
+Cell[15158, 499, 57, 1, 49, "Input",ExpressionUUID->"3b294ddf-12f5-44fd-8bae-d7f18e7c3c85"],
+Cell[15218, 502, 104, 2, 49, "Input",ExpressionUUID->"9eadd8a8-5672-4daa-9812-cab3c88225c5"],
+Cell[15325, 506, 230, 4, 49, "Input",ExpressionUUID->"aac60c5d-11c2-4ea9-9aee-11f259735809"]
+}, Open  ]]
+}, Open  ]]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[15616, 517, 33, 0, 49, "Section",ExpressionUUID->"312645cf-2b61-4d78-afe8-5afecf45f6de"],
+Cell[15652, 519, 26, 0, 49, "Input",ExpressionUUID->"2ee29759-d55e-4ad9-b128-8f12862e8107"],
+Cell[CellGroupData[{
+Cell[15703, 523, 33, 0, 49, "Subsection",ExpressionUUID->"1cf934d0-17d7-4615-8757-5c8932432714"],
+Cell[CellGroupData[{
+Cell[15761, 527, 44, 0, 49, "Subsubsection",ExpressionUUID->"37155665-7995-4c50-804f-7277243da925"],
+Cell[15808, 529, 887, 16, 49, "Text",ExpressionUUID->"c71e5fda-a008-453c-8b81-65555dfd6e44"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[16732, 550, 54, 0, 49, "Subsubsection",ExpressionUUID->"72be7192-eb23-4ade-ab12-83b85e168554"],
+Cell[16789, 552, 72, 1, 49, "Input",ExpressionUUID->"a69ed05f-a2a8-4f25-97da-1b8afb3cc9e4"],
+Cell[16864, 555, 59, 1, 49, "Input",ExpressionUUID->"060b94c5-a9da-40cc-b03c-ab74251255d7"],
+Cell[16926, 558, 72, 0, 49, "Text",ExpressionUUID->"9727c47a-32fa-4bd0-8bf1-98019f790288"],
+Cell[17001, 560, 48, 1, 49, "Input",ExpressionUUID->"4a2312bc-a22c-488a-993c-bc922bfba99e"],
+Cell[17052, 563, 59, 1, 49, "Input",ExpressionUUID->"865b8f91-679a-43ae-8248-55904958cfe9"],
+Cell[17114, 566, 55, 1, 49, "Input",ExpressionUUID->"1ac5058e-d523-4077-ac25-578fe04a9d5f"],
+Cell[17172, 569, 56, 1, 49, "Input",ExpressionUUID->"34c445e1-7ab9-496a-b75d-cb2e9e49a428"],
+Cell[17231, 572, 59, 1, 49, "Input",ExpressionUUID->"ef238212-d862-47e5-96fb-2814473289ad"]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[17339, 579, 42, 0, 49, "Subsection",ExpressionUUID->"9f72b3f0-dce3-4192-a4fc-5e3e06053b11"],
+Cell[17384, 581, 279, 5, 49, "Text",ExpressionUUID->"1e386a02-dc3b-4e70-aff9-47ad99779807"],
+Cell[17666, 588, 39, 0, 49, "Text",ExpressionUUID->"99cfbe92-42ec-4160-a7e1-20970b61a118"],
+Cell[17708, 590, 1799, 48, 49, "Input",ExpressionUUID->"9106f9d5-8cf9-410b-8401-ee4e65353363"],
+Cell[19510, 640, 33, 0, 49, "Text",ExpressionUUID->"38b06754-e503-4a21-854b-342429a35dea"],
+Cell[19546, 642, 1487, 38, 49, "Input",ExpressionUUID->"9af980e5-bbbd-4630-8a68-b141e8a72b97"],
+Cell[21036, 682, 124, 3, 49, "Text",ExpressionUUID->"ebc4cc67-e60e-4f4c-857b-be82a8e94a9f"],
+Cell[21163, 687, 683, 18, 49, "Input",ExpressionUUID->"9c849649-b32f-4f54-b70f-d16d01d8be73"],
+Cell[21849, 707, 232, 4, 49, "Text",ExpressionUUID->"16856bd9-666a-48e9-b12a-76a5bec45c21"],
+Cell[22084, 713, 47, 0, 49, "Text",ExpressionUUID->"82ad1d25-ea4e-4a25-bb69-f6e8a7624670"],
+Cell[22134, 715, 970, 23, 49, "Input",ExpressionUUID->"a285c3ac-86d5-4302-8fce-2442b07e832f"],
+Cell[23107, 740, 981, 29, 49, "Input",ExpressionUUID->"fee05d17-64ed-49fc-988d-cf335b08042c"],
+Cell[24091, 771, 177, 3, 49, "Text",ExpressionUUID->"3d8b264f-c752-4699-93b3-b956e1cef005"],
+Cell[24271, 776, 395, 8, 49, "Input",ExpressionUUID->"c2a3ffe6-504a-4b61-9bdf-0074bcc461f2"],
+Cell[24669, 786, 46, 0, 49, "Text",ExpressionUUID->"0ddb87e2-9c89-4af3-b4a8-c55c7de698b5"],
+Cell[24718, 788, 981, 29, 49, "Input",ExpressionUUID->"76e20aab-9e23-4272-b671-348bc5818793"],
+Cell[25702, 819, 26, 0, 49, "Input",ExpressionUUID->"f1a5c404-6782-4298-a1d7-77a82edaa00e"],
+Cell[25731, 821, 116, 3, 49, "Text",ExpressionUUID->"b4e67924-4f55-40b2-b797-0b028203b057"],
+Cell[25850, 826, 94, 2, 49, "Input",ExpressionUUID->"5d6bfcb1-f5e9-435a-8fd1-e294c68599a0"],
+Cell[25947, 830, 92, 2, 49, "Input",ExpressionUUID->"78d810f7-1fd0-467c-b85f-4f69b26c21eb"],
+Cell[26042, 834, 74, 0, 49, "Text",ExpressionUUID->"52d63247-5620-410c-bbf7-627b1ab14f71"],
+Cell[26119, 836, 500, 13, 49, "Input",ExpressionUUID->"d10ac182-7d87-4629-b25b-3acdec6492bb"],
+Cell[26622, 851, 72, 0, 49, "Text",ExpressionUUID->"82bad8c8-6a4a-4002-a5c6-7074d3618630"],
+Cell[26697, 853, 1226, 35, 49, "Input",ExpressionUUID->"f7298ba6-2ed9-4c53-a6ce-249d82238de4"],
+Cell[27926, 890, 1271, 36, 49, "Input",ExpressionUUID->"b494f7a9-e72f-411d-8a93-c799bed42871"],
+Cell[29200, 928, 1523, 41, 49, "Input",ExpressionUUID->"ad59d25a-2b3e-45ab-9730-4ccc5936107a"]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[30772, 975, 29, 0, 49, "Section",ExpressionUUID->"15af1890-49a5-459e-9843-6b2f439b26df"],
+Cell[30804, 977, 399, 13, 49, "Text",ExpressionUUID->"eefdc54c-a451-447c-b847-8ad5c084f9ec"]
+}, Open  ]]
+}, Open  ]]
+}
+]
+*)
+
+(* End of internal cache information *)
