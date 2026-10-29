@@ -5,7 +5,7 @@
 
 
 (* ::Text:: *)
-(*LEGACY CODE: not used by the current interface, OsculatingInspiral. Kept so that the earlier functions keep working; do not extend it. SchwarzGasDrag, KerrGasDrag, KerrGasDragVec, KerrGasDragapex, KerrEMCons and SchwarzFastGSF, which the earlier solvers take through their Force option. The ForceModels "GasDrag", "EMConservative" and "FastGSF" replace them; SchwarzFastGSF uses the coefficient tables that ForceModels/FastGSF.wl reads. Kernel/OsculatingOrbitalElements.wl loads this file last, into the package's private context.*)
+(*LEGACY: kept so that the earlier functions keep working; do not extend. The force functions of the earlier solvers' Force option: SchwarzGasDrag, KerrGasDrag, KerrGasDragVec, KerrGasDragapex, KerrEMCons and SchwarzFastGSF, replaced by the ForceModels \"GasDrag\", \"EMConservative\" and \"FastGSF\". SchwarzFastGSF uses the tables read by ForceModels/FastGSF.wl.*)
 
 
 (* ::Section:: *)

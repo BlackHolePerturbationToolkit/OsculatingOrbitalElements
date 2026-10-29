@@ -5,7 +5,7 @@
 
 
 (* ::Text:: *)
-(*LEGACY CODE: not used by the current interface, OsculatingInspiral. Kept so that the earlier functions keep working; do not extend it. The radial roots, SeparatrixEqELK, and Energy, AngularMomentum and CarterConstant, which the earlier solvers and force functions use. The regular solver uses RegularEnergy and RegularLOverX (Utilities.wl) instead, which need no special cases at e = 0 or x = 0. Kernel/OsculatingOrbitalElements.wl loads this file last, into the package's private context.*)
+(*LEGACY: kept so that the earlier functions keep working; do not extend. The radial roots, SeparatrixEqELK, and Energy, AngularMomentum and CarterConstant of the earlier solvers and force functions; the regular solver uses RegularEnergy and RegularLOverX instead.*)
 
 
 (* ::Subsubsection::Closed:: *)
@@ -86,3 +86,22 @@ En = Energy[a,p,e,x];
 ]]
 
 CarterConstant[a_?NumericQ, p_?NumericQ, e_?NumericQ, x_?NumericQ]:= memoLast[CarterConstant, carterConstantCache, {a,p,e,x}, (-a^2 (-1+Energy[a,p,e,x]^2)+AngularMomentum[a,p,e,x]^2/x^2) (1-x^2)];
+
+
+(* ::Subsubsection::Closed:: *)
+(*Rates of the orbital elements*)
+
+
+(* ::Text:: *)
+(*The rates of (p, e^2, x) from those of (En, L, Q), as "p", "e2" and "x". The x rate divides by x; the regular solver uses RegularXRate instead.*)
+
+
+OrbitalElementRates[a_, {p_, e2_, x_}, {En_, L_, Q_}, rates:{dEn_, dL_, dQ_}] := Module[{dK, zm, \[Beta], \[Beta]zp, dzm},
+	dK = dQ + 2 (L - a En) (dL - a dEn);
+	(* x, through zm = 1 - x^2 *)
+	zm = 1 - x^2;
+	\[Beta] = a^2 (1 - En^2);
+	\[Beta]zp = \[Beta] + L^2/x^2;
+	dzm = ((1 - zm) dK - 2 (L - a (1 - zm) En) (dL - a (1 - zm) dEn))/(\[Beta]zp - \[Beta] zm);
+	Append[SlowElementRates[a, {p, e2}, {En, L, Q}, rates], "x" -> -dzm/(2 x)]
+];

@@ -5,7 +5,7 @@
 
 
 (* ::Text:: *)
-(*LEGACY CODE: not used by the current interface. Kept for reference only; do not extend it. These are earlier versions of the ELK equations of motion (KerrOscGeoEqs, KerrOscGeoEqsTP and KerrOscGeoEqsTPVecLessArg), which nothing calls. Kernel/OsculatingOrbitalElements.wl loads this file last, into the package's private context.*)
+(*LEGACY: kept for reference only; do not extend. Earlier versions of the ELK equations (KerrOscGeoEqs, KerrOscGeoEqsTP and KerrOscGeoEqsTPVecLessArg), which nothing calls.*)
 
 
 (* ::Text:: *)

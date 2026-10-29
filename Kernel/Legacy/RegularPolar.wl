@@ -5,7 +5,7 @@
 
 
 (* ::Text:: *)
-(*ON HOLD: not used by the current interface, OsculatingInspiral. Its regular solver integrates x and the polar phase \[Psi]\[Theta], and treats equatorial orbits (x = \[PlusMinus]1) as a special case (Solvers/KerrPEX.wl). This file keeps the parts of the regular polar formulation, in which (\[Alpha]\[Theta], \[Beta]\[Theta], x) = (Sqrt[zm] Sin[\[Psi]\[Theta]], Sqrt[zm] Cos[\[Psi]\[Theta]], x) is a unit vector integrated in place of (x, \[Psi]\[Theta]), until the formulation is settled; it may change. OsculatingInspiral used it at commit 7e644fe, whose regularSystem shows how the pieces fit, and Notes/RegularFormulation.md derives it. Nothing calls these functions, and no test covers them. Kernel/OsculatingOrbitalElements.wl loads this file last, into the package's private context.*)
+(*ON HOLD: the regular polar formulation, in which the unit vector (\[Alpha]\[Theta], \[Beta]\[Theta], x) = (Sqrt[zm] Sin[\[Psi]\[Theta]], Sqrt[zm] Cos[\[Psi]\[Theta]], x) is integrated in place of (x, \[Psi]\[Theta]), kept until it is settled; it may change. OsculatingInspiral used it at commit 7e644fe, whose regularSystem shows how the pieces fit, and Notes/RegularFormulation.md derives it. Nothing calls these functions, and no test covers them.*)
 
 
 (* ::Section:: *)

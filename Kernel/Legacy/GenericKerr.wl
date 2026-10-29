@@ -5,7 +5,7 @@
 
 
 (* ::Text:: *)
-(*LEGACY CODE: not used by the current interface, OsculatingInspiral. Kept so that the earlier functions keep working; do not extend it. GenericKerrpexBL (p, e, x, with p, \[Alpha]p, \[Beta]p at small e) and GenericKerrREGBL (p, \[Alpha]p, \[Beta]p), with their builders and their force resolvers. Their polar phase equation, polarPhaseRate, is shared with the regular solver (Solvers/KerrPEX.wl). OsculatingInspiral's regular solver (Solvers/KerrPEX.wl) replaces them. Kernel/OsculatingOrbitalElements.wl loads this file last, into the package's private context.*)
+(*LEGACY: kept so that the earlier functions keep working; do not extend. GenericKerrpexBL (p, e, x, with p, \[Alpha]p, \[Beta]p at small e) and GenericKerrREGBL (p, \[Alpha]p, \[Beta]p), with their builders and force resolvers, replaced by the regular solver (Solvers/KerrPEX.wl), with which they share polarPhaseRate.*)
 
 
 (* ::Section:: *)

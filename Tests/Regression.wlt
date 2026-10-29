@@ -1,10 +1,9 @@
 (* ::Package:: *)
 
-(* Regression: fixed solver outputs (RegressionCases.wl) against ReferenceOutputs.wl.
-   On the Wolfram version and system that generated ReferenceOutputs.wl they must match exactly; that is how a change
-   meant to leave results untouched, such as Phase 1 of the refactor, is checked. Elsewhere NDSolve can differ slightly,
-   so a relative tolerance of 1e-8 is used. Regenerate the file with MakeReferenceOutputs.wls only when a change in
-   results is intended. *)
+(* Regression: fixed solver outputs (RegressionCases.wl) against ReferenceOutputs.wl. On the Wolfram version and system
+   that made ReferenceOutputs.wl they must match exactly, which checks changes meant to leave results untouched;
+   elsewhere a relative tolerance of 1e-8 is used. Regenerate the file with MakeReferenceOutputs.wls only when a change
+   in results is intended. *)
 
 Get[FileNameJoin[{$testsDirectory, "RegressionCases.wl"}]];
 reference = Get[FileNameJoin[{$testsDirectory, "ReferenceOutputs.wl"}]];

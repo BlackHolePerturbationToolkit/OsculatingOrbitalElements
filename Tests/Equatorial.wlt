@@ -1,9 +1,7 @@
 (* ::Package:: *)
 
-(* Equatorial orbits (x = +-1) in pex and REG.
-   TEMPORARY: these test the safeguard that holds equatorial orbits in the plane and rejects forces with a theta
-   component there. Replace them when the regular (alpha_theta, beta_theta, x) polar formulation lands
-   (see "Polar motion near the equator and the poles" in Design_Doc.md). *)
+(* Equatorial orbits (x = +-1) in the legacy pex and REG solvers, which hold them in the plane and reject forces with a
+   theta component there. OsculatingInspiral's equatorial case is tested in OsculatingInspiral.wlt. *)
 
 VerificationTest[
 	equatorial = quietStops@GenericKerrpexBL[10^-4, 0.5, 12, 0.3, 1, 0.7, 0, IntegrationLimit -> 20000];

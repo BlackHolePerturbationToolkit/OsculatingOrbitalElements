@@ -306,12 +306,10 @@ VerificationTest[
 
 
 (* ::Section:: *)
-(* Forces with a theta component. These test forces are projected orthogonal to the velocity: for a covector k they are
-   k + (k.u) u, which uses u^theta = u_theta/Sigma and u^phi = (dphi/dlambda)/Sigma from the geometry, so they are
-   written as drivers and given to RunSolver directly. Where they are compared with REG, the regular solver uses
-   InterpolationOrder -> All, so that its values between steps have the accuracy of the integration; with the default
-   interpolation they are up to about 10^-6 off in r and 2 10^-7 in e, as large as the tolerances. An error of 1% in a
-   force term changes the results by 10^-3 or more. *)
+(* Forces with a theta component, projected orthogonal to the velocity (k + (k.u) u for a covector k) and so written as
+   drivers and given to RunSolver directly. Against REG, the regular solver uses InterpolationOrder -> All: its default
+   interpolation between steps is off by up to 10^-6 in r, as large as the tolerances. An error of 1% in a force term
+   changes the results by 10^-3 or more. *)
 
 runWithDriver[builder_, driver_, \[Epsilon]_, a_, initial_, opts___] := OsculatingOrbitalElements`Private`RunSolver[
 	OsculatingInspiral, builder, Function[force, {<|"Type" -> "Force", "Function" -> driver|>}], \[Epsilon], a, initial, {opts},

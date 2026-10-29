@@ -1,11 +1,7 @@
 (* ::Package:: *)
 
 (* ::Title:: *)
-(*Kerr solver in p, e, x: the regular solver behind OsculatingInspiral*)
-
-
-(* ::Text:: *)
-(*Part of the OsculatingOrbitalElements package. Kernel/OsculatingOrbitalElements.wl loads this file into the package's private context, so it cannot be loaded on its own.*)
+(*The regular solver behind OsculatingInspiral*)
 
 
 (* ::Section:: *)
@@ -13,7 +9,7 @@
 
 
 (* ::Text:: *)
-(*The builder returns the system for IntegrateSystem, with "Variable" and "Outputs" (see RunSolver in Interface.wl). It builds on the shared orbit geometry and rate maps in Utilities.wl. The earlier pex and REG solvers are in Legacy/GenericKerr.wl.*)
+(*The builder returns a system for IntegrateSystem, with \"Variable\" and \"Outputs\" (see RunSolver in Interface.wl). The earlier pex and REG solvers are in Legacy/GenericKerr.wl. Loaded into the package's private context by Kernel/OsculatingOrbitalElements.wl.*)
 
 
 (* ::Subsubsection:: *)
@@ -21,7 +17,7 @@
 
 
 (* ::Text:: *)
-(*The rate of \[Psi]\[Theta] with Mino time, from the geometry and the force's null-tetrad components. It divides by Sqrt[zm], so it is singular for equatorial orbits, which the solvers treat as a special case. The legacy solvers (Legacy/GenericKerr.wl) use it too.*)
+(*The Mino-time rate of \[Psi]\[Theta] from the geometry and the force's null-tetrad components. It divides by Sqrt[zm], so equatorial orbits are a special case. The legacy solvers use it too.*)
 
 
 polarPhaseRate[g_Association, {an_, A1_, A2_, A3_}] := Module[{a, \[Psi]\[Theta], \[Beta], zm, \[Beta]zp, \[Theta]},
@@ -34,14 +30,13 @@ polarPhaseRate[g_Association, {an_, A1_, A2_, A3_}] := Module[{a, \[Psi]\[Theta]
 
 
 (* ::Subsubsection:: *)
-(*Regular p, e, x equations (OsculatingInspiral)*)
+(*The regular solver*)
 
 
 (* ::Text:: *)
-(*The default solver. It integrates p and the eccentricity components \[Alpha]p = e Sin[\[Psi]r] and \[Beta]p = e Cos[\[Psi]r] with the REG radial equations, which are regular for circular orbits, and x and the polar phase \[Psi]\[Theta]. The rate of x is in the form that is regular at x = 0 (RegularXRate in Utilities.wl), so an inspiral can pass from prograde to retrograde. The initial values are {p0, e0, x0, \[Psi]r0, \[Psi]\[Theta]0, \[Phi]0}.*)
-(*Equatorial orbits (x0 = \[PlusMinus]1) are a special case, as in the legacy solvers: the \[Psi]\[Theta] equation divides by Sqrt[zm], so x is held at exactly \[PlusMinus]1, the polar equations are dropped, and \[Theta] = \[Pi]/2. The orbit can then only stay in the plane, so the force must have no \[Theta] component there, and a flux must not change x; both are checked at the start. A regular polar formulation, which would let a force lift an equatorial orbit out of the plane, is on hold (Legacy/RegularPolar.wl).*)
-(*\[Phi] is integrated directly. Near the Boyer-Lindquist axis d\[Phi]/d\[Lambda] ~ L/Sin[\[Theta]]^2, so an orbit with small |x|, which passes Sin[\[Theta]] = |x| from the axis, swings \[Phi] by nearly \[Pi] in a time ~ |x|. NDSolve's default multistep method can step over that swing entirely: at its default goals \[Phi] was wrong by ~0.4 rad for a gas-drag inspiral at x = 0.01, and meaningless at x = 0.001. An 8th-order explicit Runge-Kutta method with goals of 11 or more resolves it down to |x| = 0.001 at least, so that is the default here, with goals 12 (see the Method below, and the AccuracyGoal and PrecisionGoal defaults of OsculatingInspiral). Over 5000M of gas-drag inspiral it is also about 4 times more accurate in r than the earlier solvers' defaults, and about twice as slow. Writing \[Phi] through Sin[\[Theta]] Exp[I \[Phi]] instead was tried and is worse: its equation divides by Sin[\[Theta]] Exp[-I \[Phi]], which amplifies any error in the polar variables near the axis.*)
-(*The Runge-Kutta method's stiffness test only stops the integration when stability limits the step for 100 steps in a row, rather than NDSolve's default 3 in 5. With the default, a geodesic in Mino time stopped at \[Lambda] = 734 (t = 98000) as "stiff", although its steps were steady; with this it reaches \[Lambda] = 3000, with e constant to 2 10^-10. The steps are the same as with the default test. (Turning the test off is not the same: it lets the steps grow by about 20%, which doubles the interpolation error between them.) A genuinely stiff case, such as a force with a \[Theta] component close to the equator, still stops with NDSolve::ndstf.*)
+(*It integrates p and the eccentricity components \[Alpha]p = e Sin[\[Psi]r], \[Beta]p = e Cos[\[Psi]r] with the REG radial equations, which are regular for circular orbits; x, with a rate regular at x = 0 (RegularXRate), so an inspiral can pass from prograde to retrograde; \[Psi]\[Theta]; and \[Phi]. The initial values are {p0, e0, x0, \[Psi]r0, \[Psi]\[Theta]0, \[Phi]0}.*)
+(*Equatorial orbits (x0 = \[PlusMinus]1) are a special case, as in the legacy solvers: x is held at exactly \[PlusMinus]1, the polar equations are dropped and \[Theta] = \[Pi]/2. So the force must have no \[Theta] component in the plane, and a flux must not change x; both are checked at the start. A regular polar formulation without this restriction is on hold (Legacy/RegularPolar.wl).*)
+(*The method is an 8th-order explicit Runge-Kutta method, with goals 12 by default. Near the axis d\[Phi]/d\[Lambda] ~ L/Sin[\[Theta]]^2, so an orbit with small |x| swings \[Phi] by nearly \[Pi] in a time ~ |x|; NDSolve's default multistep method can step over the swing, while this resolves it down to |x| = 0.001. Its stiffness test only stops after 100 stability-limited steps in a row, rather than 3 in 5, which falsely stopped long Mino-time runs; the steps are the same.*)
 
 
 regularSystem[\[Epsilon]_, a_, {p0_, e0_, x0_, \[Psi]r0_, \[Psi]\[Theta]0_, \[Phi]0_}, drivers_List, settings_Association] := Module[
@@ -70,9 +65,8 @@ regularSystem[\[Epsilon]_, a_, {p0_, e0_, x0_, \[Psi]r0_, \[Psi]\[Theta]0_, \[Ph
     If[minoQ, t[0] == 0, Nothing]
   };
 
-  (* The osculating geodesic: its constants of motion, and its radial motion in terms of \[Alpha]p and \[Beta]p, as in REG.
-     Z = P^2, where P = d\[Psi]r/d\[Lambda], is polynomial in \[Alpha]p and \[Beta]p. With L = x \[ScriptL], the geometry's
-     \[Beta] zp = \[Beta] + L^2/x^2 is \[Beta] + \[ScriptL]^2, which is regular at x = 0. *)
+  (* The osculating geodesic, with its radial motion in \[Alpha]p and \[Beta]p as in REG: Z = P^2, with P = d\[Psi]r/d\[Lambda],
+     is polynomial in them. With L = x \[ScriptL] the geometry's \[Beta] zp is \[Beta] + \[ScriptL]^2, regular at x = 0. *)
   e2 = \[Alpha]p[s]^2 + \[Beta]p[s]^2;
   En = RegularEnergy[a, p[s], e2, x[s]];
   \[ScriptL] = RegularLOverX[a, p[s], e2, x[s]];
@@ -87,17 +81,15 @@ regularSystem[\[Epsilon]_, a_, {p0_, e0_, x0_, \[Psi]r0_, \[Psi]\[Theta]0_, \[Ph
   geometry = KerrOrbitGeometry[a, {En, L, Q}, {r, x[s], \[Psi]\[Theta][s]}, p[s] \[Alpha]p[s] P/w^2];
   {\[CapitalSigma], \[CapitalDelta]} = Lookup[geometry, {"\[CapitalSigma]", "\[CapitalDelta]"}];
 
-  (* The total force. Force models get the phases, \[Psi]r in (-\[Pi], \[Pi]] and \[Psi]\[Theta] as integrated, which are set to
-     0 where they are undefined (e = 0, or an equatorial orbit); a physical force does not depend on them there. They
-     also get \[Phi] and the coordinate time t, so that a force need not be axisymmetric or stationary. *)
+  (* The total force. Force models get \[Psi]r in (-\[Pi], \[Pi]] and \[Psi]\[Theta] as integrated, each 0 where undefined (e = 0,
+     or an equatorial orbit), and \[Phi] and the coordinate time t. *)
   state = Join[<|"a" -> a, "p" -> p[s], "e" -> Sqrt[e2], "x" -> x[s], "\[Psi]r" -> phaseAngle[\[Alpha]p[s], \[Beta]p[s]],
     "\[Psi]\[Theta]" -> \[Psi]\[Theta][s], "\[Phi]" -> \[Phi][s], "t" -> If[minoQ, t[s], s],
     "\[Alpha]p" -> \[Alpha]p[s], "\[Beta]p" -> \[Beta]p[s]|>, geometry];
   {at, ar, a\[Theta], a\[Phi]} = TotalForce[drivers, state, \[Epsilon]];
 
-  (* The fluxes' rates of {p, \[Alpha]p, \[Beta]p, x}. They change only the slowly varying parts of these variables, leaving
-     the phases at their geodesic rates (see fluxVariableRates in FluxModels/FluxModel.wl). They are averages with
-     respect to t, so they need coordinate time. *)
+  (* The fluxes' rates of {p, \[Alpha]p, \[Beta]p, x} (fluxVariableRates). They are averages with respect to t, so they
+     need coordinate time. *)
   If[minoQ && MemberQ[drivers, KeyValuePattern["Type" -> "Flux"]], Message[OsculatingInspiral::fluxtime]; Return[$Failed]];
   flux = TotalFlux[drivers, state, \[Epsilon]];
 
@@ -156,15 +148,15 @@ regularSystem[\[Epsilon]_, a_, {p0_, e0_, x0_, \[Psi]r0_, \[Psi]\[Theta]0_, \[Ph
   If[!TrueQ[p0 > initialPSep + deltaPSep],
     Message[OsculatingInspiral::sep, deltaPSep, p0, initialPSep];
     Return[$Failed]];
-  (* The events are located to 8 digits. Near the separatrix p changes steeply, and the default, the solver's own goals,
-     can be more than the Runge-Kutta method's interpolation within a step supports (NDSolve::evcvmit). *)
+  (* Events are located to 8 digits: near the separatrix the solver's own goals can be more than the Runge-Kutta
+     interpolation within a step supports (NDSolve::evcvmit). *)
   events = With[{u = s, location = "LocationMethod" -> {"Brent", AccuracyGoal -> 8, PrecisionGoal -> 8}}, {
     If[pMinQ, stopEvent[p[u] - minimumP == 0, "pMin", location], Nothing],
     stopEvent[p[u] - SeparatrixP[a, Sqrt[\[Alpha]p[u]^2 + \[Beta]p[u]^2], x[u]] - deltaPSep == 0, "SeparatrixBuffer", location]
   }] /. equatorialRules;
 
-  (* The result, made from NDSolve's solution. In coordinate time, t is the independent variable itself. On an
-     equatorial orbit x is constant, and \[Psi]\[Theta] is None. *)
+  (* The result from NDSolve's solution. In coordinate time t is the independent variable; on an equatorial orbit x is
+     constant and \[Psi]\[Theta] is None. *)
   outputs[rules_] := regularOutputs[a, Join[
     {p, \[Alpha]p, \[Beta]p} /. rules,
     If[equatorialQ, {Function[{u}, Evaluate[N[Sign[x0]]], {Listable}], None}, {x, \[Psi]\[Theta]} /. rules],
@@ -178,27 +170,28 @@ regularSystem[\[Epsilon]_, a_, {p0_, e0_, x0_, \[Psi]r0_, \[Psi]\[Theta]0_, \[Ph
 
 
 (* ::Text:: *)
-(*The angle of the point (\[Beta], \[Alpha]), which is 0 at the origin, where the phase is undefined. It gives \[Psi]r from \[Alpha]p and \[Beta]p.*)
+(*The angle of (\[Beta], \[Alpha]), 0 at the origin: \[Psi]r from \[Alpha]p and \[Beta]p.*)
 
 
 phaseAngle[\[Alpha]_?NumericQ, \[Beta]_?NumericQ] := If[TrueQ[\[Alpha] == 0 && \[Beta] == 0], 0, ArcTan[\[Beta], \[Alpha]]];
 
 
 (* ::Text:: *)
-(*The regular solver's outputs, each a listable function of the time variable, from the solutions for p, \[Alpha]p, \[Beta]p, x, \[Psi]\[Theta], \[Phi] and t, and the initial radial phase \[Psi]r0. \[Psi]\[Theta] is None for an equatorial orbit, where \[Theta] = \[Pi]/2. The phases \[Psi]r and \[Psi]\[Theta] are given in (-\[Pi], \[Pi]], and are Missing where they are undefined: \[Psi]r at e = 0, and \[Psi]\[Theta] on an equatorial orbit.*)
-(*The osculating geodesic's Boyer-Lindquist frequencies and action angles (OrbitalAngles.wl) are outputs too. The angles accumulate, as \[Phi] does: they are computed from \[Psi]r with its turns counted (continuousRadialPhase), from \[Psi]\[Theta] as integrated, and from \[Phi]. \[CapitalPhi]r is Missing where \[Psi]r is undefined, and \[CapitalPhi]\[Theta] where \[Psi]\[Theta] is; the other angles do not depend on the undefined phase there.*)
+(*The solver's outputs, each a listable function of the time variable, from the solutions for p, \[Alpha]p, \[Beta]p, x, \[Psi]\[Theta] (None on an equatorial orbit), \[Phi] and t, and the initial \[Psi]r0. The phases are given in (-\[Pi], \[Pi]]. The frequencies and action angles come from OrbitalAngles.wl; the angles accumulate, using \[Psi]r with its turns counted. \[Psi]r and \[CapitalPhi]r are Missing at e = 0, and \[Psi]\[Theta] and \[CapitalPhi]\[Theta] on an equatorial orbit.*)
 
 
 regularOutputs[a_, {p_, \[Alpha]p_, \[Beta]p_, x_, \[Psi]\[Theta]_, \[Phi]_, t_}, \[Psi]r0_] := Module[
-  {e2, e, r, \[Theta], \[Psi]r, \[Psi]\[Theta]Output, En, \[ScriptL], L, Q, K, \[Psi]rTurns, \[Psi]\[Theta]Angle, angle, frequency, circular},
+  {equatorialQ, undefined, circular, e2, e, r, \[Theta], \[Psi]r, \[Psi]\[Theta]Output, En, \[ScriptL], L, Q, K, \[Psi]rTurns, \[Psi]\[Theta]Angle, angle, frequency},
+  equatorialQ = \[Psi]\[Theta] === None;
+  undefined[reason_] := Function[{u}, Missing[reason], {Listable}];
+  circular = Function[{u}, TrueQ[\[Alpha]p[u] == 0 && \[Beta]p[u] == 0]];
   e2 = Function[{u}, \[Alpha]p[u]^2 + \[Beta]p[u]^2, {Listable}];
   e = Function[{u}, Sqrt[e2[u]], {Listable}];
   r = Function[{u}, p[u]/(1 + \[Beta]p[u]), {Listable}];
-  \[Psi]r = Function[{u}, If[TrueQ[\[Alpha]p[u] == 0 && \[Beta]p[u] == 0],
-    Missing["UndefinedAtZeroEccentricity"], ArcTan[\[Beta]p[u], \[Alpha]p[u]]], {Listable}];
-  If[\[Psi]\[Theta] === None,
+  \[Psi]r = Function[{u}, If[circular[u], Missing["UndefinedAtZeroEccentricity"], ArcTan[\[Beta]p[u], \[Alpha]p[u]]], {Listable}];
+  If[equatorialQ,
     \[Theta] = Function[{u}, Evaluate[N[\[Pi]/2]], {Listable}];
-    \[Psi]\[Theta]Output = Function[{u}, Missing["UndefinedForEquatorialOrbit"], {Listable}],
+    \[Psi]\[Theta]Output = undefined["UndefinedForEquatorialOrbit"],
     \[Theta] = Function[{u}, ArcCos[Sqrt[1 - x[u]^2] Cos[\[Psi]\[Theta][u]]], {Listable}];
     \[Psi]\[Theta]Output = Function[{u}, ArcTan[Cos[\[Psi]\[Theta][u]], Sin[\[Psi]\[Theta][u]]], {Listable}]];
   En = Function[{u}, RegularEnergy[a, p[u], e2[u], x[u]], {Listable}];
@@ -208,9 +201,8 @@ regularOutputs[a_, {p_, \[Alpha]p_, \[Beta]p_, x_, \[Psi]\[Theta]_, \[Phi]_, t_}
   K = Function[{u}, Q[u] + (L[u] - a En[u])^2, {Listable}];
   frequency[i_] := Function[{u}, BoyerLindquistFrequency[i, a, p[u], e[u], x[u]], {Listable}];
   \[Psi]rTurns = continuousRadialPhase[\[Alpha]p, \[Beta]p, \[Psi]r0];
-  \[Psi]\[Theta]Angle = If[\[Psi]\[Theta] === None, Function[{u}, 0], \[Psi]\[Theta]];
+  \[Psi]\[Theta]Angle = If[equatorialQ, Function[{u}, 0], \[Psi]\[Theta]];
   angle[i_] := Function[{u}, BoyerLindquistAngle[i, a, p[u], e[u], x[u], \[Psi]rTurns[u], \[Psi]\[Theta]Angle[u], \[Phi][u]], {Listable}];
-  circular = Function[{u}, TrueQ[\[Alpha]p[u] == 0 && \[Beta]p[u] == 0]];
   <|
     "Trajectory" -> {t, r, \[Theta], \[Phi]},
     "t" -> t, "r" -> r, "\[Theta]" -> \[Theta], "\[Phi]" -> \[Phi],
@@ -220,7 +212,7 @@ regularOutputs[a_, {p_, \[Alpha]p_, \[Beta]p_, x_, \[Psi]\[Theta]_, \[Phi]_, t_}
     "\[Alpha]p" -> \[Alpha]p, "\[Beta]p" -> \[Beta]p,
     "\[CapitalOmega]r" -> frequency[1], "\[CapitalOmega]\[Theta]" -> frequency[2], "\[CapitalOmega]\[Phi]" -> frequency[3],
     "\[CapitalPhi]r" -> Function[{u}, If[circular[u], Missing["UndefinedAtZeroEccentricity"], angle[1][u]], {Listable}],
-    "\[CapitalPhi]\[Theta]" -> If[\[Psi]\[Theta] === None, Function[{u}, Missing["UndefinedForEquatorialOrbit"], {Listable}], angle[2]],
+    "\[CapitalPhi]\[Theta]" -> If[equatorialQ, undefined["UndefinedForEquatorialOrbit"], angle[2]],
     "\[CapitalPhi]\[Phi]" -> angle[3]
   |>
 ];

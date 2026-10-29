@@ -5,15 +5,15 @@
 
 
 (* ::Text:: *)
-(*Part of the OsculatingOrbitalElements package. Kernel/OsculatingOrbitalElements.wl loads this file into the package's private context, so it cannot be loaded on its own.*)
+(*The osculating geodesic's Boyer-Lindquist frequencies and action angles. Loaded into the package's private context by Kernel/OsculatingOrbitalElements.wl.*)
 
 
 (* ::Text:: *)
-(*The Boyer-Lindquist frequencies (\[CapitalOmega]r, \[CapitalOmega]\[Theta], \[CapitalOmega]\[Phi]) of a geodesic, and the conversion from its quasi-Keplerian phases (\[Psi]r, \[Psi]\[Theta], \[Phi]) to its Boyer-Lindquist action angles (\[CapitalPhi]r, \[CapitalPhi]\[Theta], \[CapitalPhi]\[Phi]), which advance at the constant rates \[CapitalOmega]r, \[CapitalOmega]\[Theta] and \[CapitalOmega]\[Phi] in coordinate time. The conversion follows P. Lynch and O. Burke, "A note on the conversion of orbital angles for extreme mass ratio inspirals", Class. Quantum Grav. 42, 167001 (2025), arXiv:2411.04955, and its code (github.com/Philip-Lynch/KerrOrbitalAngleConversion), with the Fujita-Hikida solution for the geodesic:*)
-(*- the Mino-time phases qr and q\[Theta] follow from \[Psi]r and \[Psi]\[Theta]. All four are 0 at the same points: periapsis, and where cos \[Theta] is largest;*)
+(*The action angles (\[CapitalPhi]r, \[CapitalPhi]\[Theta], \[CapitalPhi]\[Phi]) advance at the constant rates (\[CapitalOmega]r, \[CapitalOmega]\[Theta], \[CapitalOmega]\[Phi]) in coordinate time. The conversion from the phases (\[Psi]r, \[Psi]\[Theta], \[Phi]) follows P. Lynch and O. Burke, Class. Quantum Grav. 42, 167001 (2025), arXiv:2411.04955, and its code (github.com/Philip-Lynch/KerrOrbitalAngleConversion), with the Fujita-Hikida solution for the geodesic:*)
+(*- the Mino-time phases qr and q\[Theta] follow from \[Psi]r and \[Psi]\[Theta]; all four are 0 at periapsis and where cos \[Theta] is largest;*)
 (*- \[CapitalPhi]r = qr + \[CapitalOmega]r \[CapitalDelta]t, \[CapitalPhi]\[Theta] = q\[Theta] + \[CapitalOmega]\[Theta] \[CapitalDelta]t and \[CapitalPhi]\[Phi] = \[Phi] - \[CapitalDelta]\[Phi] + \[CapitalOmega]\[Phi] \[CapitalDelta]t, where \[CapitalDelta]t(qr, q\[Theta]) and \[CapitalDelta]\[Phi](qr, q\[Theta]) are the oscillating parts of t and \[Phi] along the geodesic, zero at qr = q\[Theta] = 0.*)
-(*Along a geodesic, then, each \[CapitalPhi] is \[CapitalOmega] t plus a constant. The angles are continuous in the phases: a phase that has wound n times gives an angle that has too.*)
-(*The geodesic's constants come from RegularEnergy and RegularLOverX (Utilities.wl), and the frequencies from KerrGeoFrequencies. In the regular constants Q = (1 - x^2)(\[Beta] + \[ScriptL]^2), and the polar root of the code, zp, is Sqrt[\[Beta] + \[ScriptL]^2], so the polar quantities stay finite at a = 0. The conversion needs no special case at e = 0 or x = \[PlusMinus]1, where the radial or polar oscillations vanish; there the phase that is undefined can be any value. It does need x \[NotEqual] 0, where \[CapitalDelta]\[Phi] is L times a divergent integral.*)
+(*So along a geodesic each \[CapitalPhi] is \[CapitalOmega] t plus a constant, and whole turns of a phase are whole turns of its angle.*)
+(*The constants come from RegularEnergy and RegularLOverX, so the code's polar root, zp = Sqrt[\[Beta] + \[ScriptL]^2], is finite at a = 0. No special case is needed at e = 0 or x = \[PlusMinus]1, where the undefined phase may take any value. x = 0 is excluded: there \[CapitalDelta]\[Phi] is L times a divergent integral.*)
 
 
 (* ::Section:: *)
@@ -21,7 +21,7 @@
 
 
 (* ::Text:: *)
-(*The quantities the conversion needs, for spin a and elements p, e, x: the constants En and L, the radial roots r1 > r2 > r3 > r4 (r1 and r2 the turning points), the horizons, and the elliptic parameters kr and kz, in Mathematica's convention (the parameter m = k^2).*)
+(*What the conversion needs, for spin a and elements p, e, x: En, L, the radial roots r1 > r2 > r3 > r4, the horizons, and the elliptic parameters kr and kz (Mathematica's convention, m = k^2).*)
 
 
 angleGeometry[a_, p_, e_, x_] := Module[{e2, En, \[ScriptL], L, Q, \[Beta], r1, r2, sum, product, r3, r4, rp, rm},
@@ -54,14 +54,14 @@ angleGeometry[a_, p_, e_, x_] := Module[{e2, En, \[ScriptL], L, Q, \[Beta], r1, 
 
 
 (* ::Text:: *)
-(*The phase \[Psi] reduced to [0, 2 \[Pi]), and the number of whole turns taken off. The conversions work on the reduced phase, which is symmetric about \[Pi], and add the turns back, so they are continuous.*)
+(*{whole turns, the phase reduced to [0, 2 \[Pi])}. The conversions work on the reduced phase, which is symmetric about \[Pi], and add the turns back.*)
 
 
 reducedPhase[\[Psi]_] := With[{m = Mod[\[Psi], 2 \[Pi]]}, {\[Psi] - m, m}];
 
 
 (* ::Text:: *)
-(*qr from \[Psi]r. With r = p/(1 + e cos \[Psi]r), sin^2 of the Jacobi amplitude is ((r - r2)(r1 - r3))/((r - r3)(r1 - r2)), and (r - r2)/(r1 - r2) = sin^2(\[Psi]r/2)(1 - e)/(1 + e cos \[Psi]r), which avoids the cancellation in r - r2 and r1 - r2 at small e. At e = 0 it gives qr = \[Psi]r.*)
+(*qr from \[Psi]r. sin^2 of the Jacobi amplitude is ((r - r2)(r1 - r3))/((r - r3)(r1 - r2)), with (r - r2)/(r1 - r2) = sin^2(\[Psi]r/2)(1 - e)/(1 + e cos \[Psi]r), which does not cancel at small e. At e = 0, qr = \[Psi]r.*)
 
 
 minoRadialPhase[g_Association, \[Psi]r_] := Module[{bulk, \[Psi], e, r, s2, q},
@@ -90,7 +90,7 @@ minoPolarPhase[g_Association, \[Psi]\[Theta]_] := Module[{bulk, \[Psi], q},
 
 
 (* ::Text:: *)
-(*\[CapitalDelta]t and \[CapitalDelta]\[Phi], the oscillating parts of t(\[Lambda]) and \[Phi](\[Lambda]) along the geodesic, as functions of the Mino-time phases: {\[CapitalDelta]t, \[CapitalDelta]\[Phi]}. They are periodic in qr and q\[Theta], so the phases are reduced to [0, 2 \[Pi]) first, which keeps the cancellation in each bracket, a multiple of the phase minus an incomplete integral, from growing as the phases wind.*)
+(*{\[CapitalDelta]t, \[CapitalDelta]\[Phi]}, the oscillating parts of t(\[Lambda]) and \[Phi](\[Lambda]) along the geodesic. They are periodic in qr and q\[Theta], so the phases are reduced mod 2 \[Pi] first, which stops the cancellation in each bracket growing as the phases wind.*)
 
 
 oscillatingTimeAndAzimuth[g_Association, qrIn_, qzIn_] := Module[
@@ -129,7 +129,7 @@ oscillatingTimeAndAzimuth[g_Association, qrIn_, qzIn_] := Module[
 
 
 (* ::Text:: *)
-(*The Boyer-Lindquist frequencies {\[CapitalOmega]r, \[CapitalOmega]\[Theta], \[CapitalOmega]\[Phi]} from KerrGeoFrequencies, whose keys are display forms, so its values are taken in order. Plotting all three, or the angles, evaluates them at the same elements, so the last value is kept.*)
+(*{\[CapitalOmega]r, \[CapitalOmega]\[Theta], \[CapitalOmega]\[Phi]} from KerrGeoFrequencies, whose keys are display forms, so its values are taken in order. The last value is cached, as the three frequencies and the angles are evaluated at the same elements.*)
 
 
 boyerLindquistFrequenciesCache = None;
@@ -138,7 +138,7 @@ BoyerLindquistFrequencies[a_?NumericQ, p_?NumericQ, e_?NumericQ, x_?NumericQ] :=
 
 
 (* ::Text:: *)
-(*The Boyer-Lindquist action angles {\[CapitalPhi]r, \[CapitalPhi]\[Theta], \[CapitalPhi]\[Phi]} of the geodesic with spin a and elements p, e, x, at the phases \[Psi]r and \[Psi]\[Theta] and azimuth \[Phi]. A phase that is undefined (\[Psi]r at e = 0, \[Psi]\[Theta] at x = \[PlusMinus]1) can be given as any value; the angle it gives is then meaningless, but the others are not affected.*)
+(*{\[CapitalPhi]r, \[CapitalPhi]\[Theta], \[CapitalPhi]\[Phi]} for spin a, elements p, e, x, phases \[Psi]r, \[Psi]\[Theta] and azimuth \[Phi]. An undefined phase (\[Psi]r at e = 0, \[Psi]\[Theta] at x = \[PlusMinus]1) may take any value: its own angle is then meaningless, but the others are unaffected.*)
 
 
 boyerLindquistAnglesCache = None;
@@ -154,7 +154,7 @@ BoyerLindquistAngles[a_?NumericQ, p_?NumericQ, e_?NumericQ, x_?NumericQ, \[Psi]r
 
 
 (* ::Text:: *)
-(*Single components, which only evaluate for numbers. The inspiral's outputs use them, so that a symbolic time, as NIntegrate or Plot may give, leaves them unevaluated rather than taking a part of an unevaluated call.*)
+(*Single components, which only evaluate for numbers, so that a symbolic time (from NIntegrate or Plot) leaves them unevaluated.*)
 
 
 BoyerLindquistFrequency[i_Integer, a_?NumericQ, p_?NumericQ, e_?NumericQ, x_?NumericQ] := BoyerLindquistFrequencies[a, p, e, x][[i]];
@@ -166,7 +166,7 @@ BoyerLindquistAngle[i_Integer, args__?NumericQ] := BoyerLindquistAngles[args][[i
 
 
 (* ::Text:: *)
-(*The regular solver integrates \[Alpha]p = e sin \[Psi]r and \[Beta]p = e cos \[Psi]r, which give \[Psi]r only up to whole turns. This counts the turns at the solver's steps, where \[Psi]r changes by much less than \[Pi] from one step to the next, starting from the initial phase \[Psi]r0, and interpolates the result linearly. Between steps \[Psi]r is the value nearest that interpolation, so it is continuous, and the same function of the time variable as the solution. The result is a listable function of the time variable.*)
+(*\[Alpha]p and \[Beta]p give \[Psi]r only up to whole turns. The turns are counted at the solver's steps, where \[Psi]r changes by much less than \[Pi] per step, starting from \[Psi]r0, and interpolated linearly; between steps \[Psi]r is the value nearest that interpolation. The result is a listable function of the time variable.*)
 
 
 wrapAngle[d_] := d - 2 \[Pi] Round[d/(2 \[Pi])];

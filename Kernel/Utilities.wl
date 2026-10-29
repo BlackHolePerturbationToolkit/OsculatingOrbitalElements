@@ -5,7 +5,7 @@
 
 
 (* ::Text:: *)
-(*Part of the OsculatingOrbitalElements package. Kernel/OsculatingOrbitalElements.wl loads this file into the package's private context, so it cannot be loaded on its own.*)
+(*Shared helpers: the separatrix, the regular constants of motion, the orbit geometry, and the rates of change of the constants and elements under a force. Loaded into the package's private context by Kernel/OsculatingOrbitalElements.wl.*)
 
 
 (* ::Section:: *)
@@ -17,7 +17,7 @@
 
 
 (* ::Text:: *)
-(*The separatrix p for a, e and x, from KerrGeoSeparatrix, made safe for the values an inspiral reaches. KerrGeoSeparatrix only treats exact x = 1, 0 and -1 as the equatorial and polar cases, and does not evaluate at machine 1., 0. or -1., at |x| > 1, or within machine tolerance of 1 or -1. So x is clamped to [-1, 1], and within 10^-12 of \[PlusMinus]1 or 0 replaced by the exact value, which moves p_sep by far less than any stopping buffer.*)
+(*p at the separatrix, from KerrGeoSeparatrix. That only evaluates the polar and equatorial cases at exact x = 0 and \[PlusMinus]1, so x is clamped to [-1, 1] and replaced by the exact value within 10^-12 of them, which moves p_sep far less than any stopping buffer.*)
 
 
 SeparatrixP[a_?NumericQ, e_?NumericQ, x_?NumericQ] := With[{xc = Clip[x, {-1, 1}]}, Quiet[Which[
@@ -28,11 +28,11 @@ SeparatrixP[a_?NumericQ, e_?NumericQ, x_?NumericQ] := With[{xc = Clip[x, {-1, 1}
 
 
 (* ::Subsubsection::Closed:: *)
-(*Constants of Motion*)
+(*Caching*)
 
 
 (* ::Text:: *)
-(*NDSolve evaluates the functions it calls many times per step with the same arguments, so they memoise their most recent value with memoLast, dropping the previous one. Memoising every call instead grows without bound over an inspiral.*)
+(*memoLast caches only the most recent value of f. NDSolve calls the same functions many times per step with the same arguments; caching every call would grow without bound over an inspiral.*)
 
 
 SetAttributes[memoLast, HoldAll];
@@ -40,11 +40,16 @@ memoLast[f_Symbol, cache_Symbol, key_, value_] := With[{k = key, v = value},
 	If[ListQ[cache], f[Sequence @@ cache] =.];
 	cache = k;
 	f[Sequence @@ k] = v];
+
+
+(* ::Subsubsection::Closed:: *)
+(*Constants of motion*)
+
+
 (* ::Text:: *)
-(*The regular solver's constants of motion. RegularEnergy and RegularLOverX take a, p, e^2 and x, and return the energy and \[ScriptL] = L/x, from which L = x \[ScriptL] and Q = (1 - x^2)(a^2 (1 - En^2) + \[ScriptL]^2). Unlike the functions above, they need no special cases at e = 0 or x = 0: they take e^2, as the regular radial variables give it, and \[ScriptL] stays finite for polar orbits, where L/x is 0/0.*)
-(*They follow Schmidt's construction, as KerrGeodesics does, with two changes:*)
-(*- L is replaced by x \[ScriptL]. Schmidt's h(r) is multiplied by x^2, which makes it r^2 - 2 r + a^2 zm.*)
-(*- The conditions at the turning points r1 and r2 are replaced by their mean and their divided difference. These are sums of products of r1 and r2 with positive coefficients, so nothing cancels as r1 and r2 meet at e = 0.*)
+(*RegularEnergy and RegularLOverX: the energy and \[ScriptL] = L/x of the geodesic with spin a and elements p, e^2 and x, from which L = x \[ScriptL] and Q = (1 - x^2)(a^2 (1 - En^2) + \[ScriptL]^2). They need no special cases at e = 0 or x = 0. They follow Schmidt's construction, as KerrGeodesics does, with two changes:*)
+(*- L = x \[ScriptL], which turns x^2 times Schmidt's h(r) into r^2 - 2 r + a^2 zm;*)
+(*- the conditions at the turning points r1 and r2 are replaced by their mean and divided difference, which do not cancel as r1 and r2 meet at e = 0.*)
 
 
 regularConstants[a_, p_, e2_, x_] := Module[
@@ -88,13 +93,11 @@ RegularLOverX[a_?NumericQ, p_?NumericQ, e2_?NumericQ, x_?NumericQ] := Last[cache
 
 
 (* ::Text:: *)
-(*The quantities that the osculating equations share, at one point of the orbit. The point lies on a geodesic with constants En, L and Q, at radius r and polar phase \[Psi]\[Theta], moving radially at dr/d\[Lambda] = drd\[Lambda]; x is the geodesic's inclination parameter, so zm = 1 - x^2 and cos \[Theta] = Sqrt[zm] Cos[\[Psi]\[Theta]]. Each formulation knows r and dr/d\[Lambda] in its own variables, so it supplies them. The arguments may be symbolic, as the solvers build their equations from these expressions.*)
-(*\[Beta] zp = \[Beta] + L^2/x^2 is 0/0 for polar orbits. Where L = x \[ScriptL] is symbolic, as in the regular solver, the x^2 cancels as the expression is built. NumericOrbitGeometry, which works with numbers, gives \[Beta] zp = \[Beta] + \[ScriptL]^2 directly to orbitGeometry, so it holds at x = 0.*)
-(*The result has the arguments, under the keys "a", "En", "L", "Q", "r", "x" and "\[Psi]\[Theta]", and:*)
-(*"K" = Q + (L - a En)^2, "\[Beta]" = a^2 (1 - En^2), "zm", "\[Beta]zp" = \[Beta] zp, "z" = cos^2 \[Theta] and "\[Theta]";*)
-(*"\[CapitalSigma]", "\[CapitalDelta]", "\[Omega]" = Sqrt[r^2 + a^2], "F" = \[Omega]^2 En - a L, and the shorthands "H" and "G" of the polar phase equation;*)
-(*the covariant velocities "ur" and "u\[Theta]", and "un", the velocity along the null tetrad's leg n;*)
-(*"dtd\[Lambda]" and "d\[Phi]d\[Lambda]".*)
+(*The quantities the osculating equations share, at a point of the geodesic with constants En, L and Q: radius r, polar phase \[Psi]\[Theta] (cos \[Theta] = Sqrt[1 - x^2] Cos[\[Psi]\[Theta]]) and radial velocity dr/d\[Lambda] = drd\[Lambda]. The arguments may be symbolic. The result has the arguments and:*)
+(*"K" = Q + (L - a En)^2, "\[Beta]" = a^2 (1 - En^2), "zm" = 1 - x^2, "\[Beta]zp" = \[Beta] zp, "z" = cos^2 \[Theta], "\[Theta]";*)
+(*"\[CapitalSigma]", "\[CapitalDelta]", "\[Omega]" = Sqrt[r^2 + a^2], "F" = \[Omega]^2 En - a L, and "H" and "G", shorthands of the polar phase equation;*)
+(*the covariant velocities "ur" and "u\[Theta]", "un" along the null tetrad leg n, "dtd\[Lambda]" and "d\[Phi]d\[Lambda]".*)
+(*\[Beta] zp = \[Beta] + L^2/x^2 is 0/0 at x = 0. With a symbolic L = x \[ScriptL], as in the regular solver, the x^2 cancels; NumericOrbitGeometry gives \[Beta] + \[ScriptL]^2 to orbitGeometry directly.*)
 
 
 KerrOrbitGeometry[a_, {En_, L_, Q_}, {r_, x_, \[Psi]\[Theta]_}, drd\[Lambda]_] :=
@@ -126,7 +129,7 @@ orbitGeometry[a_, {En_, L_, Q_}, {r_, x_, \[Psi]\[Theta]_}, \[Beta]zp_, drd\[Lam
 
 
 (* ::Text:: *)
-(*The force's components in the null tetrad, {a_n, A1, A2, A3}, from its covariant Boyer-Lindquist components {a_t, a_r, a_\[Theta], a_\[Phi]}. The phase equations use these.*)
+(*The force's null-tetrad components {a_n, A1, A2, A3}, for the phase equations, from its covariant components {a_t, a_r, a_\[Theta], a_\[Phi]}.*)
 
 
 NullTetradForce[g_Association, {at_, ar_, a\[Theta]_, a\[Phi]_}] := Module[{a, En, L, \[Theta], \[CapitalSigma]},
@@ -142,7 +145,7 @@ NullTetradForce[g_Association, {at_, ar_, a\[Theta]_, a\[Phi]_}] := Module[{a, E
 
 
 (* ::Text:: *)
-(*The time component a_t of a force from its other covariant components, so that the force is orthogonal to the velocity: u^\[Mu] a_\[Mu] = 0, with u^t = (dt/d\[Lambda])/\[CapitalSigma], u^r = \[CapitalDelta] u_r/\[CapitalSigma], u^\[Theta] = u_\[Theta]/\[CapitalSigma] and u^\[Phi] = (d\[Phi]/d\[Lambda])/\[CapitalSigma].*)
+(*a_t from the other covariant components, so that the force is orthogonal to the velocity, u^\[Mu] a_\[Mu] = 0.*)
 
 
 OrthogonalTimeComponent[g_Association, {ar_, a\[Theta]_, a\[Phi]_}] :=
@@ -150,7 +153,7 @@ OrthogonalTimeComponent[g_Association, {ar_, a\[Theta]_, a\[Phi]_}] :=
 
 
 (* ::Text:: *)
-(*The geometry of the geodesic with elements p, e, x and phases \[Psi]r, \[Psi]\[Theta], as numbers, for force models that need the velocity, with d\[Psi]r/d\[Lambda] added under the key "d\[Psi]rd\[Lambda]". It uses the regular constants of motion, and \[Beta] zp = \[Beta] + \[ScriptL]^2, so it holds at e = 0, x = 0 and x = \[PlusMinus]1.*)
+(*The geometry at numeric elements p, e, x and phases \[Psi]r, \[Psi]\[Theta], for force models that need the velocity, with "d\[Psi]rd\[Lambda]" added. It holds at e = 0 and x = 0, \[PlusMinus]1.*)
 
 
 NumericOrbitGeometry[a_?NumericQ, p_?NumericQ, e_?NumericQ, x_?NumericQ, \[Psi]r_?NumericQ, \[Psi]\[Theta]_?NumericQ] := Module[
@@ -173,11 +176,11 @@ NumericOrbitGeometry[a_?NumericQ, p_?NumericQ, e_?NumericQ, x_?NumericQ, \[Psi]r
 
 
 (* ::Subsubsection::Closed:: *)
-(*Rates of change of the constants of motion and the orbital elements*)
+(*Rates of change*)
 
 
 (* ::Text:: *)
-(*The rates of change with Mino time of En, L, K and Q under the covariant force {a_t, a_r, a_\[Theta], a_\[Phi]}, as an Association with those keys. K's rate is written with the radial velocity, which assumes the force is orthogonal to the velocity, so a_\[Theta] does not appear.*)
+(*The Mino-time rates of En, L, K and Q under the covariant force {a_t, a_r, a_\[Theta], a_\[Phi]}. K's rate uses the radial velocity, which assumes u^\[Mu] a_\[Mu] = 0.*)
 
 
 ConstantsOfMotionRates[g_Association, {at_, ar_, a\[Theta]_, a\[Phi]_}] := Module[{a, \[CapitalSigma], \[CapitalDelta], dEn, dL, dK},
@@ -190,23 +193,7 @@ ConstantsOfMotionRates[g_Association, {at_, ar_, a\[Theta]_, a\[Phi]_}] := Modul
 
 
 (* ::Text:: *)
-(*The map from the rates of change of (En, L, Q) to those of (p, e^2, x), for an orbit with spin a, elements p, e^2 and x, and constants En, L and Q. It returns an Association with the keys "p", "e2" and "x". The rates may be with respect to any time, as the map is linear.*)
-(*It gives e^2 rather than e, because the rate of e^2 has no division by e and stays finite for circular orbits; that of e is "e2"/(2 e). It does divide by x, so it is singular for polar orbits (x = 0).*)
-
-
-OrbitalElementRates[a_, {p_, e2_, x_}, {En_, L_, Q_}, rates:{dEn_, dL_, dQ_}] := Module[{dK, zm, \[Beta], \[Beta]zp, dzm},
-	dK = dQ + 2 (L - a En) (dL - a dEn);
-	(* x, through zm = 1 - x^2 *)
-	zm = 1 - x^2;
-	\[Beta] = a^2 (1 - En^2);
-	\[Beta]zp = \[Beta] + L^2/x^2;
-	dzm = ((1 - zm) dK - 2 (L - a (1 - zm) En) (dL - a (1 - zm) dEn))/(\[Beta]zp - \[Beta] zm);
-	Append[SlowElementRates[a, {p, e2}, {En, L, Q}, rates], "x" -> -dzm/(2 x)]
-];
-
-
-(* ::Text:: *)
-(*The p and e^2 parts of OrbitalElementRates, an Association with the keys "p" and "e2"*)
+(*The rates of p and e^2, as "p" and "e2", from those of (En, L, Q), with respect to any time. e^2 is used as its rate stays finite at e = 0.*)
 
 
 SlowElementRates[a_, {p_, e2_}, {En_, L_, Q_}, {dEn_, dL_, dQ_}] := Module[
@@ -232,7 +219,7 @@ SlowElementRates[a_, {p_, e2_}, {En_, L_, Q_}, {dEn_, dL_, dQ_}] := Module[
 
 
 (* ::Text:: *)
-(*The rate of x from the rates of (En, L, Q), in a form that is regular at x = 0. It uses \[ScriptL] = L/x: with L = x \[ScriptL] the factor x in dzm cancels the 1/x, and \[Beta] zp - \[Beta] zm = \[ScriptL]^2 + \[Beta] x^2. At x = 0 it is dL/\[ScriptL].*)
+(*The rate of x from those of (En, L, Q), written with \[ScriptL] = L/x so that it is regular at x = 0, where it is dL/\[ScriptL].*)
 
 
 RegularXRate[a_, x_, {En_, \[ScriptL]_}, {dEn_, dL_, dQ_}] := Module[{dK},

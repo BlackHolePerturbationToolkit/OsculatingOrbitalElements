@@ -1,19 +1,19 @@
 # A regular formulation of the osculating geodesic equations in Kerr
 
-This note describes a regular formulation of the osculating geodesic equations, and why it was chosen. The aim is a
-formulation with no special cases: circular, equatorial and polar orbits, and inspirals that pass through any of them,
-are handled by the same equations. Parts of it (the polar unit vector, the regular constants of motion, and the
-regular rate of $x$) do not seem to be in the literature.
+This note describes a regular formulation of the osculating geodesic equations, and why it was chosen. The aim is no
+special cases: the same equations handle circular, equatorial and polar orbits, and inspirals that pass through any of
+them. Parts of it (the polar unit vector, the regular constants of motion, and the regular rate of $x$) do not seem to
+be in the literature.
 
 **Status.** `OsculatingInspiral` uses the radial variables (§2), the regular constants of motion (§4) and the regular
 rate of $x$ (§5). For the polar motion it integrates $x$ and $\psi_\theta$, as the earlier solvers did, and treats
 equatorial orbits as a special case: $x$ is held at exactly $\pm 1$, the polar equations are dropped, $\theta = \pi/2$,
 and the force must have no $\theta$ component in the plane (nor a flux any rate of $x$). The polar unit vector (§3) and
-its flux terms (§6) are on hold, and may change. `OsculatingInspiral` used them at commit 7e644fe, and their code is
+its flux terms (§6) are on hold and may change; `OsculatingInspiral` used them at commit 7e644fe, and their code is
 kept, unused, in `Kernel/Legacy/RegularPolar.wl`. In $(x, \psi_\theta)$ a force with a $\theta$ component makes the
 equations stiff close to the equator: starting $10^{-6}$ from the plane under a constant $a_\theta$, an inspiral took
-60 times longer than at $x = 0.99$, and at $10^{-10}$ NDSolve stopped as the system was stiff. The unit vector has no
-such problem.
+60 times longer than at $x = 0.99$, and at $10^{-10}$ NDSolve stopped as the system was stiff. The unit vector avoids
+this.
 
 Conventions: $G = c = M = 1$; Boyer–Lindquist coordinates; Mino time $\lambda$, with $d\tau = \Sigma\, d\lambda$; a
 force per unit mass with covariant components $a_\mu$, orthogonal to the four-velocity, $u^\mu a_\mu = 0$. A geodesic
@@ -43,7 +43,7 @@ $$\alpha_p = e\sin\psi_r, \qquad \beta_p = e\cos\psi_r,$$
 so that $r = p/w$ with $w = 1 + \beta_p$. The geodesic rate of $\psi_r$ is $P = \sqrt{Z}$, where
 $$Z = p - \frac{K(3 - e^2 + 2\beta_p)}{p} + \frac{a^2 Q(4 - e^2 + 4\beta_p + \beta_p^2)}{p^2}$$
 is polynomial in $\alpha_p$ and $\beta_p$ (through $e^2 = \alpha_p^2 + \beta_p^2$). These are the REG equations,
-which were already in the package:
+already in the package:
 $$\frac{d\beta_p}{d\lambda} = \frac{w}{p}\frac{dp}{d\lambda} - \alpha_p P,$$
 $$\frac{d\alpha_p}{d\lambda} = \beta_p P + \frac{\Sigma\Delta w^2 a_r}{pP} + \frac{\alpha_p}{p}\frac{dp}{d\lambda}
  - \frac{\alpha_p}{2Z}\left[\Big(Z_p + \frac{w Z_\beta}{p}\Big)\frac{dp}{d\lambda} + Z_{e^2}\frac{de^2}{d\lambda}
@@ -59,9 +59,9 @@ $$\alpha_\theta = \sqrt{z_m}\sin\psi_\theta, \qquad \beta_\theta = \sqrt{z_m}\co
 which satisfy
 $$\alpha_\theta^2 + \beta_\theta^2 + x^2 = 1.$$
 Geometrically, $(\alpha_\theta, \beta_\theta, x)$ is a point on the unit sphere, with $x$ the height and $\psi_\theta$
-the longitude. $(x, \psi_\theta)$ are spherical coordinates on this sphere, so they fail at its poles, the equatorial
-orbits. $(\alpha_\theta, \beta_\theta)$ alone fail at its equator, the polar orbits, where they cannot tell prograde
-from retrograde. The unit vector itself is regular everywhere, including through prograde–retrograde transitions.
+the longitude. $(x, \psi_\theta)$ are its spherical coordinates, so they fail at its poles, the equatorial orbits.
+$(\alpha_\theta, \beta_\theta)$ alone fail at its equator, the polar orbits, where they cannot tell prograde from
+retrograde. The unit vector itself is regular everywhere, including through prograde–retrograde transitions.
 
 Write $\beta z_+ = Q + L^2 + \beta x^2$ for $\beta$ times the larger root of the polar potential, $\ell = L/x$, and
 $$W = \sqrt{\beta z_+ - \beta\beta_\theta^2},$$
@@ -99,11 +99,11 @@ radial elements use the radial form, so a force must be orthogonal to the veloci
 computing $a_t$ from orthogonality.
 
 **Checks**, made while `OsculatingInspiral` used these equations (commit 7e644fe; the current tests do not cover
-them). Mapped by the chain rule, these rates agree with the $(x, \psi_\theta)$
-equations to $10^{-13}$ or better for $a = 0, 0.5, 0.9$, prograde and retrograde, $x$ from $0.8$ down to $\pm 0.01$, and
-near the axis. In a solve, a $\theta$ force lifts an equatorial orbit out of the plane with the vector staying at unit
-length to $10^{-13}$, the solution is continuous at the equator, and a torque drives an inspiral from prograde to
-retrograde through $x = 0$, agreeing with the earlier REG solver in $p$, $e$, $x$ and $r$.
+them). Mapped by the chain rule, these rates agree with the $(x, \psi_\theta)$ equations to $10^{-13}$ or better for
+$a = 0, 0.5, 0.9$, prograde and retrograde, $x$ from $0.8$ down to $\pm 0.01$, and near the axis. In a solve, a
+$\theta$ force lifts an equatorial orbit out of the plane with the vector at unit length to $10^{-13}$, the solution
+is continuous at the equator, and a torque drives an inspiral from prograde to retrograde through $x = 0$, agreeing
+with the earlier REG solver in $p$, $e$, $x$ and $r$.
 
 ## 4. Constants of motion that are regular at $e = 0$ and $x = 0$
 
@@ -128,7 +128,7 @@ $[u, v] = u_+ v_- - u_- v_+$. Then
 $$E^2 = \frac{\kappa\rho + 8a^2x^2\epsilon\sigma - 4\lvert a\rvert x\sqrt{\sigma\big(4a^2x^2\sigma\epsilon^2 + \rho\epsilon\kappa - \eta\kappa^2\big)}}{\rho^2 + 16a^2x^2\eta\sigma},
 \qquad \ell^2 = \frac{\epsilon - \eta E^2}{\sigma},$$
 and $L = x\ell$, $Q = (1 - x^2)(a^2(1 - E^2) + \ell^2)$. At $x = 0$, $E^2 = \kappa/\rho$. These agree with KerrGeodesics
-to all of 50 digits at generic points, and to $10^{-13}$ in machine precision, including at $e = 10^{-8}$, $x = 10^{-8}$
+to all 50 digits at generic points, and to $10^{-13}$ in machine precision, including at $e = 10^{-8}$, $x = 10^{-8}$
 and $x = 0$ (`RegularEnergy` and `RegularLOverX`).
 
 ## 5. The rate of $x$ from rates of $(E, L, Q)$

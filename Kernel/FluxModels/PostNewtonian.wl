@@ -4,18 +4,14 @@
 (*Post-Newtonian fluxes*)
 
 
-(* ::Text:: *)
-(*Part of the OsculatingOrbitalElements package. Kernel/OsculatingOrbitalElements.wl loads this file into the package's private context, so it cannot be loaded on its own.*)
-
-
 (* ::Section:: *)
 (*Peters*)
 
 
 (* ::Text:: *)
-(*Peters' leading-order rates for a binary with total mass M = 1, at first order in the mass ratio \[Epsilon] (the factor m1 m2 (m1 + m2) is \[Epsilon] (1 + \[Epsilon]) \[TildeTilde] \[Epsilon]). Peters gives da/dt and de/dt for the semi-major axis a = p/(1 - e^2); in terms of p,*)
+(*Peters' leading-order rates for total mass M = 1, at first order in the mass ratio \[Epsilon] (m1 m2 (m1 + m2) = \[Epsilon] (1 + \[Epsilon]) \[TildeTilde] \[Epsilon]), from his da/dt and de/dt with a = p/(1 - e^2):*)
 (*dp/dt = -(64/5) \[Epsilon] (1 - e^2)^(3/2) (1 + 7 e^2/8)/p^3, de/dt = -(304/15) \[Epsilon] e (1 - e^2)^(3/2) (1 + 121 e^2/304)/p^4.*)
-(*They are Newtonian: they ignore the spin, and leave x unchanged.*)
+(*They are Newtonian: independent of the spin, with x unchanged. Loaded into the package's private context by Kernel/OsculatingOrbitalElements.wl.*)
 
 
 petersRates[a_, p_, e_, x_] := {

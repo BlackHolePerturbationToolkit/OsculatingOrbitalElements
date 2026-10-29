@@ -4,16 +4,12 @@
 (*Gas drag*)
 
 
-(* ::Text:: *)
-(*Part of the OsculatingOrbitalElements package. Kernel/OsculatingOrbitalElements.wl loads this file into the package's private context, so it cannot be loaded on its own.*)
-
-
 (* ::Section:: *)
 (*Force model*)
 
 
 (* ::Text:: *)
-(*The relativistic gas drag of KerrGasDrag as a ForceModel, with strength k, its "Coefficient": F_\[Mu] = -k (u_\[Mu] + \[Delta]^t_\[Mu]/u^t). Its spatial components are -k {u_r, u_\[Theta], u_\[Phi]}, with u_\[Phi] = L, and F_t follows from orthogonality. It does not scale with the mass ratio.*)
+(*Relativistic gas drag (KerrGasDrag) as a ForceModel: F_\[Mu] = -k (u_\[Mu] + \[Delta]^t_\[Mu]/u^t), with k its \"Coefficient\". Its spatial components are -k {u_r, u_\[Theta], u_\[Phi]}, with u_\[Phi] = L, and F_t follows from orthogonality. It does not scale with the mass ratio. Loaded into the package's private context by Kernel/OsculatingOrbitalElements.wl.*)
 
 
 gasDragComponents[a_, p_, e_, x_, \[Psi]r_, \[Psi]\[Theta]_, \[Phi]_, t_, parameters_] := With[{g = NumericOrbitGeometry[a, p, e, x, \[Psi]r, \[Psi]\[Theta]]},

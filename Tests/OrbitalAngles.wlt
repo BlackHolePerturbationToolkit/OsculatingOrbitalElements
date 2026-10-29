@@ -1,9 +1,8 @@
 (* ::Package:: *)
 
-(* The osculating geodesic's Boyer-Lindquist frequencies and action angles, as properties of the inspiral (Kernel/OrbitalAngles.wl).
-   The angles follow Lynch and Burke, arXiv:2411.04955. Along a geodesic each angle is its frequency times t plus a
-   constant, which tests the conversion and its signs; the reference values below come from the notebook that goes with
-   the paper (github.com/Philip-Lynch/KerrOrbitalAngleConversion), which fixes the conventions. *)
+(* The osculating geodesic's Boyer-Lindquist frequencies and action angles (Kernel/OrbitalAngles.wl). Along a geodesic
+   each angle is its frequency times t plus a constant, which tests the conversion and its signs. The reference values
+   come from the notebook of Lynch and Burke, arXiv:2411.04955, which fixes the conventions. *)
 
 angleKeys = {"\[CapitalPhi]r", "\[CapitalPhi]\[Theta]", "\[CapitalPhi]\[Phi]"};
 frequencyKeys = {"\[CapitalOmega]r", "\[CapitalOmega]\[Theta]", "\[CapitalOmega]\[Phi]"};

@@ -5,18 +5,9 @@
 
 
 (* ::Text:: *)
-(*Part of the OsculatingOrbitalElements package. Kernel/OsculatingOrbitalElements.wl loads this file into the package's private context, so it cannot be loaded on its own.*)
-
-
-(* ::Text:: *)
-(*What ForceModel (ForceModels/ForceModel.wl) and FluxModel (FluxModels/FluxModel.wl) share. A model is head[assoc], where head is ForceModel or FluxModel. assoc has these keys, and any that the head adds:*)
-(*"Name", and "Description" (a string or None);*)
-(*"Function": the model's function. It is only called with numbers, with the model's parameters appended as the last argument when it has any;*)
-(*"Parameters": an Association of the parameter values, where Missing["Required"] marks one with no default;*)
-(*"ScalesWithMassRatio": whether the model is multiplied by the mass ratio \[Epsilon];*)
-(*"ValidityCondition": a function of (a, p, e, x) that is True where the model is valid, and "ValidityDescription", that range in words, or None;*)
-(*"Citation": a string, or None.*)
-(*The head's options give the defaults. Each head has the messages opt, optval, name, param, required, output, range and prop.*)
+(*What ForceModel and FluxModel share. A model is head[assoc], with head ForceModel or FluxModel and these keys in assoc (and any the head adds):*)
+(*"Name"; "Description" (or None); "Function", called only with numbers, with the parameters appended when there are any; "Parameters", where Missing["Required"] marks one with no default; "ScalesWithMassRatio" (multiplied by \[Epsilon]); "ValidityCondition", a function of (a, p, e, x), and "ValidityDescription" (or None); "Citation" (or None).*)
+(*The head's options give the defaults, and it has the messages opt, optval, name, param, required, output, range and prop. Loaded into the package's private context by Kernel/OsculatingOrbitalElements.wl.*)
 
 
 (* ::Section:: *)
@@ -68,7 +59,7 @@ modelMissingParameters[model_] := Keys[Select[model["Parameters"], MissingQ]];
 
 
 (* ::Text:: *)
-(*Calls the model's function on the numbers args, with its parameters appended if it has any. Returns the result if it is n real numbers, and otherwise $Failed with a message.*)
+(*The model's function at the numbers args (parameters appended, if any), if it gives n real numbers; otherwise $Failed with a message.*)
 
 
 callModel[model_, args_List, n_Integer] := Module[{parameters = model["Parameters"], result},
@@ -85,7 +76,7 @@ callModel[model_, args_List, n_Integer] := Module[{parameters = model["Parameter
 
 
 (* ::Text:: *)
-(*The "Force" or "Flux" parameter as a list of models with this head: None, a model, a built-in name, or a list of these. Returns $Failed with a message if any is invalid (OsculatingInspiral's message tag), or has a required parameter with no value.*)
+(*The "Force" or "Flux" parameter as a list of models: None, a model, a built-in name, or a list of these. $Failed with a message if one is invalid (OsculatingInspiral's message tag) or lacks a required parameter.*)
 
 
 resolveModels[head_Symbol, spec_, tag_String] := Module[{models, incomplete},
@@ -113,6 +104,17 @@ checkModelValidity[models_List, {a_, p_, e_, x_}] := Scan[
 		With[{head = Head[#]},
 			Message[MessageName[head, "range"], #["Name"], Replace[#["ValidityDescription"], None -> "a restricted range"], a, p, e, x]]] &,
 	models];
+
+
+(* ::Text:: *)
+(*A model's function as a solver needs it: component[i, args] is the i-th component of f[args]. It only evaluates for numbers, so it stays unevaluated in the symbolic equations, and caches the last value, as NDSolve evaluates every component at the same arguments.*)
+
+
+cachedComponents[f_] := Module[{evaluate, component, cache = None},
+	evaluate[args__?NumericQ] := memoLast[evaluate, cache, {args}, f[args]];
+	component[i_, args__?NumericQ] := With[{value = evaluate[args]}, If[ListQ[value], value[[i]], Indeterminate]];
+	component
+];
 
 
 (* ::Section:: *)

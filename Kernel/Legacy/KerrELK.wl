@@ -5,7 +5,7 @@
 
 
 (* ::Text:: *)
-(*LEGACY CODE: not used by the current interface, OsculatingInspiral. Kept so that the earlier functions keep working; do not extend it. KerrOsculatingOrbitalElements, which OsculatingInspiral replaces. An ELK option for OsculatingInspiral, if it comes, would start from these equations. Kernel/OsculatingOrbitalElements.wl loads this file last, into the package's private context.*)
+(*LEGACY: kept so that the earlier functions keep working; do not extend. KerrOsculatingOrbitalElements, replaced by OsculatingInspiral. An ELK option for OsculatingInspiral would start from these equations.*)
 
 
 (* ::Subsubsection::Closed:: *)

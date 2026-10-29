@@ -5,11 +5,7 @@
 
 
 (* ::Text:: *)
-(*Part of the OsculatingOrbitalElements package. Kernel/OsculatingOrbitalElements.wl loads this file into the package's private context, so it cannot be loaded on its own.*)
-
-
-(* ::Text:: *)
-(*The entry point, OsculatingInspiral, and the machinery the public functions share: reading their options, and integrating a system of equations with NDSolve.*)
+(*OsculatingInspiral, and what the solvers share: reading options and integrating with NDSolve. Loaded into the package's private context by Kernel/OsculatingOrbitalElements.wl.*)
 
 
 (* ::Section:: *)
@@ -17,7 +13,7 @@
 
 
 (* ::Text:: *)
-(*The parameters: their keys, which are required, the defaults of the others, and the allowed values. At least one of "Force" and "Flux" is required too. \[CurlyEpsilon] and \[CurlyPhi] are accepted for \[Epsilon] and \[Phi], since both forms are easy to type.*)
+(*The parameters: their keys, which are required, the defaults of the others, and their allowed values. \"Force\", \"Flux\" or both is required too. \[CurlyEpsilon] and \[CurlyPhi] are accepted for \[Epsilon] and \[Phi].*)
 
 
 $inspiralParameterKeys = {"a", "\[Epsilon]", "p", "e", "x", "\[Psi]r", "\[Psi]\[Theta]", "\[Phi]", "Force", "Flux"};
@@ -38,7 +34,7 @@ $inspiralParameterRanges = {
 
 
 (* ::Text:: *)
-(*Checks the parameters and returns them with the defaults filled in, in a fixed order, or $Failed with a message. Whether the orbit is bound is checked by the solver, which knows the separatrix buffer.*)
+(*The parameters with the defaults filled in, in a fixed order, or $Failed with a message. Whether the orbit is bound is checked by the solver, which knows the separatrix buffer.*)
 
 
 InspiralParameters[params_Association] := Module[{parameters, unknown, missing, bad},
@@ -57,14 +53,13 @@ InspiralParameters[params_Association] := Module[{parameters, unknown, missing, 
 
 
 (* ::Text:: *)
-(*The entry point. It uses the regular solver (regularSystem in Solvers/KerrPEX.wl). Normal stops are recorded in "StopReason" rather than reported with a message; only an early stop by NDSolve is reported.*)
+(*The entry point, using the regular solver (regularSystem in Solvers/KerrPEX.wl). Normal stops are recorded in \"StopReason\"; only an early stop by NDSolve gives a message.*)
 
 
 OsculatingInspiral[params_Association, opts:OptionsPattern[{OsculatingInspiral, NDSolve}]] := Module[{parameters, forces, fluxes, result},
 	parameters = InspiralParameters[params];
 	If[FailureQ[parameters], Return[$Failed]];
-	(* The forces and fluxes as lists of models, each checked at the initial orbit (ForceModels/ForceModel.wl and
-	   FluxModels/FluxModel.wl) *)
+	(* The forces and fluxes as lists of models, each checked at the initial orbit *)
 	forces = inspiralForceModels[parameters["Force"]];
 	If[FailureQ[forces], Return[$Failed]];
 	forces = checkForceModels[forces, Append[Lookup[parameters, {"a", "p", "e", "x", "\[Psi]r", "\[Psi]\[Theta]", "\[Phi]"}], 0]];
@@ -93,7 +88,7 @@ OsculatingInspiral[params_ /; !AssociationQ[params], ___] := (Message[Osculating
 
 
 (* ::Text:: *)
-(*Accepts the Parametrisation option as a string or a symbol (e.g. "Mino" or Mino). Returns True for Mino time, False for coordinate time, and $Failed, with head's param message, otherwise.*)
+(*True for Mino time and False for coordinate time, given as a string or a symbol; otherwise $Failed with head's param message.*)
 
 
 MinoParametrisationQ[param_, head_:KerrOsculatingOrbitalElements] := Switch[If[Head[param] === Symbol, SymbolName[param], param],
@@ -103,14 +98,14 @@ MinoParametrisationQ[param_, head_:KerrOsculatingOrbitalElements] := Switch[If[H
 
 
 (* ::Text:: *)
-(*IntegrationLimit is in the units of the chosen time variable. Automatic means 10^7 in coordinate time and 10^4 in Mino time.*)
+(*IntegrationLimit is in the chosen time variable. Automatic is 10^7 in coordinate time and 10^4 in Mino time.*)
 
 
 IntegrationLimitValue[limit_, minoQ_] := Replace[limit, Automatic -> If[minoQ, 10^4, 10^7]];
 
 
 (* ::Text:: *)
-(*NDSolve options given to a public function are passed to NDSolve ahead of the solver's own settings, so they take precedence. AccuracyGoal and PrecisionGoal are options of the public functions themselves and are passed separately.*)
+(*The NDSolve options given to a public function. They come before the solver's own settings, so they take precedence. AccuracyGoal and PrecisionGoal are passed separately.*)
 
 
 NDSolveOptions[opts___] := FilterRules[FilterRules[{opts}, Options[NDSolve]], Except[AccuracyGoal | PrecisionGoal]];
@@ -128,25 +123,22 @@ MonitorQ[option_] := MatchQ[option, True | "True"] && $FrontEnd =!= Null;
 
 
 (* ::Text:: *)
-(*A solver describes the system to integrate as an Association with these keys:*)
-(*"Unknowns": the unknown functions, in the order NDSolve receives them. Where the integration ended is read from the first one.*)
-(*"Equations": the equations and initial conditions, in terms of the independent variable.*)
-(*"Events": the stopping conditions, each written stopEvent[condition, reason] or stopEvent[condition, reason, opts], where opts are options for WhenEvent. Like WhenEvent, stopEvent holds its condition. The reason is "Separatrix", "SeparatrixBuffer" or "pMin".*)
-(*"Method": the NDSolve Method option for this system, or Automatic.*)
+(*A system to integrate is an Association with:*)
+(*"Unknowns": the unknown functions; where the integration ended is read from the first;*)
+(*"Equations": the equations and initial conditions;*)
+(*"Events": the stopping conditions, each stopEvent[condition, reason] or stopEvent[condition, reason, WhenEvent options], with reason "Separatrix", "SeparatrixBuffer" or "pMin". Like WhenEvent, stopEvent holds its condition;*)
+(*"Method": NDSolve's Method for the system, or Automatic.*)
 
 
 SetAttributes[stopEvent, HoldFirst];
 
 
 (* ::Text:: *)
-(*IntegrateSystem runs NDSolve for 0 <= s <= limit. It returns <|"Solution" -> rules, "End" -> end, "StopReason" -> reason|>, where the reason is that of the event that stopped the integration, "IntegrationLimit", or "Other" if NDSolve stopped early for another reason. It issues the matching stop message. If NDSolve gives no solution, it issues the calling function's nosol message and returns $Failed. The settings are:*)
-(*"Function": the public function, for its nosol message.*)
-(*"MessageHead": the symbol that the stop messages are attached to.*)
-(*"VariableName": the independent variable's name, for the messages and the progress monitor.*)
-(*"AccuracyGoal", "PrecisionGoal", "NDSolveOptions": passed to NDSolve.*)
-(*"Monitor": whether to show the progress monitor.*)
-(*"Quiet": whether to suppress NDSolve's own messages. Only the Schwarzschild solvers do, as they always have.*)
-(*"ReportStops" (optional): the stop reasons that issue a message, or All (the default).*)
+(*IntegrateSystem runs NDSolve for 0 <= s <= limit, and returns <|"Solution", "End", "StopReason"|>. The reason is that of the event that stopped it, "IntegrationLimit", or "Other" if NDSolve stopped early. Its settings are:*)
+(*"Function", whose nosol message is issued, returning $Failed, if NDSolve gives no solution;*)
+(*"MessageHead", "VariableName" and "ReportStops" (All by default), for the stop messages;*)
+(*"AccuracyGoal", "PrecisionGoal" and "NDSolveOptions", for NDSolve;*)
+(*"Monitor", to show progress, and "Quiet", to suppress NDSolve's messages (only the Schwarzschild solvers do).*)
 
 
 IntegrateSystem[system_Association, s_, limit_, settings_Association] := Module[
@@ -179,13 +171,10 @@ IntegrateSystem[system_Association, s_, limit_, settings_Association] := Module[
 
 
 (* ::Text:: *)
-(*A solver is described by two functions.*)
-(*The builder takes the mass ratio, the spin, the initial elements {p0, e0, x0, \[Psi]r0, \[Psi]\[Theta]0}, a list of drivers and the settings "Mino", "pMin" and "SeparatrixBuffer". It returns a system with the keys IntegrateSystem needs, plus "Variable", the independent variable, and "Outputs", a function that makes the result from NDSolve's solution. It returns $Failed, with a message, if it cannot build the system.*)
-(*The force resolver turns the force into a list of drivers, or returns $Failed with a message. A force driver is <|"Type" -> "Force", "Function" -> f|>, where f takes the orbit's state as an Association and returns the covariant components {a_t, a_r, a_\[Theta], a_\[Phi]}. The state has the keys "a", "p", "e", "x", "\[Psi]r" and "\[Psi]\[Theta]" (and in the regular solver "\[Phi]" and the coordinate time "t"), and those of KerrOrbitGeometry (Utilities.wl). The driver's force is multiplied by the mass ratio unless it also has "ScalesWithMassRatio" -> False. Several forces are added. A flux driver has "Type" -> "Flux" (see TotalFlux); only the regular solver takes them.*)
-(*RunSolver reads the options, resolves the force, builds and integrates the system, and returns the result with "limit" and "StopReason" added. The optional settings are:*)
-(*"Force": the force, when it is not given by the Force option (as in OsculatingInspiral);*)
-(*"MessageHead": the symbol for the Parametrisation and stop messages, KerrOsculatingOrbitalElements by default;*)
-(*"ReportStops": the stop reasons that issue a message, All by default.*)
+(*A solver is a builder and a force resolver.*)
+(*The builder takes the mass ratio, the spin, the initial values, a list of drivers and the settings "Mino", "pMin" and "SeparatrixBuffer". It returns a system (above) with "Variable", the independent variable, and "Outputs", which makes the result from NDSolve's solution; or $Failed with a message.*)
+(*The force resolver turns the force into a list of drivers, or $Failed with a message. A force driver is <|"Type" -> "Force", "Function" -> f|>, where f takes the orbit's state (the elements and phases, and the keys of KerrOrbitGeometry) and returns {a_t, a_r, a_\[Theta], a_\[Phi]}. A flux driver has "Type" -> "Flux", and only the regular solver takes them.*)
+(*RunSolver reads the options, resolves the force, and builds and integrates the system. It returns the outputs with "limit" and "StopReason". Its optional settings are "Force" (when not given as an option, as in OsculatingInspiral), "MessageHead" (KerrOsculatingOrbitalElements by default) and "ReportStops" (All by default).*)
 
 
 RunSolver[function_, buildSystem_, forceDrivers_, \[Eta]_, a_, initial_List, {opts___}, settings_Association:<||>] := Module[
@@ -212,21 +201,15 @@ RunSolver[function_, buildSystem_, forceDrivers_, \[Eta]_, a_, initial_List, {op
 
 
 (* ::Text:: *)
-(*The sum of the force drivers' components {a_t, a_r, a_\[Theta], a_\[Phi]} for the orbit's state, each multiplied by the mass ratio \[Eta] unless its driver says otherwise. Builders call this.*)
+(*At the orbit's state, the sum of the force drivers' {a_t, a_r, a_\[Theta], a_\[Phi]}, and of the flux drivers' rates of the regular solver's {p, \[Alpha]p, \[Beta]p, x} with respect to t (see fluxVariableRates). Each is multiplied by the mass ratio \[Eta] unless its driver has "ScalesWithMassRatio" -> False.*)
 
 
-TotalForce[drivers_List, state_Association, \[Eta]_] := With[{forces = Cases[drivers, KeyValuePattern["Type" -> "Force"]]},
-	If[forces === {}, {0, 0, 0, 0},
-		Total[If[TrueQ[Lookup[#, "ScalesWithMassRatio", True]], \[Eta], 1] #["Function"][state] & /@ forces]]];
+driverTotal[type_String, drivers_List, state_Association, \[Eta]_] := With[{selected = Cases[drivers, KeyValuePattern["Type" -> type]]},
+	If[selected === {}, {0, 0, 0, 0},
+		Total[If[TrueQ[Lookup[#, "ScalesWithMassRatio", True]], \[Eta], 1] #["Function"][state] & /@ selected]]];
 
-
-(* ::Text:: *)
-(*The same for flux drivers, <|"Type" -> "Flux", "Function" -> f|>, whose f gives the rates with respect to t of the regular solver's {p, \[Alpha]p, \[Beta]p, x} (see fluxVariableRates in FluxModels/FluxModel.wl). The state needs "\[Alpha]p" and "\[Beta]p".*)
-
-
-TotalFlux[drivers_List, state_Association, \[Eta]_] := With[{fluxes = Cases[drivers, KeyValuePattern["Type" -> "Flux"]]},
-	If[fluxes === {}, {0, 0, 0, 0},
-		Total[If[TrueQ[Lookup[#, "ScalesWithMassRatio", True]], \[Eta], 1] #["Function"][state] & /@ fluxes]]];
+TotalForce[drivers_List, state_Association, \[Eta]_] := driverTotal["Force", drivers, state, \[Eta]];
+TotalFlux[drivers_List, state_Association, \[Eta]_] := driverTotal["Flux", drivers, state, \[Eta]];
 
 
 (* ::Text:: *)

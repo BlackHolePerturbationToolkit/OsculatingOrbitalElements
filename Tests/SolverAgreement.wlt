@@ -126,10 +126,9 @@ VerificationTest[
 
 
 (* ::Section:: *)
-(* OsculatingInspiral's regular solver against REG, at the regular solver's default goals and REG at tight goals. The
-   regular solver uses InterpolationOrder -> All, so that its values between steps have the accuracy of the integration:
-   with the default interpolation they are up to about 10 times less accurate, 2 10^-5 in phi over these runs. The
-   GasDrag model with Coefficient k is the earlier solvers' KerrGasDrag with eta = k. *)
+(* OsculatingInspiral's regular solver at its default goals, with InterpolationOrder -> All (its default interpolation
+   between steps is up to 10 times less accurate: 2 10^-5 in phi here), against REG at tight goals. GasDrag with
+   Coefficient k is the earlier solvers' KerrGasDrag with eta = k. *)
 
 regularVsREG[a_, p_, e_, x_] := Module[{regular, reg},
 	regular = OsculatingInspiral[<|"a" -> a, "\[Epsilon]" -> 10^-5, "p" -> p, "e" -> e, "x" -> x, "Force" -> ForceModel["GasDrag", "Coefficient" -> 10^-5]|>, IntegrationLimit -> 5000,

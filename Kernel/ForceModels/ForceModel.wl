@@ -5,12 +5,8 @@
 
 
 (* ::Text:: *)
-(*Part of the OsculatingOrbitalElements package. Kernel/OsculatingOrbitalElements.wl loads this file into the package's private context, so it cannot be loaded on its own.*)
-
-
-(* ::Text:: *)
-(*ForceModel[assoc] holds a force for OsculatingInspiral. assoc has the keys that force and flux models share (see Models.wl). Its "Function", f, is called as f[a, p, e, x, \[Psi]r, \[Psi]\[Theta], \[Phi], t], with the parameters appended when there are any. \[Phi] and the coordinate time t let a force break axial symmetry or depend on time, as the tidal field of a third body does. f returns the covariant {F_r, F_\[Theta], F_\[Phi]}; F_t follows from orthogonality to the velocity.*)
-(*The built-in models are in the other files of ForceModels/, which add themselves to builtInForceModels.*)
+(*ForceModel[assoc] is a force for OsculatingInspiral, with the keys of Models.wl. Its function f[a, p, e, x, \[Psi]r, \[Psi]\[Theta], \[Phi], t] (parameters appended, if any) returns the covariant {F_r, F_\[Theta], F_\[Phi]}; F_t follows from orthogonality to the velocity. \[Phi] and t allow forces that are not axisymmetric or stationary, such as the tidal field of a third body.*)
+(*The built-in models, in the other files here, add themselves to builtInForceModels. Loaded into the package's private context by Kernel/OsculatingOrbitalElements.wl.*)
 
 
 (* ::Section:: *)
@@ -21,7 +17,7 @@ builtInForceModels = <||>;
 
 
 (* ::Text:: *)
-(*A custom model, from its function and options. The constructor accepts almost any first argument, so every pattern ForceModel[assoc_Association] below is wrapped in HoldPattern: otherwise, when the definition is made, the pattern itself is evaluated as a call to the constructor.*)
+(*A custom model. The constructor accepts almost any first argument, so the patterns ForceModel[assoc_Association] below are wrapped in HoldPattern; otherwise defining them would call the constructor.*)
 
 
 ForceModel[f:Except[_String | _Association | _ForceModel | _FluxModel | _Rule], opts___Rule] := newModel[ForceModel, f, {opts}];
@@ -75,7 +71,7 @@ inspiralForceModels[force_] := resolveModels[ForceModel, force, "force"];
 
 
 (* ::Text:: *)
-(*Checks the models at the start of an inspiral, {a, p, e, x, \[Psi]r, \[Psi]\[Theta], \[Phi], t}: each must give three numbers there, and a model outside its range of validity gives a warning. Returns $Failed if a model fails.*)
+(*Checks the models at the initial {a, p, e, x, \[Psi]r, \[Psi]\[Theta], \[Phi], t}: each must give three numbers, and one outside its range of validity gives a warning. $Failed if any fails.*)
 
 
 checkForceModels[models_List, {a_, p_, e_, x_, \[Psi]r_, \[Psi]\[Theta]_, \[Phi]_, t_}] := Module[{failed},
@@ -87,12 +83,10 @@ checkForceModels[models_List, {a_, p_, e_, x_, \[Psi]r_, \[Psi]\[Theta]_, \[Phi]
 
 
 (* ::Text:: *)
-(*A model as a solver driver (see RunSolver in Interface.wl). Its function is called once for each state, only with numbers: the components are separate functions so that they stay unevaluated in the symbolic equations, and the most recent result is cached.*)
+(*A model as a solver driver of type \"Force\" (see RunSolver in Interface.wl).*)
 
 
-forceModelDriver[model_ForceModel] := Module[{evaluate, component, cache = None},
-	evaluate[args__?NumericQ] := memoLast[evaluate, cache, {args}, forceModelComponents[model, args]];
-	component[i_, args__?NumericQ] := With[{value = evaluate[args]}, If[ListQ[value], value[[i]], Indeterminate]];
+forceModelDriver[model_ForceModel] := With[{component = cachedComponents[forceModelComponents[model, ##] &]},
 	<|"Type" -> "Force", "ScalesWithMassRatio" -> model["ScalesWithMassRatio"],
 		"Function" -> Function[state, With[{spatial = Table[
 				component[i, state["a"], state["p"], state["e"], state["x"], state["\[Psi]r"], state["\[Psi]\[Theta]"], state["\[Phi]"],

@@ -5,16 +5,7 @@
 
 
 (* ::Text:: *)
-(*Part of the OsculatingOrbitalElements package. Kernel/OsculatingOrbitalElements.wl loads this file into the package's private context, so it cannot be loaded on its own.*)
-
-
-(* ::Text:: *)
-(*OsculatingInspiralFunction[assoc] holds an inspiral computed by OsculatingInspiral, as KerrGeoOrbitFunction holds a geodesic. assoc has the solver's outputs (each a function of the time variable, see regularOutputs in Solvers/KerrPEX.wl), and:*)
-(*"Domain": {0, end}, the range of the time variable;*)
-(*"StopReason": why the integration stopped;*)
-(*"Parametrisation": "CoordinateTime" or "Mino";*)
-(*"Parameters": the parameters, with the defaults filled in;*)
-(*"Force" and "Flux": the forces and fluxes that drove the inspiral, as lists of ForceModels and FluxModels.*)
+(*OsculatingInspiralFunction[assoc] holds an inspiral, as KerrGeoOrbitFunction holds a geodesic. assoc has the solver's outputs (functions of the time variable; see regularOutputs in Solvers/KerrPEX.wl), "Domain" ({0, end}), "StopReason", "Parametrisation" ("CoordinateTime" or "Mino"), "Parameters" (with the defaults filled in), and "Force" and "Flux" (lists of models). Loaded into the package's private context by Kernel/OsculatingOrbitalElements.wl.*)
 
 
 (* ::Section:: *)

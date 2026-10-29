@@ -1,79 +1,79 @@
 # Design Document
 
-Here we will specify plans for refactoring the package and what new features we want and what we wish to support.
+Plans for refactoring the package, and the features it should add and support.
 
 ## Basic Features
 
-- pex parametrization should be default, we can later try to add support for ELK later
-- Code should use p alpha, beta parametrization when eccentricity is sufficiently small
-- By default, everything should be report in Boyer-Lindquist coordinate time
-- We only support the Darwin and Hughes quasi-Keperian angles
-- Initial conditions and argumemnts should be passed as a dictionary, similar to what WaSABI does, NDSolve arguments should be passed directly to the solver as is done now.
-- We should output an "inspiral object" similar to KerrGeodesics that can be querries for various properties
-- Built in Force models can be specified
-- Custom force models should be packaged into a "Force object"
-- This object should return the (downstairs indexed) F_r, F_\theta, F_\phi with F_t determined from the orthogonality condition. The object should use pex params and darwin angles
-- This object should also accept additional arguments the force might need, like a drag coefficient for the gas drag model etc.
-- Inspirals can also be driven by orbit-averaged rates for the slowly varying elements p, e, x (for example leading-order post-Newtonian rates), packaged into a "Flux object", on their own or together with forces. See "Flux-driven evolution". It is implemented after the force objects, but the earlier phases leave room for it.
-- Keep unused legacy code for now, but segragate it away
+- pex parametrization should be the default; ELK support can be tried later
+- Use the p, alpha, beta parametrization when the eccentricity is sufficiently small
+- Report everything in Boyer-Lindquist coordinate time by default
+- Support only the Darwin and Hughes quasi-Keplerian angles
+- Pass initial conditions and arguments as a dictionary, as WaSABI does; pass NDSolve arguments directly to the solver, as now.
+- Output an "inspiral object", as KerrGeodesics does, that can be queried for its properties
+- Built-in force models can be specified
+- Package custom force models as a "Force object"
+- It should return the downstairs-indexed F_r, F_\theta, F_\phi, with F_t from the orthogonality condition, and use pex parameters and Darwin angles
+- It should also accept any extra arguments the force needs, such as the drag coefficient of the gas drag model.
+- Inspirals can also be driven, alone or with forces, by orbit-averaged rates of the slowly varying elements p, e, x (for example leading-order post-Newtonian rates), packaged as a "Flux object". It is implemented after the force objects, but the earlier phases leave room for it. See "Flux-driven evolution".
+- Keep unused legacy code for now, but segregate it
 - Need unit tests
 - Need full documentation with examples
-- Set up paclet support so it can be placed on a paclet server for distribution
+- Set up paclet support, for distribution from a paclet server
 
 ## Future features that might be nice
 
 - Support for Flux modes that replace the RHS with pdot, edot, xdot (orbit averaged). Now planned: see "Flux-driven evolution".
 
-- Each built in force or flux object having properties that can be queried, like parameter range, paper citation, etc.
+- Queryable properties for each built-in force or flux object, such as parameter range and paper citation.
 
-- Having multiple forces/ fluxes driving an inspiral, for example a gravitational-wave flux together with gas drag. Now planned: see "Flux-driven evolution".
+- Several forces or fluxes driving one inspiral, for example a gravitational-wave flux with gas drag. Now planned: see "Flux-driven evolution".
 
 ## Flux-driven evolution
 
-As well as an oscillatory force, an inspiral can be driven by orbit-averaged rates of change of the slowly varying elements, ⟨dp/dt⟩, ⟨de/dt⟩ and ⟨dx/dt⟩, which we call a flux. Examples are leading-order post-Newtonian rates at first order in the mass ratio: Peters (1964) in the weak field, or the Kerr post-Newtonian fluxes of Gair & Glampedakis (2006) or Sago & Fujita (2015).
+Besides an oscillatory force, an inspiral can be driven by orbit-averaged rates of the slowly varying elements, ⟨dp/dt⟩, ⟨de/dt⟩ and ⟨dx/dt⟩, which we call a flux. Examples are leading-order post-Newtonian rates at first order in the mass ratio: Peters (1964) in the weak field, or the Kerr post-Newtonian fluxes of Gair & Glampedakis (2006) or Sago & Fujita (2015).
 
 **Decision: keep evolving the Darwin and Hughes angles.**
 
-- A flux-driven inspiral uses the same variables and equations as a force-driven one. There is no separate solver that evolves mean anomalies.
-- This is slower, because the phases still oscillate on the orbital timescale, but speed is not a priority for this code.
-- In exchange, an inspiral can be driven by a flux and a force together, for example a gravitational-wave flux and gas drag, and by several of each. No other code does this.
+- Flux- and force-driven inspirals use the same variables and equations. No separate solver evolves mean anomalies.
+- This is slower, since the phases still oscillate on the orbital timescale, but speed is not a priority for this code.
+- In exchange, a flux and a force can drive an inspiral together (for example a gravitational-wave flux and gas drag), as can several of each. No other code does this.
 
-**How a flux enters the equations.** A flux is not a force: it has no instantaneous direction, so there is nothing for the force terms in the phase equations to act on.
+**How a flux enters the equations.** A flux is not a force: it has no instantaneous direction, so the force terms in the phase equations have nothing to act on.
 
 - **Only the slow variables change.** A flux adds its rates to p, e and x.
-- **Phases advance at their geodesic rate** for the current elements, plus the force terms when a force is also present. This is the usual adiabatic prescription. The position then drifts from the geodesic at O(η), which is consistent with an averaged flux.
-- **Contributions add.** The osculating equations are linear in the force, so several forces add to one total force, and their rates add to those of any fluxes.
-- **Mixed variables need care.** Where slow and fast variables are mixed, the flux must be added in that form:
+- **Phases advance at their geodesic rate** for the current elements, plus the force terms when a force is also present: the usual adiabatic prescription. The position then drifts from the geodesic at O(η), consistent with an averaged flux.
+- **Contributions add.** The osculating equations are linear in the force, so several forces add to one total force, whose rates add to those of any fluxes.
+- **Mixed variables need care.** Where slow and fast variables are mixed, add the flux in that form:
   - In the REG components (αp, βp) = e (sin ψr, cos ψr), a flux contributes (ė/e)(αp, βp).
   - In (x, ψθ) it contributes ẋ to x and nothing to ψθ. (In the polar components (αθ, βθ) of the regular polar formulation, now on hold, it would contribute (ż_m/2z_m)(αθ, βθ) = −(xẋ/z_m)(αθ, βθ), alongside ẋ for x.)
-  - The ratio ė/e stays finite for physical fluxes (ė ∝ e as e → 0). At exactly e = 0 it is 0/0, and the contribution is set to 0: a flux keeps a circular orbit circular. On an equatorial orbit x is held fixed, and a flux that changes x is rejected.
-  - A flux must not be passed through REG's osculating relations. Those assume r and u_r stay continuous, which only holds for a force.
+  - The ratio ė/e stays finite for physical fluxes (ė ∝ e as e → 0). At exactly e = 0 it is 0/0 and the contribution is set to 0, so a flux keeps a circular orbit circular. On an equatorial orbit x is held fixed, and a flux that changes x is rejected.
+  - Do not pass a flux through REG's osculating relations: they assume r and u_r stay continuous, which holds only for a force.
 - **The same small-e and equatorial treatments** therefore apply to fluxes as to forces.
 
 **Flux object** (`FluxModel`, in `Kernel/FluxModels/FluxModel.wl`), the counterpart of the Force object (`ForceModel`). It holds:
 
-- a function of (a, p, e, x, parameters) that returns the averaged rates, and is only evaluated on numeric input;
-- which quantities the rates are for: (p, e, x), or (E, L, Q), the form in which most fluxes are published;
+- a function of (a, p, e, x, parameters) returning the averaged rates, evaluated only on numeric input;
+- the quantities the rates are for: (p, e, x), or (E, L, Q), the form most fluxes are published in;
 - the time the averages are taken with respect to: always coordinate time t (decided in phase 5);
 - its parameters, and the same descriptive properties and mass-ratio convention as force models.
 
-**Converting (E, L, Q) rates.** The map from (dE, dL, dQ) to the rates of p, e and x already exists inside the pex and REG equations; it should live in one place, `Utilities.wl`. Two points about it:
+**Converting (E, L, Q) rates.** The map from (dE, dL, dQ) to the rates of p, e and x already exists inside the pex and REG equations; it should live in one place, `Utilities.wl`. Two points:
 
 - **Circular orbits.** `SlowElementRates` gives de²/dt, so ė/e = (de²/dt)/(2e²). Its error is about 10⁻¹⁶/e² relative to the flux, so for nearly circular orbits a flux given for (p, e, x) is better.
 - **Polar orbits.** `RegularXRate` gives ẋ with the 1/x cancelled using ℓ = L/x. At x = 0 it is dL/ℓ.
 
-**Interface and output.** The parameter Association takes "Force", "Flux" or both, each as a single object or a list. The result is the same inspiral object, which records the forces and fluxes that drove it.
+**Interface and output.** The parameter Association takes "Force", "Flux" or both, each as one object or a list. The result is the same inspiral object, recording the forces and fluxes that drove it.
 
 **Checking it:**
 
-- **A force against its averaged flux.** Orbit-averaging a Force object over the radial and polar phases gives a Flux object. Driving an inspiral with the force, and then with its averaged flux, should give p, e and x that agree to O(η) over the whole inspiral. This tests the flux machinery against the osculating equations, and lets any force model be used as a flux.
+- **A force against its averaged flux.** Orbit-averaging a Force object over the radial and polar phases gives a Flux object. Inspirals driven by the force and by its averaged flux should agree in p, e and x to O(η) throughout. This tests the flux machinery against the osculating equations, and lets any force model serve as a flux.
 - **Limiting cases.** A zero flux must leave force-driven results unchanged, and with no force the phases must advance at their geodesic rates.
 - **Combinations.** Force A plus the averaged flux of force B should agree with forces A and B together, again to O(η) in p, e and x.
 
 **What the earlier phases must allow for.** These are cheap to do now and awkward to retrofit:
 
 - **Phase 2:**
-  - The solver contract must not assume a single force. A solver builds its equations from a list of drivers: forces contribute to the slow variables and to the phase equations, and fluxes only to the slow variables (in the component forms above).
+  - The solver contract must not assume a single force. A solver builds its equations from a list of drivers: forces contribute to the slow variables and the phase equations, fluxes only to the slow variables (in the component forms above).
   - The (dE, dL, dQ) → (dp, de², dx) map moves into `Utilities.wl`.
 - **Phase 3:** The parameter Association accepts "Flux" alongside "Force", each as one object or a list, and the inspiral object records them.
 - **Phase 4:** Parameter handling, the mass-ratio convention and the descriptive properties are designed once, for both Force and Flux objects. Several forces combine into one total force.
@@ -82,9 +82,9 @@ As well as an oscillatory force, an inspiral can be driven by orbit-averaged rat
 
 The pex polar variables (x, ψθ) are singular for equatorial orbits (x = ±1). There ψθ is undefined, and its equation contains a term proportional to F_θ / √(1 − x²), so in these variables a force with a θ component cannot lift an orbit out of the plane. The earlier solvers avoid this by holding equatorial orbits in the plane (see "Before Phase 0"), which rules out such forces.
 
-**Status: on hold** (decided after phase 7). The regular solver behind `OsculatingInspiral` is back to (x, ψθ), with equatorial orbits as the same special case as in the earlier solvers, because the formulation below may still change. Its code is kept, unused, in `Kernel/Legacy/RegularPolar.wl`, and the solver that used it is at commit 7e644fe. See "After phase 7" below. The rest of this section describes the formulation as it was.
+**Status: on hold** (decided after phase 7). Because the formulation below may still change, the regular solver behind `OsculatingInspiral` is back to (x, ψθ), with equatorial orbits the same special case as in the earlier solvers. The formulation's code is kept, unused, in `Kernel/Legacy/RegularPolar.wl`; the solver that used it is at commit 7e644fe (see "After phase 7" below). The rest of this section describes the formulation as it was.
 
-**The regular polar formulation**, which `OsculatingInspiral` used from phase 3 until it was put on hold, evolves the 3-vector (αθ, βθ, x), which satisfies αθ² + βθ² + x² = 1, where
+**The regular polar formulation**, used by `OsculatingInspiral` from phase 3 until it was put on hold, evolves the 3-vector (αθ, βθ, x), with αθ² + βθ² + x² = 1, where
 
 ```
 αθ = √zm sin ψθ,    βθ = √zm cos ψθ = cos θ,    zm = 1 − x²
@@ -119,7 +119,7 @@ dx/dλ  = −Σ αθ [ x W a_θ / sin θ − αθ ( a²E x a_t + (L/x) a_φ / si
 
 **Checks:**
 
-- The equations match pex's (x, ψθ) equations through the chain rule. The agreement is 10⁻¹³ or better for a = 0, 0.5 and 0.9, prograde and retrograde, x from 0.8 down to ±0.01, and near the axis (sin θ = 0.01). It is 10⁻¹¹ at x = 0.999, where pex itself loses digits.
+- Through the chain rule, the equations match pex's (x, ψθ) equations to 10⁻¹³ or better for a = 0, 0.5 and 0.9, prograde and retrograde, x from 0.8 down to ±0.01, and near the axis (sin θ = 0.01); to 10⁻¹¹ at x = 0.999, where pex itself loses digits.
 - In a solve, while `OsculatingInspiral` used it (these tests were replaced when it was put on hold):
   - a θ force on an inclined orbit agrees with REG;
   - starting exactly equatorial, the same force lifts the orbit out of the plane, with the 3-vector staying at unit length to 10⁻¹³;
@@ -131,20 +131,20 @@ dx/dλ  = −Σ αθ [ x W a_θ / sin θ − αθ ( a²E x a_t + (L/x) a_φ / si
 - L is replaced by xℓ, which turns x² times Schmidt's h(r) into r² − 2r + a²zm.
 - The conditions at r1 and r2 are replaced by their mean and divided difference, which are sums of products of r1 and r2 with positive coefficients.
 
-So they are regular at x = 0 and at e = 0 with no special cases. They agree with KerrGeodesics to 50 digits, and to 10⁻¹³ at machine precision, including at e = 10⁻⁸, x = 10⁻⁸ and x = 0. (An earlier note here said the package's `Energy`, `AngularMomentum` and `CarterConstant` lose half their digits near x = 0. That was wrong: they are accurate there, and only fail exactly at x = 0, as 0/0.)
+So they are regular at x = 0 and e = 0 with no special cases. They agree with KerrGeodesics to 50 digits, and to 10⁻¹³ at machine precision, including at e = 10⁻⁸, x = 10⁻⁸ and x = 0. (An earlier note here wrongly said the package's `Energy`, `AngularMomentum` and `CarterConstant` lose half their digits near x = 0. They are accurate there, and fail only exactly at x = 0, as 0/0.)
 
 **The Boyer–Lindquist axis.** An orbit with small |x| passes sin θ = |x| from the axis. There dφ/dλ ≈ L/sin²θ, so φ swings by nearly π in a time of order |x|.
-- **The swing can be missed.** NDSolve's default multistep method (LSODA) can step over it entirely. At default goals it got φ wrong by 0.4 rad for a gas-drag inspiral at x = 0.01, and meaninglessly wrong at x = 0.001.
+- **The swing can be missed.** NDSolve's default multistep method (LSODA) can step over it entirely. At default goals φ was 0.4 rad wrong for a gas-drag inspiral at x = 0.01, and meaninglessly wrong at x = 0.001.
 - **REG only gets it right by accident.** Its ψθ equation has force terms that spike at the same moment and force small steps.
-- **The regular solver's choice.** An 8th-order explicit Runge–Kutta method with goals of 11 or more resolves the swing down to |x| = 0.001. That is the regular solver's default, with goals 12. On generic orbits it is about 4 times more accurate in r than the earlier solvers' defaults, and about twice as slow.
+- **The regular solver's choice.** An 8th-order explicit Runge–Kutta method with goals of 11 or more resolves the swing down to |x| = 0.001. The regular solver uses it by default, with goals 12. On generic orbits it is about 4 times more accurate in r than the earlier solvers' defaults, and about twice as slow.
 - **Tried and rejected: evolving sin θ e^{iφ} in place of φ.** Its equation divides by sin θ e^{−iφ}, which amplifies any inconsistency with (αθ, βθ, x) near the axis. It did worse, and with Runge–Kutta NDSolve judged the system stiff.
 - **A fully robust option for later.** Near the poles, evolve the node angle Ω = φ − χ, with χ = arg(−αθ + i x βθ). In Schwarzschild, χ is exactly the azimuth measured from the node. In Kerr, Ω's geodesic rate is the bounded −xβ/(ℓ + W) plus the smooth frame-dragging terms, so no variable swings and |x| can be arbitrarily small.
-  - Ω is undefined for equatorial orbits, so this needs two patches: Ω near the poles and φ near the equator. The integration would have to switch between them when |x| crosses a threshold.
+  - Ω is undefined for equatorial orbits, so this needs two patches, Ω near the poles and φ near the equator, with the integration switching between them when |x| crosses a threshold.
 - **Exactly polar orbits** (x = 0, so L = 0 for a force without a φ component) pass through the axis, and are rejected.
 
 **Open issues:**
 
-- `OrbitalElementRates` still gives dx/dλ as −(dzm/dλ)/(2x), which is 0/0 at x = 0, for the earlier solvers. The regular solver, and fluxes given as (dE, dL, dQ), use `RegularXRate`.
+- For the earlier solvers, `OrbitalElementRates` still gives dx/dλ as −(dzm/dλ)/(2x), which is 0/0 at x = 0. The regular solver and fluxes given as (dE, dL, dQ) use `RegularXRate`.
 - The polar rate of x uses the polar form of dQ, while p and e² use the radial form of dK. They agree only for forces orthogonal to the velocity.
 - This formulation does not seem to be in the literature, so it is worth writing up.
 
@@ -230,8 +230,8 @@ The future features fit this structure without changes:
 Unused code is kept but separated from the active code:
 
 - It lives in `Kernel/Legacy/`, which the header loads last, in a block marked as legacy.
-- Each legacy file starts with a comment saying that it is legacy, is not used by the current interface, and should not be extended.
-- Legacy public functions keep working. Their usage messages move to a marked legacy section at the end of the header (public symbols must be declared there) and say that the function is legacy.
+- Each legacy file starts with a comment saying it is legacy, unused by the current interface, and not to be extended.
+- Legacy public functions keep working. Their usage messages move to a marked legacy section at the end of the header (public symbols must be declared there) and say the function is legacy.
 - Usage messages for functions that no longer exist are kept as comments in the legacy file, so they do not create undefined public symbols.
 
 Legacy (phase 1):
@@ -292,7 +292,7 @@ Run the suite with `wolframscript -file Tests/AllTests.wls` (about a minute). Ph
   - the hidden ×1000 in `IntegrationLimit`;
   - a 1% error in one pex force term. Catching this needs tight NDSolve goals in the Kerr comparison.
 
-The reference outputs were made with Mathematica 13.1, because Wolfram 14.3's licence had lapsed, at commit `8ce9ffe`. They match exactly only on the same Wolfram version and system. Elsewhere the regression test uses a relative tolerance of 10⁻⁸. If Phase 1 is done on another version, regenerate them first with `MakeReferenceOutputs.wls`.
+The reference outputs were made at commit `8ce9ffe` with Mathematica 13.1, as Wolfram 14.3's licence had lapsed. They match exactly only on the same Wolfram version and system; elsewhere the regression test uses a relative tolerance of 10⁻⁸. If Phase 1 is done on another version, first regenerate them with `MakeReferenceOutputs.wls`.
 
 They were regenerated in phase 2, when pex switched to the shared rate map (see Phase 2).
 
@@ -317,8 +317,8 @@ They were regenerated in phase 2, when pex switched to the shared rate map (see 
   - The builder returns the variable, unknowns, equations, stop events, NDSolve method and a function that makes the outputs from the solution. `RunSolver` reads the options, resolves the force, builds and integrates the system, and adds `"limit"` and `"StopReason"`.
   - pex and REG are written this way (`pexSystem`, `regSystem`), and share their derived outputs.
   - ELK and the Schwarzschild solvers only use the shared NDSolve driver, since ELK is to be supported later and the Schwarzschild solvers' future is undecided.
-- [x] Keep that contract independent of what drives the inspiral. A solver builds its equations from a list of drivers: forces contribute to the slow variables and to the phase equations, and fluxes (from phase 5) only to the slow variables. See "Flux-driven evolution".
-  - A force driver is `<|"Type" -> "Force", "Function" -> f|>`. Here f takes the orbit's state (elements, phases and the shared geometry) and returns {a_t, a_r, a_θ, a_φ} per unit η.
+- [x] Keep that contract independent of what drives the inspiral. A solver builds its equations from a list of drivers: forces contribute to the slow variables and the phase equations, fluxes (from phase 5) only to the slow variables. See "Flux-driven evolution".
+  - A force driver is `<|"Type" -> "Force", "Function" -> f|>`, where f takes the orbit's state (elements, phases and the shared geometry) and returns {a_t, a_r, a_θ, a_φ} per unit η.
   - `TotalForce` adds the drivers. A test checks that two half-strength gas drags give the same inspiral as one full-strength gas drag.
   - Flux drivers will be a second type, added in phase 5.
 - [x] Move the map from (dE, dL, dQ) to the rates of p, e² and x, now inside the pex and REG equations, into `Utilities.wl`, so the flux solver can reuse it
@@ -331,7 +331,7 @@ They were regenerated in phase 2, when pex switched to the shared rate map (see 
   - [x] Store why the integration stopped in the output: `"StopReason"` is `"Separatrix"`, `"SeparatrixBuffer"`, `"pMin"`, `"IntegrationLimit"` or `"Other"`
   - [x] Pass NDSolve options straight through, ahead of the solver's own settings
 - [x] Move the orbit geometry (Σ, Δ, roots, velocities), currently repeated in several functions, into `Utilities.wl`
-  - `KerrOrbitGeometry`, `NullTetradForce` and `ConstantsOfMotionRates` are used by pex and REG. The polar phase equation they share is `polarPhaseRate` in `KerrPEX.wl`, which the regular solver also uses.
+  - pex and REG use `KerrOrbitGeometry`, `NullTetradForce` and `ConstantsOfMotionRates`. Their shared polar phase equation, `polarPhaseRate` in `KerrPEX.wl`, is also used by the regular solver.
   - The force models and ELK still compute their own geometry. They should use the shared one when the force models are rewritten (phase 4) and when ELK is supported.
 
 ### Phase 3: New interface and inspiral object
@@ -344,7 +344,7 @@ Decisions made at the start of phase 3:
   - Optional, defaulting to 0: the initial phases `"ψr"`, `"ψθ"` and `"φ"`.
   - Solver settings stay as options: `Parametrisation`, `IntegrationLimit`, `SeparatrixBuffer`, `pMin`, `TimeMonitor`, and any NDSolve option.
 - **Time:** Boyer–Lindquist coordinate time by default, with Mino time still available through `Parametrisation`.
-- **Small eccentricity:** always integrate the regular radial variables (p, αp, βp). They are exact at every e, so there is no threshold or switch. e and ψr are reconstructed for output, and ψr is undefined at e = 0. The pex small-e branch stays only in the legacy `GenericKerrpexBL`.
+- **Small eccentricity:** always integrate the regular radial variables (p, αp, βp), which are exact at every e, so there is no threshold or switch. e and ψr are reconstructed for output; ψr is undefined at e = 0. The pex small-e branch stays only in the legacy `GenericKerrpexBL`.
 - **Schwarzschild:** handled as the a = 0 case of the Kerr solver, with equatorial orbits as a special case. The current Schwarzschild functions keep working until they move to legacy in phase 6.
 
 - [x] Decide the keys and defaults of the parameter Association, following WaSABI. Accept a "Flux" entry alongside "Force", each as one object or a list.
@@ -377,8 +377,8 @@ Decisions made at the start of phase 3:
 Decisions made at the start of phase 4:
 
 - **Name:** `ForceModel`, with `FluxModel` to follow in phase 5.
-- **Custom forces** are positional functions, f[a, p, e, x, ψr, ψθ, φ, t], or f[a, p, e, x, ψr, ψθ, φ, t, params] when the model has parameters. They return the covariant {F_r, F_θ, F_φ}. They are only ever called with numbers. At e = 0 the solver passes ψr = 0, and on an equatorial orbit ψθ = 0, where the phases are undefined.
-  - φ and the coordinate time t are always passed (added after the first decisions), so a force need not be axisymmetric or stationary, for example the tidal field of a third body. A force can ignore them.
+- **Custom forces** are positional functions, f[a, p, e, x, ψr, ψθ, φ, t], or f[a, p, e, x, ψr, ψθ, φ, t, params] when the model has parameters. They return the covariant {F_r, F_θ, F_φ}, and are only ever called with numbers. Where the phases are undefined, the solver passes ψr = 0 at e = 0 and ψθ = 0 on an equatorial orbit.
+  - φ and the coordinate time t are always passed (added after the first decisions), so a force need not be axisymmetric or stationary (for example the tidal field of a third body). A force can ignore them.
   - The background stays Kerr, so the geometry does not depend on φ or t. The solver already integrates φ, and has t as its independent variable, or as a variable in Mino time.
 - **Mass ratio:** ε is the mass ratio, and each force declares whether it scales with it.
   - Self-force-like forces are multiplied by ε. Forces with their own strength are not, such as gas drag with its `"Coefficient"`.
@@ -387,7 +387,7 @@ Decisions made at the start of phase 4:
 
 - [x] Force object wrapping one function of (a, p, e, x, ψr, ψθ, parameters) that returns the downstairs {F_r, F_θ, F_φ}, and is only evaluated on numeric input
   - `ForceModel` (`Kernel/ForceModels/ForceModel.wl`).
-  - In a solve, each model becomes a driver. Its function is called once per state with numbers only, and the result is cached. The three components are separate functions so that they stay unevaluated in the symbolic equations.
+  - In a solve, each model becomes a driver. Its function is called once per state, with numbers only, and the result is cached. The three components are separate functions so they stay unevaluated in the symbolic equations.
   - The model's function is checked at the initial orbit, so a function that does not return three real numbers fails before the integration starts.
   - `model[a, p, e, x, ψr, ψθ]` evaluates the full covariant force {F_t, F_r, F_θ, F_φ}, before any factor of ε.
 - [x] Compute F_t from the orthogonality condition in `Utilities.wl` (`OrthogonalTimeComponent`)
@@ -406,7 +406,7 @@ Decisions made at the start of phase 4:
   - A test checks that two forces agree with their sum written as one force.
 - [x] Rewrite gas drag, conservative EM and FastGSF as Force objects, each returning all components from a single evaluation
   - **`"GasDrag"`.** It has a required `"Coefficient"` and does not scale with ε. With coefficient 1 it equals `KerrGasDragapex` to 10⁻¹⁵.
-  - **`"EMConservative"`.** It is `KerrEMCons`, computed from the regular geometry so that it holds at x = 0. It agrees to 10⁻¹⁵, including F_t, and scales with ε. Its physical normalisation and citation are still to be filled in.
+  - **`"EMConservative"`.** It is `KerrEMCons`, computed from the regular geometry so it holds at x = 0. It agrees to 10⁻¹⁵, including F_t, and scales with ε. Its physical normalisation and citation are still to be filled in.
   - **`"FastGSF"`.** It scales with ε and is valid for a = 0, p ≤ 12 and e ≤ 0.2. It lowers `SchwarzFastGSF`'s contravariant (F^r, F^φ).
     - The angular part is put along the particle's angular motion, so it also holds for inclined Schwarzschild orbits. Such an inclined orbit gives the same p, e and r as the equatorial one, with x unchanged.
     - It agrees with `SchwarzOsculatingOrbitalElementsTP` over 3000M.
@@ -427,7 +427,7 @@ Decisions made at the start of phase 5:
   - (ė/e)(αp, βp) to the eccentricity components;
   - ẋ to x, and (ż_m/2z_m)(αθ, βθ) = −(xẋ/z_m)(αθ, βθ) to the polar components.
   The phases keep their geodesic rates.
-- **Time.** Only coordinate time. Fluxes are averages with respect to t, and published ones nearly always are. A flux adds directly to the t equations, and an inspiral with a flux and `Parametrisation -> "Mino"` is an error.
+- **Time.** Coordinate time only. Fluxes are averages with respect to t, as published ones nearly always are. A flux adds directly to the t equations; an inspiral with a flux and `Parametrisation -> "Mino"` is an error.
 
 - [x] Flux object, `FluxModel`, in `Kernel/FluxModels/FluxModel.wl`, with:
   - [x] rates for (p, e, x) or (E, L, Q) (option `"Rates"`), with respect to t only;
@@ -447,7 +447,7 @@ Decisions made at the start of phase 5:
 - [x] Tests (`Tests/FluxModels.wlt`):
   - [x] A zero flux leaves force-driven results unchanged, bit for bit, and with no force the phases advance at their geodesic rates: the orbit is the geodesic.
   - [x] With Peters' rates the elements follow the analytic solution of Peters' equations: p/(e^{12/19}(1 + 121e²/304)^{870/2299}) is constant to 10⁻⁵ while e falls by 0.013. A circular orbit stays circular, with p⁴ = p₀⁴ − (256/5)εt to 10⁻¹².
-  - [x] Gas drag driven by the force and by its orbit-averaged flux agree in p, e and x to O(η). The comparison is of the secular changes, with the force-driven elements averaged over three radial periods.
+  - [x] Gas drag driven by the force and by its orbit-averaged flux agree in p, e and x to O(η). The secular changes are compared, with the force-driven elements averaged over three radial periods.
     - On the equator the changes agree to 10⁻⁷ in p (out of −0.475) and 10⁻⁶ in e.
     - Inclined, with 4×4 points, they agree to 2×10⁻⁴ relative in p, 6×10⁻⁵ in e (out of 1.2×10⁻³, an O(η) difference) and 0.1% in x.
   - [x] One force plus the averaged flux of another agrees with both forces together, to O(η) in p, e and x. Drag plus the averaged FastGSF agrees with drag and FastGSF together to 2×10⁻⁴ in p, out of −0.65.
@@ -461,7 +461,7 @@ Decisions made at the start of phase 5:
   - All the earlier public functions and force functions moved (see Legacy code above). Their usage messages start "Legacy, superseded by …", and their reference pages say the same.
   - The old header overwrote the usage messages of the System symbols `AccuracyGoal` and `PrecisionGoal`; those lines are now commented out.
 - [x] Decide what to do with `Data generation.nb` and `TestingELKvspex.nb`, which call functions that no longer exist
-  - Moved, with `tutorial.nb`, to `Notebooks/Legacy/`, outputs stripped, with a README that says what each was for and why the last two no longer run.
+  - Moved, with `tutorial.nb`, to `Notebooks/Legacy/`, outputs stripped, with a README saying what each was for and why the last two no longer run.
 
 ### Phase 7: Documentation and distribution
 
@@ -470,14 +470,14 @@ Decisions made at the start of phase 5:
   - The legacy functions have short pages that say what supersedes them.
   - The kernel evaluates the examples itself, because `NotebookEvaluate` hangs in a front end started by wolframscript. Message arguments are written on one line, as in a notebook.
   - The only message cells are in the Possible Issues sections, where they are the point of the example.
-  - The pages that show an inspiral's summary box are large (about 1 MB), since the box embeds the inspiral, as the summary boxes of Wolfram objects do.
+  - Pages that show an inspiral's summary box are large (about 1 MB), since the box embeds the inspiral, as Wolfram objects' summary boxes do.
 - [x] Turn `tutorial.nb` into documentation, fixing its current bugs (undefined `ELKup`, and sin θ and cos θ swapped in the 3D plot)
   - The new tutorial (Tutorials/OsculatingOrbitalElements) uses the new interface. The old one, with both bugs fixed, is in `Notebooks/Legacy/`, since it documents the legacy functions.
 - [x] Update the README: features, installation, links
 - [x] Write up the regular polar formulation (`Notes/RegularFormulation.md`)
 - [x] Strip outputs from committed notebooks (those in `Notebooks/Legacy/`; the documentation keeps its outputs)
 - [ ] Build the paclet and publish it to a paclet server
-  - [x] Build: `PacletInfo.wl` has a Documentation extension and declares `Data/FastGSF` as an asset, without which the build leaves the data out. `PacletTools`PacletBuild` makes `build/OsculatingOrbitalElements-0.1.0.paclet` (`build/` is ignored by git). The archive loads without messages, FastGSF finds its data, and the documentation links resolve.
+  - [x] Build: `PacletInfo.wl` has a Documentation extension and declares `Data/FastGSF` as an asset, without which the build leaves the data out. ``PacletTools`PacletBuild`` makes `build/OsculatingOrbitalElements-0.1.0.paclet` (`build/` is ignored by git). The archive loads without messages, FastGSF finds its data, and the documentation links resolve.
   - [ ] Publish: decide the version, then submit the archive (for example to the Wolfram Paclet Repository, or attach it to a GitHub release)
 - [x] Optional: run the tests automatically on GitHub, as KerrGeodesics does
   - `.github/workflows/Tests.yml` runs `Tests/AllTests.wls` on macOS with the Wolfram Engine. It needs the repository secret `WOLFRAM_LICENSE_ENTITLEMENT_ID`. On a Wolfram version other than the one that made `ReferenceOutputs.wl`, the regression tests use a relative tolerance of 1e-8.
@@ -490,14 +490,14 @@ Decision: hold off on the polar unit vector (αθ, βθ, x), as it may change, a
 - [x] Equatorial orbits (x0 = ±1): x is held at exactly ±1 (output as a machine number), the polar equations are dropped, θ = π/2 and ψθ is `Missing`. A force with a θ component in the plane gives `OsculatingInspiral::eqforce`, and a flux that changes x `OsculatingInspiral::eqflux`; both are checked at the start, as before.
 - [x] `KerrOrbitGeometry` takes (r, x, ψθ) only, as before phase 3; `NumericOrbitGeometry` gives it β zp = β + ℓ², so it still holds at x = 0. Fluxes give rates of (p, αp, βp, x). The inspiral no longer has the properties "αθ" and "βθ".
 - [x] The formulation's own code (`polarComponentRates`, the polar-component geometry, the flux terms) is kept, unused, in `Kernel/Legacy/RegularPolar.wl`.
-- [x] Numerical changes, measured before regenerating `ReferenceOutputs.wl`: the regression inspirals, which are sampled at the end of the integration, change by at most 7×10⁻¹⁴ relative. The integration is as accurate as before: a geodesic's e stays within 6×10⁻¹³ of its initial value at the steps over 3000M.
+- [x] Numerical changes, measured before regenerating `ReferenceOutputs.wl`: the regression inspirals, sampled at the end of the integration, change by at most 7×10⁻¹⁴ relative. The integration is as accurate as before: a geodesic's e stays within 6×10⁻¹³ of its initial value at the steps over 3000M.
 - [x] Values between steps are less accurate with the default interpolation. The (x, ψθ) variables let the Runge–Kutta method take about 30% longer steps (the bounded (αθ, βθ) had limited the step more than the goals required), and NDSolve's default interpolation between steps is of lower order than the method. Over 3000M a geodesic's e, sampled every 10M, is off by up to 9.5×10⁻⁷ (1.9×10⁻⁷ before); against REG over 5000M, φ is off by 2×10⁻⁵ (2×10⁻⁶ before). `InterpolationOrder -> All` uses the method's own dense output, and brings both formulations to the integration's accuracy (10⁻¹³ for the geodesic, and agreement with REG to REG's own error), at about 1.8 times the time and 11 times the memory. The defaults are unchanged; the documentation mentions the option.
 - [x] Tests: the equatorial special case (stays in the plane, rejects a θ force and an x-changing flux, accepts a force whose θ component vanishes in the plane, continuity at the equator); a flux that changes x is checked against the exact solution. Tests that compare two solutions between steps (with REG, and two ways of writing the same force) use `InterpolationOrder -> All`, and keep their tolerances. The tests of lifting an orbit out of the plane and of the unit length were removed. There are 227 tests.
 - [x] Docs, README and `Notes/RegularFormulation.md`: the examples that lifted an equatorial orbit now use a torque on an inclined orbit, and the text describes the equatorial special case. In (x, ψθ) a force with a θ component makes the equations stiff close to the equator (10⁻⁶ from the plane took 60 times longer than at x = 0.99; 10⁻¹⁰ failed as stiff), which the unit vector avoids.
 
 ### After phase 7: frequencies and Boyer–Lindquist action angles
 
-Request: the inspiral should give the osculating geodesic's energy, angular momentum and Carter constant, its Boyer–Lindquist frequencies, and its Boyer–Lindquist action angles, as functions of time, the angles as in Lynch and Burke, "A note on the conversion of orbital angles for extreme mass ratio inspirals", Class. Quantum Grav. 42, 167001 (2025), arXiv:2411.04955, and github.com/Philip-Lynch/KerrOrbitalAngleConversion.
+Request: as functions of time, the inspiral should give the osculating geodesic's energy, angular momentum and Carter constant, its Boyer–Lindquist frequencies, and its Boyer–Lindquist action angles. The angles follow Lynch and Burke, "A note on the conversion of orbital angles for extreme mass ratio inspirals", Class. Quantum Grav. 42, 167001 (2025), arXiv:2411.04955, and github.com/Philip-Lynch/KerrOrbitalAngleConversion.
 
 Decisions:
 
@@ -524,3 +524,11 @@ Checks (`Tests/OrbitalAngles.wlt`, 10 tests):
 Found on the way: with NDSolve's default stiffness test the (x, ψθ) solver stopped a long Mino-time geodesic at λ = 734 (t ≈ 98000) as "stiff", though its steps were steady; the (αθ, βθ) solver did not. The stiffness test now needs 100 restricted steps in a row (`"StiffnessTest" -> {True, "MaxRepetitions" -> {100, 100}}`), which gives the same steps as the default. Turning the test off instead lets the steps grow by about 20%, doubling the interpolation error between them. Over long runs the (x, ψθ) and (αθ, βθ) solvers agree: a 2×10⁵M gas-drag inspiral to 10⁻¹⁰ in p and 2×10⁻⁷ rad in φ (out of 7741), and a Peters inspiral to the separatrix to 10⁻¹⁰ in its end time.
 
 There are 238 tests in 12 files.
+
+### After phase 7: readability review
+
+- [x] Comments and usage messages shortened throughout the active code; equations unchanged, and the regression outputs bit-identical. The measurements behind the solver's choices (method, stiffness test) are kept here, not in the code.
+- [x] `OrbitalElementRates`, used only by the legacy solvers, moved to `Kernel/Legacy/Utilities.wl`.
+- [x] Shared code instead of copies: `cachedComponents` (Models.wl) builds the numeric, cached components of both force and flux drivers, and `TotalForce` and `TotalFlux` share `driverTotal`.
+- [x] Documentation generator: symbols in the reference pages' notes and tables were not linked, as the notes were built before the list of documented symbols existed; that list is now the package's public symbols.
+- [x] README: the changelog still said the equations were regular for equatorial and polar orbits; corrected. Legacy code was left alone apart from its header comments.

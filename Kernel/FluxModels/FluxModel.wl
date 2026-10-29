@@ -5,12 +5,8 @@
 
 
 (* ::Text:: *)
-(*Part of the OsculatingOrbitalElements package. Kernel/OsculatingOrbitalElements.wl loads this file into the package's private context, so it cannot be loaded on its own.*)
-
-
-(* ::Text:: *)
-(*FluxModel[assoc] holds a flux for OsculatingInspiral: orbit-averaged rates of change of the slowly varying elements, with respect to coordinate time. assoc has the keys that force and flux models share (see Models.wl), and "Rates": the quantities whose rates the function gives, {"p", "e", "x"} or {"En", "L", "Q"}. Its "Function", f, is called as f[a, p, e, x], with the parameters appended when there are any, and returns the three rates.*)
-(*The built-in models are in the other files of FluxModels/, which add themselves to builtInFluxModels.*)
+(*FluxModel[assoc] is a flux for OsculatingInspiral: orbit-averaged rates of change of the slowly varying elements with respect to coordinate time. assoc has the keys of Models.wl and "Rates", {"p", "e", "x"} or {"En", "L", "Q"}: the quantities whose rates its function f[a, p, e, x] (parameters appended, if any) returns.*)
+(*The built-in models, in the other files here, add themselves to builtInFluxModels. Loaded into the package's private context by Kernel/OsculatingOrbitalElements.wl.*)
 
 
 (* ::Section:: *)
@@ -23,7 +19,7 @@ $fluxRates = {{"p", "e", "x"}, {"En", "L", "Q"}};
 
 
 (* ::Text:: *)
-(*A custom model, from its function and options. As for ForceModel, every pattern FluxModel[assoc_Association] below is wrapped in HoldPattern.*)
+(*A custom model. As for ForceModel, the patterns FluxModel[assoc_Association] are wrapped in HoldPattern.*)
 
 
 FluxModel[f:Except[_String | _Association | _FluxModel | _ForceModel | _Rule], opts___Rule] := With[{model = newModel[FluxModel, f, {opts}]},
@@ -65,7 +61,7 @@ fluxModelRates[model_FluxModel, args__] := callModel[model, {args}, 3];
 
 
 (* ::Text:: *)
-(*The rates of the regular solver's variables {p, \[Alpha]p, \[Beta]p, x} from the flux at this state, with respect to t and before any factor of \[Epsilon]. The flux changes e but not \[Psi]r, so d\[Alpha]p/dt = ((de/dt)/e) \[Alpha]p and d\[Beta]p/dt = ((de/dt)/e) \[Beta]p. The ratio is finite for a physical flux, as de/dt ~ e near e = 0; at exactly e = 0 it is 0/0, and the contribution is 0, so a flux keeps a circular orbit circular. The flux does not change \[Psi]\[Theta] either, so it has no term in the \[Psi]\[Theta] equation. On an equatorial orbit the solver holds x fixed, and checks that the flux's rate of x is zero.*)
+(*The flux's rates of the solver's {p, \[Alpha]p, \[Beta]p, x}, with respect to t and before any factor of \[Epsilon]. It changes e but not \[Psi]r, so (d\[Alpha]p/dt, d\[Beta]p/dt) = ((de/dt)/e) (\[Alpha]p, \[Beta]p): finite for a physical flux, which has de/dt ~ e, and 0 at e = 0, so a circular orbit stays circular. It does not change \[Psi]\[Theta].*)
 
 
 fluxVariableRates[model_FluxModel, a_, p_, \[Alpha]p_, \[Beta]p_, x_] := Module[{e2, rates, dp, eRatio, dx},
@@ -80,7 +76,7 @@ fluxVariableRates[model_FluxModel, a_, p_, \[Alpha]p_, \[Beta]p_, x_] := Module[
 
 
 (* ::Text:: *)
-(*{dp/dt, (de/dt)/e, dx/dt} from the rates of (En, L, Q). (de/dt)/e = (de^2/dt)/(2 e^2), which is accurate to about 10^-16/e^2 relative to the flux, so a flux given for (p, e, x) is better for nearly circular orbits. The rate of x is in the form that is regular at x = 0.*)
+(*{dp/dt, (de/dt)/e, dx/dt} from the rates of (En, L, Q). (de/dt)/e = (de^2/dt)/(2 e^2) loses accuracy like 10^-16/e^2, so a flux for nearly circular orbits is better given for (p, e, x).*)
 
 
 constantsToElementRates[a_, p_, e2_, x_, {dEn_, dL_, dQ_}] := Module[{En, \[ScriptL], L, Q, rates},
@@ -94,7 +90,7 @@ constantsToElementRates[a_, p_, e2_, x_, {dEn_, dL_, dQ_}] := Module[{En, \[Scri
 
 
 (* ::Text:: *)
-(*The "Flux" parameter of OsculatingInspiral as a list of FluxModels (see resolveModels in Models.wl), and the check at the initial orbit {a, p, e, x}, as for forces*)
+(*The \"Flux\" parameter as a list of FluxModels, and their check at the initial {a, p, e, x}, as for forces*)
 
 
 inspiralFluxModels[flux_] := resolveModels[FluxModel, flux, "flux"];
@@ -108,12 +104,10 @@ checkFluxModels[models_List, {a_, p_, e_, x_}] := Module[{failed},
 
 
 (* ::Text:: *)
-(*A model as a solver driver of type "Flux" (see RunSolver and TotalFlux in Interface.wl). As for forces, its function is called once for each state, only with numbers, and its four rates are separate functions.*)
+(*A model as a solver driver of type \"Flux\" (see TotalFlux in Interface.wl).*)
 
 
-fluxModelDriver[model_FluxModel] := Module[{evaluate, component, cache = None},
-	evaluate[args__?NumericQ] := memoLast[evaluate, cache, {args}, fluxVariableRates[model, args]];
-	component[i_, args__?NumericQ] := With[{value = evaluate[args]}, If[ListQ[value], value[[i]], Indeterminate]];
+fluxModelDriver[model_FluxModel] := With[{component = cachedComponents[fluxVariableRates[model, ##] &]},
 	<|"Type" -> "Flux", "ScalesWithMassRatio" -> model["ScalesWithMassRatio"],
 		"Function" -> Function[state, Table[
 			component[i, state["a"], state["p"], state["\[Alpha]p"], state["\[Beta]p"], state["x"]],
@@ -126,8 +120,7 @@ fluxModelDriver[model_FluxModel] := Module[{evaluate, component, cache = None},
 
 
 (* ::Text:: *)
-(*The flux of a ForceModel: its rates of change of En, L and Q, averaged over the geodesic with respect to t. In Mino time the radial and polar motions separate, d\[Psi]r/d\[Lambda] depending only on \[Psi]r and d\[Psi]\[Theta]/d\[Lambda] only on \[Psi]\[Theta], so the Mino-time average over a non-resonant orbit is a double integral over the phases with weight 1/((d\[Psi]r/d\[Lambda]) (d\[Psi]\[Theta]/d\[Lambda])). The average with respect to t divides the Mino-time averages by that of dt/d\[Lambda]. The integrals are trapezoidal sums over "Points" equally spaced values of each phase, which converge exponentially for these smooth periodic integrands; a circular orbit needs one radial point and an equatorial orbit one polar point.*)
-(*The force is evaluated at \[Phi] = 0 and t = 0, so it must not depend on them.*)
+(*The flux of a ForceModel: its rates of En, L and Q averaged over the geodesic with respect to t. In Mino time the radial and polar motions separate, so for a non-resonant orbit the Mino-time average is a double integral over the phases with weight 1/((d\[Psi]r/d\[Lambda]) (d\[Psi]\[Theta]/d\[Lambda])); the average over t divides it by that of dt/d\[Lambda]. The integrals are trapezoidal sums over "Points" values of each phase, which converge exponentially; a circular or equatorial orbit needs one point in the trivial phase. The force is evaluated at \[Phi] = t = 0, so it must not depend on them.*)
 
 
 orbitAveragedFlux[force_] := FluxModel[KeyTake[<|
@@ -150,7 +143,7 @@ orbitAveragedRates[force_, a_, p_, e_, x_, n_Integer?Positive] := Catch[
 
 
 (* ::Text:: *)
-(*The weighted sums for the Mino-time average over the geodesic of f[g, \[Psi]r, \[Psi]\[Theta]], where g is the geometry at the phases: {sum of w f, sum of w}, so the average is their ratio. f may return a list.*)
+(*{sum of w f, sum of w} for the Mino-time average over the geodesic of f[g, \[Psi]r, \[Psi]\[Theta]], with g the geometry at the phases. f may return a list.*)
 
 
 minoTimeSums[a_, p_, e_, x_, n_Integer?Positive, f_] := Module[{nr, n\[Theta], total = 0, weights = 0},

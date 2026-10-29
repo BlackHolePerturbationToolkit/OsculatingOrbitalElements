@@ -1,12 +1,11 @@
 #!/usr/bin/env wolframscript
 (* ::Package:: *)
 
-(* Generates the documentation notebooks in Documentation/English: a reference page for every public symbol, the guide
-   page and the tutorial, in the source format of Wolfram's Documentation Tools (as KerrGeodesics uses). The examples are
-   evaluated in a front end with this copy of the package, so the pages include their outputs.
+(* Generates Documentation/English: a reference page for every public symbol, the guide page and the tutorial, in the
+   source format of Wolfram's Documentation Tools (as KerrGeodesics uses), with the examples evaluated using this copy
+   of the package.
      wolframscript -file Documentation/MakeDocumentation.wls
-   It overwrites the notebooks, so edit this file rather than the notebooks, or stop using it once the notebooks are
-   edited by hand. *)
+   It overwrites the notebooks, so edit this file rather than them. *)
 
 $docDirectory = DirectoryName[ExpandFileName[First[$ScriptCommandLine]]];
 $repoDirectory = ParentDirectory[$docDirectory];
@@ -25,8 +24,9 @@ uri[kind_, name_] := "paclet:" <> $paclet <> "/" <> kind <> "/" <> name;
 refLink[sym_String] := ButtonBox[sym, BaseStyle -> "Link", ButtonData -> uri["ref", sym]];
 inlineRef[sym_String] := Cell[BoxData[refLink[sym]], "InlineFormula"];
 
-(* Text with inline code: "plain `Symbol` plain" links Symbol to its page when it has one, otherwise sets it as code *)
-$documented := $documentedSymbols;
+(* Text with inline code: "plain `Symbol` plain" links Symbol to its page when it has one, otherwise sets it as code.
+   Every public symbol has a page (checked at the end). *)
+$documented = Names["OsculatingOrbitalElements`*"];
 richText[s_String] := TextData[Flatten[MapIndexed[
 	If[EvenQ[First[#2]],
 		If[MemberQ[$documented, #1], inlineRef[#1], Cell[BoxData[#1], "InlineFormula", FormatType -> StandardForm]],
@@ -220,12 +220,10 @@ pages = {
 		{"model[a, p, e, x, \[Psi]r, \[Psi]\[Theta], \[Phi], t]", "gives the covariant force {F_t, F_r, F_\[Theta], F_\[Phi]}."}},
 	"Notes" -> Flatten[{
 		notes[{
-			"f gets the elements and phases of the osculating geodesic, the azimuth \[Phi] and the coordinate time t, and is only called with numbers. \[Phi] and t let a force break axial symmetry or depend on time, for example the tidal field of a third body; most forces ignore them.",
-			"Where a phase is undefined, it is passed as 0: \[Psi]r at e = 0, and \[Psi]\[Theta] on an equatorial orbit. A physical force does not depend on it there.",
-			"On an equatorial orbit, x = \[PlusMinus]1, `OsculatingInspiral` keeps the orbit in the plane, so the force must have no \[Theta] component there.",
+			"f gets the elements and phases of the osculating geodesic, the azimuth \[Phi] and the coordinate time t, as numbers. \[Phi] and t allow forces that are not axisymmetric or stationary, such as the tidal field of a third body.",
+			"An undefined phase is passed as 0: \[Psi]r at e = 0, and \[Psi]\[Theta] on an equatorial orbit, where a physical force does not depend on it. On an equatorial orbit, x = \[PlusMinus]1, `OsculatingInspiral` keeps the orbit in the plane, so the force must have no \[Theta] component there.",
 			"F_t follows from orthogonality to the velocity, u^\[Mu] F_\[Mu] = 0.",
-			"If the model has parameters, f also gets them, as an Association: f[a, p, e, x, \[Psi]r, \[Psi]\[Theta], \[Phi], t, params].",
-			"The force is multiplied by the mass ratio \[Epsilon] of the inspiral unless \"ScalesWithMassRatio\" is False.",
+			"A model with parameters also gets them, as an Association: f[a, p, e, x, \[Psi]r, \[Psi]\[Theta], \[Phi], t, params]. The force is multiplied by the mass ratio \[Epsilon] unless \"ScalesWithMassRatio\" is False.",
 			"The following options can be given:"}],
 		noteTable[{
 			{"\"Name\"", "\"Custom\"", "the model's name"},
@@ -278,8 +276,8 @@ pages = {
 			"A flux changes only the slowly varying elements p, e and x; the phases advance at their geodesic rates, plus the effect of any force. Forces and fluxes can be combined.",
 			"With the option \"Rates\" -> {\"En\", \"L\", \"Q\"}, f gives the rates of the energy, angular momentum and Carter constant instead, and they are converted to those of p, e and x.",
 			"A physical flux has de/dt \[Proportional] e near e = 0, and dx/dt \[Proportional] 1 - x^2 near x = \[PlusMinus]1. A flux keeps a circular orbit circular. On an equatorial orbit, x = \[PlusMinus]1, `OsculatingInspiral` keeps the orbit in the plane, so the flux must not change x there.",
-			"Fluxes are averages with respect to coordinate time, so an inspiral with a flux must use coordinate time.",
-			"FluxModel[force] averages the force's rates of change of En, L and Q over the radial and polar motion of the geodesic, with respect to t. The force must depend on neither \[Phi] nor t. The parameter \"Points\" (16 by default) sets the number of points in each phase; the average converges quickly, but it is slow to evaluate.",
+			"Fluxes are averages with respect to coordinate time, so an inspiral with a flux uses coordinate time.",
+			"FluxModel[force] averages the force's rates of En, L and Q over the geodesic with respect to t, so the force must depend on neither \[Phi] nor t. Its parameter \"Points\" (16 by default) is the number of points in each phase; the average converges quickly, but is slow to evaluate.",
 			"The options are those of `ForceModel`, and \"Rates\". The flux is multiplied by the mass ratio \[Epsilon] unless \"ScalesWithMassRatio\" is False.",
 			"The built-in model \"Peters\" gives the leading-order gravitational-wave rates of p and e (Peters 1964). It is Newtonian: it does not depend on the spin, and leaves x unchanged."}]}],
 	"SeeAlso" -> {"OsculatingInspiral", "ForceModel"},
@@ -355,7 +353,6 @@ legacyPage[{name_, template_, replacement_}] := Notebook[Flatten[{
 	TaggingRules -> <|"Paclet" -> $paclet|>, CellContext -> "Global`",
 	StyleDefinitions -> FrontEnd`FileName[{"Wolfram"}, "FunctionPageStylesExt.nb", CharacterEncoding -> "UTF-8"]];
 
-$documentedSymbols = Join[#["Name"] & /@ pages, First /@ legacyPages];
 
 
 (* ::Section:: *)
@@ -391,7 +388,7 @@ guidePage = Notebook[Flatten[{
 text[s_] := Cell[richText[s], "Text"];
 tutorialPage = Notebook[Flatten[{
 	Cell["Osculating Orbital Elements", "Title"],
-	text["The method of osculating geodesics follows an orbit under a force as a sequence of geodesics: at each moment the orbit is the geodesic with the same position and velocity, and the force changes which geodesic that is. This package integrates those equations for bound orbits in Kerr spacetime, and also drives inspirals with fluxes, orbit-averaged rates of change of the orbital elements. It builds on the KerrGeodesics package."],
+	text["The method of osculating geodesics follows an orbit under a force as a sequence of geodesics: at each moment the orbit is the geodesic with the same position and velocity, and the force changes which geodesic that is. This package integrates those equations for bound orbits in Kerr spacetime, and also drives inspirals with fluxes, orbit-averaged rates of change of the elements. It builds on KerrGeodesics."],
 	input["Needs[\"OsculatingOrbitalElements`\"]"],
 	Cell["An inspiral", "Subsection"],
 	text["`OsculatingInspiral` takes an Association of parameters: the spin a, the small mass ratio \[Epsilon], the initial semi-latus rectum p, eccentricity e and inclination x = cos \[Iota], and a force, a flux or both. Here gas drag drives the inspiral until it reaches the separatrix:"],
@@ -441,11 +438,10 @@ tutorialPage = Notebook[Flatten[{
 (* ::Section:: *)
 (* Writing and evaluating *)
 
-(* Evaluating the examples. NotebookEvaluate hangs in a front end started by wolframscript, so the kernel evaluates
-   each input cell itself, in a context of its own for each notebook, and inserts the output and any messages after it.
-   Outputs are typeset with the front end, as a notebook would show them.
-   Message arguments are written on one line, as a notebook would show them, rather than as two-dimensional text.
-   With the environment variable DOCVERBOSE set, it prints each input and how long it took. *)
+(* Evaluating the examples. NotebookEvaluate hangs in a front end started by wolframscript, so the kernel evaluates each
+   input cell itself, in a context of its own for each notebook, and inserts the messages and the output (typeset by
+   the front end) after it. Message arguments are written on one line, as in a notebook. With the environment variable
+   DOCVERBOSE set, it prints each input and how long it took. *)
 $verbose = StringQ[Environment["DOCVERBOSE"]];
 oneLine[x_String] := x;
 oneLine[x_] := With[{text = ToString[Short[x], OutputForm]}, If[StringContainsQ[text, "\n"], ToString[x, InputForm], text]];

@@ -4,16 +4,12 @@
 (*Conservative electromagnetic force*)
 
 
-(* ::Text:: *)
-(*Part of the OsculatingOrbitalElements package. Kernel/OsculatingOrbitalElements.wl loads this file into the package's private context, so it cannot be loaded on its own.*)
-
-
 (* ::Section:: *)
 (*Force model*)
 
 
 (* ::Text:: *)
-(*The force of KerrEMCons as a ForceModel, with the same normalisation: it has no parameters and scales with the mass ratio. The velocities come from the regular geometry, so unlike KerrEMCons it holds at x = 0. F_t follows from orthogonality.*)
+(*KerrEMCons as a ForceModel, with the same normalisation: no parameters, and scaled by the mass ratio. Its velocities come from the regular geometry, so unlike KerrEMCons it holds at x = 0. F_t follows from orthogonality. Loaded into the package's private context by Kernel/OsculatingOrbitalElements.wl.*)
 
 
 emConservativeComponents[a_, p_, e_, x_, \[Psi]r_, \[Psi]\[Theta]_, \[Phi]_, t_] := Module[{g, r, z, \[CapitalSigma], \[CapitalDelta], ur, u\[Theta], utup, u\[Phi]up, radial},

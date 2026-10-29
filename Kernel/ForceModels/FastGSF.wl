@@ -4,25 +4,21 @@
 (*Fast first-order gravitational self-force (Schwarzschild)*)
 
 
-(* ::Text:: *)
-(*Part of the OsculatingOrbitalElements package. Kernel/OsculatingOrbitalElements.wl loads this file into the package's private context, so it cannot be loaded on its own.*)
-
-
 (* ::Section:: *)
 (*The fit's coefficients*)
 
 
 (* ::Text:: *)
-(*A fast to evaluate function for the Gravitational Self Force. This code was adapted from that provided by Niels Warburton. The derivation of this function is discussed in [2]*)
+(*A fit to the first-order gravitational self-force in Schwarzschild, adapted from code by Niels Warburton. Loaded into the package's private context by Kernel/OsculatingOrbitalElements.wl.*)
 
 
-(*Loading the files from the package's Data/FastGSF directory*)
+(* The coefficient files, from Data/FastGSF *)
 dataA=Import[FileNameJoin[{$dataDirectory, "FastGSF", "a_n_jk"}],"Table"];
 dataB=Import[FileNameJoin[{$dataDirectory, "FastGSF", "b_n_jk"}],"Table"];
 dataC=Import[FileNameJoin[{$dataDirectory, "FastGSF", "c_n_jk"}],"Table"];
 dataD=Import[FileNameJoin[{$dataDirectory, "FastGSF", "d_n_jk"}],"Table"];
 
-(*Coefficient tables a, b, c and d, indexed as [[n+1, j+1, k+1]]. Built once here rather than on every call.*)
+(* The tables a, b, c and d, indexed [[n+1, j+1, k+1]], built once at load *)
 fastGSFTables = With[{nmax = 7, kbar = 9},
 	Table[data[[4+n,3+j kbar+2j;;3+(j+1) kbar+2j]], {data, {dataA, dataB, dataC, dataD}}, {n,0,nmax}, {j,0,4}]];
 
@@ -32,7 +28,7 @@ fastGSFTables = With[{nmax = 7, kbar = 9},
 
 
 (* ::Text:: *)
-(*The same fit as SchwarzFastGSF (Legacy/ForceFunctions.wl), as numbers, with the sums over n, j and k done as dot products. It returns the contravariant {F^r, F^\[Phi]} for p, e and the radial anomaly \[Xi] (\[Psi]r in this package). SchwarzFastGSF keeps its symbolic sum, which the earlier Schwarzschild solvers expand once.*)
+(*The fit of SchwarzFastGSF (Legacy/ForceFunctions.wl), numerically, with the sums over n, j and k as dot products: the contravariant {F^r, F^\[Phi]} for p, e and the radial anomaly \[Xi] (\[Psi]r here).*)
 
 
 fastGSFComponents[p_?NumericQ, e_?NumericQ, \[Xi]_?NumericQ] := Module[{n = Range[0, 7], weights, sums, a, b, c, d},
@@ -49,7 +45,7 @@ fastGSFComponents[p_?NumericQ, e_?NumericQ, \[Xi]_?NumericQ] := Module[{n = Rang
 
 
 (* ::Text:: *)
-(*The fit as a ForceModel. Its components lie in the orbital plane: F_r = (\[CapitalSigma]/\[CapitalDelta]) F^r, and the in-plane angular component r^2 F^\[Phi] points along the particle's angular motion, which for a = 0 gives F_\[Theta] = r^2 F^\[Phi] u_\[Theta]/Sqrt[L^2 + Q] and F_\[Phi] = r^2 F^\[Phi] L/Sqrt[L^2 + Q]. On an equatorial orbit these are the usual F_\[Phi] = r^2 F^\[Phi], with the sign of x. It is the first-order self-force, so it scales with the mass ratio.*)
+(*The fit as a ForceModel, scaled by the mass ratio. Its components lie in the orbital plane: F_r = (\[CapitalSigma]/\[CapitalDelta]) F^r, and r^2 F^\[Phi] along the particle's angular motion, which for a = 0 gives F_\[Theta] = r^2 F^\[Phi] u_\[Theta]/Sqrt[L^2 + Q] and F_\[Phi] = r^2 F^\[Phi] L/Sqrt[L^2 + Q] (\[PlusMinus] r^2 F^\[Phi] on an equatorial orbit).*)
 
 
 fastGSFForce[a_, p_, e_, x_, \[Psi]r_, \[Psi]\[Theta]_, \[Phi]_, t_] := Module[{g, fr, f\[Phi], angular, total},
