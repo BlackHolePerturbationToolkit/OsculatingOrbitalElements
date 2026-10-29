@@ -44,8 +44,8 @@ regularSystem[\[Epsilon]_, a_, {p0_, e0_, x0_, \[Psi]r0_, \[Psi]\[Theta]0_, \[Ph
     minoQ, s, equatorialQ, equatorialRules, initialConditions, unknowns, EoM, events, outputs, atStart,
     p, \[Alpha]p, \[Beta]p, x, \[Psi]\[Theta], \[Phi], t, \[Lambda],
     e2, En, \[ScriptL], L, Q, K, w, r, Z, P, geometry, \[CapitalSigma], \[CapitalDelta], flux,
-    state, at, ar, a\[Theta], a\[Phi], rates, elementRates,
-    Zp, Ze2, Z\[Beta], ZK, ZQ, dpd\[Lambda], de2d\[Lambda], d\[Alpha]d\[Lambda], d\[Beta]d\[Lambda], dxd\[Lambda], d\[Psi]\[Theta]d\[Lambda],
+    state, at, ar, a\[Theta], a\[Phi], rates, F, Dp, Ap, Bp, Hp, CAlpha, JAlpha,
+    dpd\[Lambda], d\[Alpha]d\[Lambda], d\[Beta]d\[Lambda], dxd\[Lambda], d\[Psi]\[Theta]d\[Lambda],
     dtd\[Lambda], toS, minimumP, pMinQ, deltaPSep, initialPSep
   },
 
@@ -103,25 +103,35 @@ regularSystem[\[Epsilon]_, a_, {p0_, e0_, x0_, \[Psi]r0_, \[Psi]\[Theta]0_, \[Ph
       Message[OsculatingInspiral::eqflux, atStart[[2, 4]]]; Return[$Failed]]
   ];
 
-  (* p and the eccentricity components, as in REG. Zp, Ze2, Z\[Beta], ZK and ZQ are the partial derivatives of Z with
-     respect to p, e^2, \[Beta]p, K and Q. *)
-  rates = ConstantsOfMotionRates[geometry, {at, ar, a\[Theta], a\[Phi]}];
-  elementRates = SlowElementRates[a, {p[s], e2}, {En, L, Q}, Lookup[rates, {"En", "L", "Q"}]];
-  dpd\[Lambda] = elementRates["p"];
-  de2d\[Lambda] = elementRates["e2"];
-  Zp = 1 + K (3 - e2 + 2 \[Beta]p[s])/p[s]^2 -
-    2 a^2 Q (4 - e2 + 4 \[Beta]p[s] + \[Beta]p[s]^2)/p[s]^3;
-  Ze2 = K/p[s] - a^2 Q/p[s]^2;
-  Z\[Beta] = -2 K/p[s] + a^2 Q (4 + 2 \[Beta]p[s])/p[s]^2;
-  ZK = -(3 - e2 + 2 \[Beta]p[s])/p[s];
-  ZQ = a^2 (4 - e2 + 4 \[Beta]p[s] + \[Beta]p[s]^2)/p[s]^2;
-  d\[Beta]d\[Lambda] = w dpd\[Lambda]/p[s] - \[Alpha]p[s] P;
-  d\[Alpha]d\[Lambda] = \[Beta]p[s] P + \[CapitalSigma] \[CapitalDelta] w^2 ar/(p[s] P) +
-    \[Alpha]p[s] dpd\[Lambda]/p[s] - \[Alpha]p[s]/(2 Z) (
-      (Zp + w Z\[Beta]/p[s]) dpd\[Lambda] + Ze2 de2d\[Lambda] + ZK rates["K"] + ZQ rates["Q"]
-    );
+  (* p and the eccentricity components, as in REG but written directly in the force components, so the rate of e^2
+     and the partial derivatives of Z are not needed. There is no division by e, \[Alpha]p or \[Beta]p.
+     F = (r^2 + a^2) En - a L. *)
+  F = geometry["F"];
+  Dp = (p[s]^3 - K p[s] (3 - e2) + 4 a^2 Q)^2 - 4 e2 (K p[s] - 2 a^2 Q)^2;
+  Ap = p[s]^3 - 2 (1 - e2) (K p[s] - a^2 Q);
+  Bp = K p[s] - 2 a^2 Q;
+  Hp = Ap (p[s]^2 - p[s] (3 + e2) + 2 a^2 (1 + e2)) +
+    (1 - e2)^2 (p[s] - a^2) Bp;
+  dpd\[Lambda] = 2 \[CapitalSigma] p[s]/Dp (
+    (p[s]^2 (p[s]^2 Bp En - a Ap (L - a En)) - r^2 F Hp/\[CapitalDelta]) at +
+    a (Ap (p[s]^2 En - 2 a (1 + e2) (L - a En)) +
+      a (1 - e2)^2 Bp (L - a En) - F Hp/\[CapitalDelta]) (a\[Phi] + a at) -
+    p[s] \[Alpha]p[s] P Hp ar/w^2
+  );
+  CAlpha = p[s]^2 + K (3 \[Alpha]p[s]^2 + w (w - 8)) +
+    4 a^2 Q (3 w - \[Alpha]p[s]^2)/p[s];
+  JAlpha = p[s] (w (4 - w) - \[Alpha]p[s]^2) -
+    a^2 (4 w - \[Alpha]p[s]^2);
+  d\[Beta]d\[Lambda] = -\[Alpha]p[s] P + w dpd\[Lambda]/p[s];
+  d\[Alpha]d\[Lambda] = \[Beta]p[s] P + (
+    \[Alpha]p[s] CAlpha dpd\[Lambda]/2 +
+    \[CapitalSigma] p[s] P (\[CapitalDelta] w^4 - \[Alpha]p[s]^2 JAlpha) ar/w^2 -
+    \[CapitalSigma] \[Alpha]p[s] F JAlpha ((r^2 + a^2) at + a a\[Phi])/\[CapitalDelta] +
+    \[CapitalSigma] \[Alpha]p[s] a^2 (4 w - \[Alpha]p[s]^2) (L - a En) (a\[Phi] + a at)
+  )/(p[s]^2 Z + \[Alpha]p[s]^2 (K p[s] - a^2 Q));
 
-  (* x and the polar phase *)
+  (* x, from the rates of the constants of motion, and the polar phase *)
+  rates = ConstantsOfMotionRates[geometry, {at, ar, a\[Theta], a\[Phi]}];
   dxd\[Lambda] = RegularXRate[a, x[s], {En, \[ScriptL]}, Lookup[rates, {"En", "L", "Q"}]];
   d\[Psi]\[Theta]d\[Lambda] = polarPhaseRate[geometry, NullTetradForce[geometry, {at, ar, a\[Theta], a\[Phi]}]];
 

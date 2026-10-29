@@ -261,12 +261,13 @@ fieldTimes = Range[200., 2000., 200.];
 
 VerificationTest[
 	(* Kerr is axisymmetric, so rotating both the force and the initial phi by 1.3 rotates the whole inspiral *)
-	unrotated = OsculatingInspiral[<|fieldParams, "\[Phi]" -> 0, "Force" -> uniformField[0]|>, IntegrationLimit -> 2000];
-	rotated = OsculatingInspiral[<|fieldParams, "\[Phi]" -> 1.3, "Force" -> uniformField[1.3]|>, IntegrationLimit -> 2000];
+	unrotated = OsculatingInspiral[<|fieldParams, "\[Phi]" -> 0, "Force" -> uniformField[0]|>, IntegrationLimit -> 2000, InterpolationOrder -> All];
+	rotated = OsculatingInspiral[<|fieldParams, "\[Phi]" -> 1.3, "Force" -> uniformField[1.3]|>, IntegrationLimit -> 2000, InterpolationOrder -> All];
 	Append[maxDifference[rotated, unrotated, {"p", "e", "x", "r", "\[Theta]"}, fieldTimes],
 		Max[Abs[rotated["\[Phi]"][fieldTimes] - unrotated["\[Phi]"][fieldTimes] - 1.3]]]
 	,
-	(* Equal up to the Runge-Kutta error, about 10^-6; rotating only the force changes them by more than 10^-4 (below) *)
+	(* Equal to 10^-12. The two solutions take different steps, so with the default interpolation they differ by its error
+	   between steps, up to 10^-5 in phi; rotating only the force changes them by more than 10^-4 (below) *)
 	{0, 0, 0, 0, 0, 0}, SameTest -> withinTolerance[{10^-6, 10^-6, 10^-8, 10^-5, 10^-5, 10^-5}],
 	TestID -> "A non-axisymmetric force: rotating the force and the orbit together rotates the inspiral"
 ]
