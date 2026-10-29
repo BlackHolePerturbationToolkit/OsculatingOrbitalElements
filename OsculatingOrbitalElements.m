@@ -11,7 +11,7 @@
 BeginPackage["OsculatingOrbitalElements`",{"KerrGeodesics`","KerrGeodesics`SpecialOrbits`","KerrGeodesics`ConstantsOfMotion`"}]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Usage Statements*)
 
 
@@ -952,7 +952,7 @@ a\[Phi] = -(u\[Phi]);
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Conservative forces (Electromagnetic Force)*)
 
 
@@ -992,7 +992,7 @@ a\[Phi] = -1/\[CapitalSigma]^3((1-z^2)(r^5+2r^3a^2+r a^4+2 a^2r^2-2 a^4+a^4(r-1)
 ]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Kerr Osculating Geodesics Solver*)
 
 
@@ -1601,13 +1601,13 @@ GenericKerrREGBL[ \[Eta]_, a_, p0_, e0_, x0_, \[Psi]r0_, \[Psi]\[Theta]0_, Optio
     initialConditions, EoM, events, unknowns, minoQ, monitorQ,
     limit, pMin, pMinQ, progress = 0, solve, sol, rules, s,
     p, e, e2, x, \[Alpha]p, \[Beta]p, \[Psi]\[Theta], \[Phi], t, \[Lambda],
-    eccentricity, radialPhase, En, L, Q, K, V, r, w,
+    eccentricity, radialPhase, En, L, Q, K, r, w,
     \[Beta], zm, \[Beta]zp, z, \[CapitalSigma], \[CapitalDelta],
     \[Omega], F, H, \[Theta], Z, P, G, ur, u\[Theta], un,
     at, ar, a\[Theta], a\[Phi], an, A1, A2, A3,
-    h0p, h1p, B0, B1, Dp, Zp, Ze2, Z\[Beta], ZK, ZQ,
-    dEd\[Lambda], dLd\[Lambda], dKd\[Lambda], dQd\[Lambda], dVd\[Lambda],
-    dpd\[Lambda], de2d\[Lambda], d\[Alpha]d\[Lambda], d\[Beta]d\[Lambda],
+    Dp, CAlpha, JAlpha, Ap, Bp, Hp,
+    dEd\[Lambda], dLd\[Lambda], dKd\[Lambda],
+    dpd\[Lambda], d\[Alpha]d\[Lambda], d\[Beta]d\[Lambda],
     dzmd\[Lambda], dxd\[Lambda], dtd\[Lambda], d\[Phi]d\[Lambda], d\[Psi]\[Theta]d\[Lambda],
     psol, esol, xsol, \[Alpha]psol, \[Beta]psol, \[Psi]rsol, \[Psi]\[Theta]sol, tsol, \[Phi]sol,
     rsol, \[Theta]sol, Ensol, Lsol, Ksol, Qsol,
@@ -1616,8 +1616,7 @@ GenericKerrREGBL[ \[Eta]_, a_, p0_, e0_, x0_, \[Psi]r0_, \[Psi]\[Theta]0_, Optio
 
   Needs["KerrGeodesics`"];
 
-  minoQ = MinoParametrisationQ[OptionValue["Parametrisation"]];
-  If[FailureQ[minoQ], Return[$Failed]];
+  minoQ = MatchQ[OptionValue["Parametrisation"], "Mino"];
   monitorQ = MatchQ[OptionValue["TimeMonitor"], True | "True"];
 
   initialConditions = {
@@ -1648,7 +1647,6 @@ GenericKerrREGBL[ \[Eta]_, a_, p0_, e0_, x0_, \[Psi]r0_, \[Psi]\[Theta]0_, Optio
     CarterConstant[a, p[s], e, x[s]]
   };
   K = Q + (L - a En)^2;
-  V = a^2 (1 - En^2) + L^2 + Q;
   w = 1 + \[Beta]p[s];
   r = p[s]/w;
 
@@ -1691,44 +1689,38 @@ GenericKerrREGBL[ \[Eta]_, a_, p0_, e0_, x0_, \[Psi]r0_, \[Psi]\[Theta]0_, Optio
       Return[$Failed]
   ];
 
-  (* Integral rates and the exact regular p and e^2 equations. *)
+  (* E, L and K rates are still required by the unchanged polar equations. *)
   dEd\[Lambda] = -\[CapitalSigma] at;
   dLd\[Lambda] = \[CapitalSigma] a\[Phi];
   dKd\[Lambda] = 2 \[CapitalSigma]/\[CapitalDelta] (-F (\[Omega]^2 at + a a\[Phi]) - \[CapitalDelta]^2 ur ar);
-  dQd\[Lambda] = dKd\[Lambda] - 2 (L - a En) (dLd\[Lambda] - a dEd\[Lambda]);
-  dVd\[Lambda] = -2 a^2 En dEd\[Lambda] + 2 L dLd\[Lambda] + dQd\[Lambda];
-
-(*Main result*)
-
   Dp = (p[s]^3 - K p[s] (3 - e2) + 4 a^2 Q)^2 - 4 e2 (K p[s] - 2 a^2 Q)^2;
-  dpd\[Lambda] = p[s]/Dp (
-    -2 p[s]^4 (K p[s] - 2 a^2 Q) En dEd\[Lambda] +
-    p[s]^2 (p[s]^3 - 2 (1 - e2) (K p[s] - a^2 Q)) dVd\[Lambda] -
-    p[s] (p[s]^3 (3 + e2) - (1 - e2) ((7 + e2) K p[s] - 8 a^2 Q)) dKd\[Lambda] +
-    a^2 (2 p[s]^3 (1 + e2) - (1 - e2) ((5 + 3 e2) K p[s] - 2 a^2 Q (3 + e2))) dQd\[Lambda]
+  (* Explicit force form of p'; all force components already include eta. *)
+  Ap = p[s]^3 - 2 (1 - e2) (K p[s] - a^2 Q);
+  Bp = K p[s] - 2 a^2 Q;
+  Hp = Ap (p[s]^2 - p[s] (3 + e2) + 2 a^2 (1 + e2)) +
+    (1 - e2)^2 (p[s] - a^2) Bp;
+  dpd\[Lambda] = 2 \[CapitalSigma] p[s]/Dp (
+    (p[s]^2 (p[s]^2 Bp En - a Ap (L - a En)) - r^2 F Hp/\[CapitalDelta]) at +
+    a (Ap (p[s]^2 En - 2 a (1 + e2) (L - a En)) +
+      a (1 - e2)^2 Bp (L - a En) - F Hp/\[CapitalDelta]) (a\[Phi] + a at) -
+    p[s] \[Alpha]p[s] P Hp ar/w^2
   );
 
-  h0p = -4 (1 - En^2) p[s]^3 + 6 p[s]^2 - 2 V p[s] (1 + e2) + 2 K (1 + 3 e2);
-  h1p = 6 p[s]^2 - 4 V p[s] + 2 K (3 + e2);
-  B0 = 2 p[s]^4 En dEd\[Lambda] - p[s]^2 (1 + e2) dVd\[Lambda] +
-    2 p[s] (1 + 3 e2) dKd\[Lambda] - a^2 (1 + 6 e2 + e2^2) dQd\[Lambda];
-  B1 = -2 p[s]^2 dVd\[Lambda] + 2 p[s] (3 + e2) dKd\[Lambda] - 4 a^2 (1 + e2) dQd\[Lambda];
-  de2d\[Lambda] = p[s] (h1p B0 - h0p B1)/(2 Dp);
+  (* Force form of the eccentricity-component equations.
+     alpha_p = e Sin[psi_r], beta_p = e Cos[psi_r], w = 1 + beta_p.
+     No e^2 rate or partial derivatives of P^2 are evaluated. *)
+  CAlpha = p[s]^2 + K (3 \[Alpha]p[s]^2 + w (w - 8)) +
+    4 a^2 Q (3 w - \[Alpha]p[s]^2)/p[s];
+  JAlpha = p[s] (w (4 - w) - \[Alpha]p[s]^2) -
+    a^2 (4 w - \[Alpha]p[s]^2);
 
-  (* Partial derivatives of Z with respect to p, e^2, beta_p, K and Q. *)
-  Zp = 1 + K (3 - e2 + 2 \[Beta]p[s])/p[s]^2 -
-    2 a^2 Q (4 - e2 + 4 \[Beta]p[s] + \[Beta]p[s]^2)/p[s]^3;
-  Ze2 = K/p[s] - a^2 Q/p[s]^2;
-  Z\[Beta] = -2 K/p[s] + a^2 Q (4 + 2 \[Beta]p[s])/p[s]^2;
-  ZK = -(3 - e2 + 2 \[Beta]p[s])/p[s];
-  ZQ = a^2 (4 - e2 + 4 \[Beta]p[s] + \[Beta]p[s]^2)/p[s]^2;
-
-  (* Component rates contain no division by e, alpha_p or beta_p. *)
-  d\[Beta]d\[Lambda] = w dpd\[Lambda]/p[s] - \[Alpha]p[s] P;
-  d\[Alpha]d\[Lambda] = \[Beta]p[s] P + \[CapitalSigma] \[CapitalDelta] w^2 ar/(p[s] P) +
-    \[Alpha]p[s] dpd\[Lambda]/p[s] - \[Alpha]p[s]/(2 Z) (
-      (Zp + w Z\[Beta]/p[s]) dpd\[Lambda] + Ze2 de2d\[Lambda] + ZK dKd\[Lambda] + ZQ dQd\[Lambda]
-    );
+  d\[Beta]d\[Lambda] = -\[Alpha]p[s] P + w dpd\[Lambda]/p[s];
+  d\[Alpha]d\[Lambda] = \[Beta]p[s] P + (
+    \[Alpha]p[s] CAlpha dpd\[Lambda]/2 +
+    \[CapitalSigma] p[s] P (\[CapitalDelta] w^4 - \[Alpha]p[s]^2 JAlpha) ar/w^2 -
+    \[CapitalSigma] \[Alpha]p[s] F JAlpha ((r^2 + a^2) at + a a\[Phi])/\[CapitalDelta] +
+    \[CapitalSigma] \[Alpha]p[s] a^2 (4 w - \[Alpha]p[s]^2) (L - a En) (a\[Phi] + a at)
+  )/(p[s]^2 Z + \[Alpha]p[s]^2 (K p[s] - a^2 Q));
 
   (* Convert from BL to null-tetrad components; retain the pex polar equations. *)
   an = (\[Omega]^2 at - \[CapitalDelta] ar + a a\[Phi])/(2 \[CapitalSigma]);
@@ -1788,7 +1780,7 @@ GenericKerrREGBL[ \[Eta]_, a_, p0_, e0_, x0_, \[Psi]r0_, \[Psi]\[Theta]0_, Optio
     solve[]
   ];
   If[! MatchQ[sol, {{__Rule}}],
-    Message[GenericKerrREGBL::nosol];
+    Message[GenericKerrREGForceBL::nosol];
     Return[$Failed]
   ];
 
