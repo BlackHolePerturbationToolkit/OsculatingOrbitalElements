@@ -77,8 +77,9 @@ both. The integration stops just outside the separatrix, unless `IntegrationLimi
 
 Besides the position and the elements, the inspiral gives, as functions of time, the osculating geodesic's energy,
 angular momentum and Carter constant (`"En"`, `"L"`, `"Q"`), its Boyer-Lindquist frequencies (`"Ωr"`, `"Ωθ"`, `"Ωφ"`,
-from KerrGeodesics), and its Boyer-Lindquist action angles (`"Φr"`, `"Φθ"`, `"Φφ"`), accumulated over the inspiral and
-computed as in [Lynch and Burke, Class. Quantum Grav. 42, 167001 (2025)](https://arxiv.org/abs/2411.04955).
+from KerrGeodesics), and its Boyer-Lindquist action angles (`"Φr"`, `"Φθ"`, `"Φφ"`), computed as in
+[Lynch and Burke, Class. Quantum Grav. 42, 167001 (2025)](https://arxiv.org/abs/2411.04955). The phases (`"ψr"`, `"ψθ"`,
+`"φ"`) and the action angles accumulate over the inspiral rather than wrapping at π.
 
 A custom force is a function of the elements, the phases, the azimuth φ and the coordinate time t that returns the
 covariant {F_r, F_θ, F_φ}; F_t follows from orthogonality to the velocity. Forces in a list add:

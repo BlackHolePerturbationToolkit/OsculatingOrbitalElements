@@ -177,37 +177,35 @@ phaseAngle[\[Alpha]_?NumericQ, \[Beta]_?NumericQ] := If[TrueQ[\[Alpha] == 0 && \
 
 
 (* ::Text:: *)
-(*The solver's outputs, each a listable function of the time variable, from the solutions for p, \[Alpha]p, \[Beta]p, x, \[Psi]\[Theta] (None on an equatorial orbit), \[Phi] and t, and the initial \[Psi]r0. The phases are given in (-\[Pi], \[Pi]]. The frequencies and action angles come from OrbitalAngles.wl; the angles accumulate, using \[Psi]r with its turns counted. \[Psi]r and \[CapitalPhi]r are Missing at e = 0, and \[Psi]\[Theta] and \[CapitalPhi]\[Theta] on an equatorial orbit.*)
+(*The solver's outputs, each a listable function of the time variable, from the solutions for p, \[Alpha]p, \[Beta]p, x, \[Psi]\[Theta] (None on an equatorial orbit), \[Phi] and t, and the initial \[Psi]r0. The phases accumulate, as \[Phi] does: \[Psi]\[Theta] as integrated, and \[Psi]r with its turns counted (continuousRadialPhase). The frequencies and action angles come from OrbitalAngles.wl. \[Psi]r and \[CapitalPhi]r are Missing at e = 0, and \[Psi]\[Theta] and \[CapitalPhi]\[Theta] on an equatorial orbit.*)
 
 
 regularOutputs[a_, {p_, \[Alpha]p_, \[Beta]p_, x_, \[Psi]\[Theta]_, \[Phi]_, t_}, \[Psi]r0_] := Module[
-  {equatorialQ, undefined, circular, e2, e, r, \[Theta], \[Psi]r, \[Psi]\[Theta]Output, En, \[ScriptL], L, Q, K, \[Psi]rTurns, \[Psi]\[Theta]Angle, angle, frequency},
+  {equatorialQ, undefined, circular, e2, e, r, \[Theta], \[Psi]r, En, \[ScriptL], L, Q, K, \[Psi]\[Theta]Angle, angle, frequency},
   equatorialQ = \[Psi]\[Theta] === None;
   undefined[reason_] := Function[{u}, Missing[reason], {Listable}];
   circular = Function[{u}, TrueQ[\[Alpha]p[u] == 0 && \[Beta]p[u] == 0]];
   e2 = Function[{u}, \[Alpha]p[u]^2 + \[Beta]p[u]^2, {Listable}];
   e = Function[{u}, Sqrt[e2[u]], {Listable}];
   r = Function[{u}, p[u]/(1 + \[Beta]p[u]), {Listable}];
-  \[Psi]r = Function[{u}, If[circular[u], Missing["UndefinedAtZeroEccentricity"], ArcTan[\[Beta]p[u], \[Alpha]p[u]]], {Listable}];
-  If[equatorialQ,
-    \[Theta] = Function[{u}, Evaluate[N[\[Pi]/2]], {Listable}];
-    \[Psi]\[Theta]Output = undefined["UndefinedForEquatorialOrbit"],
-    \[Theta] = Function[{u}, ArcCos[Sqrt[1 - x[u]^2] Cos[\[Psi]\[Theta][u]]], {Listable}];
-    \[Psi]\[Theta]Output = Function[{u}, ArcTan[Cos[\[Psi]\[Theta][u]], Sin[\[Psi]\[Theta][u]]], {Listable}]];
+  \[Psi]r = continuousRadialPhase[\[Alpha]p, \[Beta]p, \[Psi]r0];
+  \[Theta] = If[equatorialQ,
+    Function[{u}, Evaluate[N[\[Pi]/2]], {Listable}],
+    Function[{u}, ArcCos[Sqrt[1 - x[u]^2] Cos[\[Psi]\[Theta][u]]], {Listable}]];
   En = Function[{u}, RegularEnergy[a, p[u], e2[u], x[u]], {Listable}];
   \[ScriptL] = Function[{u}, RegularLOverX[a, p[u], e2[u], x[u]], {Listable}];
   L = Function[{u}, x[u] \[ScriptL][u], {Listable}];
   Q = Function[{u}, (1 - x[u]^2) (a^2 (1 - En[u]^2) + \[ScriptL][u]^2), {Listable}];
   K = Function[{u}, Q[u] + (L[u] - a En[u])^2, {Listable}];
   frequency[i_] := Function[{u}, BoyerLindquistFrequency[i, a, p[u], e[u], x[u]], {Listable}];
-  \[Psi]rTurns = continuousRadialPhase[\[Alpha]p, \[Beta]p, \[Psi]r0];
   \[Psi]\[Theta]Angle = If[equatorialQ, Function[{u}, 0], \[Psi]\[Theta]];
-  angle[i_] := Function[{u}, BoyerLindquistAngle[i, a, p[u], e[u], x[u], \[Psi]rTurns[u], \[Psi]\[Theta]Angle[u], \[Phi][u]], {Listable}];
+  angle[i_] := Function[{u}, BoyerLindquistAngle[i, a, p[u], e[u], x[u], \[Psi]r[u], \[Psi]\[Theta]Angle[u], \[Phi][u]], {Listable}];
   <|
     "Trajectory" -> {t, r, \[Theta], \[Phi]},
     "t" -> t, "r" -> r, "\[Theta]" -> \[Theta], "\[Phi]" -> \[Phi],
     "p" -> p, "e" -> e, "x" -> x,
-    "\[Psi]r" -> \[Psi]r, "\[Psi]\[Theta]" -> \[Psi]\[Theta]Output,
+    "\[Psi]r" -> Function[{u}, If[circular[u], Missing["UndefinedAtZeroEccentricity"], \[Psi]r[u]], {Listable}],
+    "\[Psi]\[Theta]" -> If[equatorialQ, undefined["UndefinedForEquatorialOrbit"], \[Psi]\[Theta]],
     "En" -> En, "L" -> L, "Q" -> Q, "K" -> K,
     "\[Alpha]p" -> \[Alpha]p, "\[Beta]p" -> \[Beta]p,
     "\[CapitalOmega]r" -> frequency[1], "\[CapitalOmega]\[Theta]" -> frequency[2], "\[CapitalOmega]\[Phi]" -> frequency[3],

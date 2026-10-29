@@ -353,7 +353,7 @@ Decisions made at the start of phase 3:
   - Unknown and missing keys, a "Flux" entry (for now), values out of range, x = 0, an invalid force or `Parametrisation`, and an initial orbit not outside the separatrix by more than the buffer each give `$Failed` with a message.
 - [x] Make the regular p, e, x solver the default, reporting in Boyer–Lindquist coordinate time with the Darwin (ψr) and Hughes (ψθ) angles
   - `regularSystem` in `Solvers/KerrPEX.wl`. It integrates (p, αp, βp) radially with the REG equations, (x, ψθ) for the polar motion, with equatorial orbits as a special case, and φ. (Until the regular polar formulation was put on hold, (αθ, βθ, x) for the polar motion.)
-  - ψr and ψθ are reported in (−π, π], and as `Missing` where they are undefined: ψr at e = 0, and ψθ on an equatorial orbit. φ is continuous.
+  - ψr and ψθ are reported in (−π, π], and as `Missing` where they are undefined: ψr at e = 0, and ψθ on an equatorial orbit. φ is continuous. (They accumulate since "After phase 7: accumulated phases".)
   - By default NDSolve uses an 8th-order explicit Runge–Kutta method with goals 12 (see "The Boyer–Lindquist axis" above). Stops are located to 8 digits.
   - Normal stops are recorded in `"StopReason"` without a message. Only an early stop by NDSolve is reported.
 - [x] Decide whether Mino time remains available as an option
@@ -532,3 +532,11 @@ There are 238 tests in 12 files.
 - [x] Shared code instead of copies: `cachedComponents` (Models.wl) builds the numeric, cached components of both force and flux drivers, and `TotalForce` and `TotalFlux` share `driverTotal`.
 - [x] Documentation generator: symbols in the reference pages' notes and tables were not linked, as the notes were built before the list of documented symbols existed; that list is now the package's public symbols.
 - [x] README: the changelog still said the equations were regular for equatorial and polar orbits; corrected. Legacy code was left alone apart from its header comments.
+
+### After phase 7: accumulated phases
+
+Request: ψr and ψθ should accumulate, as φ and the action angles do, rather than being confined to (−π, π].
+
+- [x] ψθ is integrated, so it is output as it is, no longer wrapped. ψr is the phase with its turns counted (`continuousRadialPhase`), which the action angles already used. Initial phases outside (−π, π] are kept as given, and ψr and ψθ are still `Missing` where undefined. Force models still get ψr in (−π, π].
+- [x] Regression outputs: only the final ψr and ψθ changed, by whole turns (3 to 10), exact to machine precision; `ReferenceOutputs.wl` regenerated.
+- [x] Tests: the phases grow steadily over an inspiral; ψr agrees with (αp, βp) to 10⁻¹⁵; along a geodesic in Mino time ψr and ψθ gain 2π per period, to 4×10⁻¹³ over 5 periods with `InterpolationOrder -> All` (5×10⁻⁸ with the default interpolation). There are 240 tests.

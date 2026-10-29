@@ -192,7 +192,7 @@ pages = {
 		noteTable[{
 			{"\"t\", \"r\", \"\\[Theta]\", \"\\[Phi]\"", "", "the Boyer-Lindquist coordinates; \"Trajectory\" gives the four functions"},
 			{"\"p\", \"e\", \"x\"", "", "the osculating semi-latus rectum, eccentricity and inclination"},
-			{"\"\\[Psi]r\", \"\\[Psi]\\[Theta]\"", "", "the Darwin and Hughes phases, in (-\[Pi], \[Pi]]; Missing where undefined (\[Psi]r at e = 0, \[Psi]\[Theta] on an equatorial orbit)"},
+			{"\"\\[Psi]r\", \"\\[Psi]\\[Theta]\"", "", "the Darwin and Hughes phases, accumulated as \[Phi] is; Missing where undefined (\[Psi]r at e = 0, \[Psi]\[Theta] on an equatorial orbit)"},
 			{"\"En\", \"L\", \"Q\", \"K\"", "", "the osculating constants of motion"},
 			{"\"\\[Alpha]p\", \"\\[Beta]p\"", "", "the eccentricity components integrated, e sin \[Psi]r and e cos \[Psi]r"},
 			{"\"\\[CapitalOmega]r\", \"\\[CapitalOmega]\\[Theta]\", \"\\[CapitalOmega]\\[Phi]\"", "", "the Boyer-Lindquist frequencies of the osculating geodesic, from `KerrGeoFrequencies`"},

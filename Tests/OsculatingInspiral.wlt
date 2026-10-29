@@ -1,8 +1,7 @@
 (* ::Package:: *)
 
-(* OsculatingInspiral and the inspiral object: parameter validation, properties, stopping, options, and what the regular
-   (alpha_theta, beta_theta, x) polar variables allow: equatorial orbits pushed out of the plane, and inspirals that pass
-   through x = 0. *)
+(* OsculatingInspiral and the inspiral object: parameter validation, properties, stopping, options, equatorial orbits,
+   and forces with a theta component, including inspirals that pass through x = 0. *)
 
 drag[k_] := ForceModel["GasDrag", "Coefficient" -> k];
 params = <|"a" -> 0.5, "\[Epsilon]" -> 10^-5, "p" -> 10, "e" -> 0.2, "x" -> 0.8, "Force" -> drag[10^-5]|>;
@@ -162,21 +161,45 @@ VerificationTest[
 ]
 
 VerificationTest[
-	insp = OsculatingInspiral[<|params, "\[Psi]r" -> 2, "\[Psi]\[Theta]" -> -1, "\[Phi]" -> 7|>, IntegrationLimit -> 100];
+	insp = OsculatingInspiral[<|params, "\[Psi]r" -> 5, "\[Psi]\[Theta]" -> -4, "\[Phi]" -> 7|>, IntegrationLimit -> 100];
 	{insp["\[Psi]r"][0], insp["\[Psi]\[Theta]"][0], insp["\[Phi]"][0]}
 	,
-	{2., -1., 7.},
+	{5., -4., 7.},
 	SameTest -> withinTolerance[10^-12],
-	TestID -> "Initial phases, with phi outside (-pi, pi]"
+	TestID -> "Initial phases outside (-pi, pi] are kept"
 ]
 
 VerificationTest[
-	(* phi is continuous: it grows steadily rather than wrapping at pi *)
+	(* The phases and phi accumulate: they grow steadily rather than wrapping at pi *)
 	insp = OsculatingInspiral[params, IntegrationLimit -> 2000];
-	Min[Differences[insp["\[Phi]"][Range[0., 2000., 1.]]]] > 0 && insp["\[Phi]"][2000.] > 50
+	{Min[Differences[insp[#][Range[0., 2000., 1.]]]] > 0 & /@ {"\[Psi]r", "\[Psi]\[Theta]", "\[Phi]"},
+		insp[#][2000.] & /@ {"\[Psi]r", "\[Psi]\[Theta]", "\[Phi]"}}
 	,
-	True,
-	TestID -> "phi is continuous"
+	{{True, True, True}, {42.8, 59.8, 61.7}},
+	SameTest -> (#1[[1]] === #2[[1]] && withinTolerance[0.1][#1[[2]], #2[[2]]] &),
+	TestID -> "The phases and phi accumulate"
+]
+
+VerificationTest[
+	(* Up to whole turns, psi_r is the angle of the integrated eccentricity components *)
+	With[{samples = Range[0., 2000., 1.]}, With[{e = insp["e"][samples], \[Psi]r = insp["\[Psi]r"][samples]},
+		Max[Abs[Join[e Sin[\[Psi]r] - insp["\[Alpha]p"][samples], e Cos[\[Psi]r] - insp["\[Beta]p"][samples]]]]]]
+	,
+	0,
+	SameTest -> withinTolerance[10^-13],
+	TestID -> "psi_r agrees with alpha_p = e sin psi_r and beta_p = e cos psi_r"
+]
+
+VerificationTest[
+	(* In Mino time the geodesic's radial and polar motions are periodic, so each phase gains exactly 2 pi per period *)
+	insp = OsculatingInspiral[<|"a" -> 0.9, "\[Epsilon]" -> 10^-3, "p" -> 10, "e" -> 0.3, "x" -> 0.8, "\[Psi]r" -> 1, "\[Psi]\[Theta]" -> 2,
+		"Force" -> None|>, Parametrisation -> "Mino", IntegrationLimit -> 20, InterpolationOrder -> All];
+	With[{periods = 2 Pi/Values[KerrGeoFrequencies[0.9, 10, 0.3, 0.8, Time -> "Mino"]][[;; 2]]},
+		Table[(insp[#2][n #1] - insp[#2][0])/(2 Pi) - n & @@@ Transpose[{periods, {"\[Psi]r", "\[Psi]\[Theta]"}}], {n, 5}]]
+	,
+	ConstantArray[0, {5, 2}],
+	SameTest -> withinTolerance[10^-11],
+	TestID -> "Along a geodesic in Mino time psi_r and psi_theta gain 2 pi per period"
 ]
 
 VerificationTest[
