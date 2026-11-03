@@ -74,6 +74,8 @@ inspiral["Properties"]                 (* everything that can be queried *)
 The parameters are the spin `"a"`, the small mass ratio `"\[Epsilon]"`, the initial elements `"p"`, `"e"` and `"x"`
 (x = cos ι), optionally the initial phases `"\[Psi]r"`, `"\[Psi]\[Theta]"` and `"\[Phi]"`, and a `"Force"`, a `"Flux"`, or
 both. The integration stops just outside the separatrix, unless `IntegrationLimit` or `pMin` stops it first.
+For unbound local-force orbits, the buffer also excludes the boundary of real timelike pericentre data.
+`"Φr"` is `Indeterminate` for unbound orbits and within numerical tolerance of the parabolic boundary.
 
 Besides the position and the elements, the inspiral gives, as functions of time, the osculating geodesic's energy,
 angular momentum and Carter constant (`"En"`, `"L"`, `"Q"`), its Boyer-Lindquist frequencies (`"Ωr"`, `"Ωθ"`, `"Ωφ"`,

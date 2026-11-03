@@ -115,3 +115,60 @@ VerificationTest[
 	True,
 	TestID -> "The frequencies and angles are properties"
 ]
+
+
+(* ::Section:: *)
+(* The radial action angle is defined only for bound orbits *)
+
+unboundParameters[e_] := <|"a" -> .9, "\[Epsilon]" -> 10^-4,
+	"p" -> 80., "e" -> e, "x" -> .6, "Force" -> None|>;
+
+(* The radial action angle is unavailable near and beyond e=1.
+   Both scalar and listable outputs obey this rule. *)
+Table[VerificationTest[
+	Module[{sol = OsculatingInspiral[Join[unboundParameters[e], <|"x" -> x|>],
+			IntegrationLimit -> 1]},
+		{sol["\[CapitalPhi]r"][0.], sol["\[CapitalPhi]r"][{0.}]}],
+	{Indeterminate, {Indeterminate}},
+	TestID -> "Parabolic boundary and unbound radial angle: " <> mode <> ", e=" <> ToString[e] <> ", x=" <> ToString[x]],
+	{mode, {"Standard"}}, {e, {1. - 10^-9, 1., 1.1}},
+	{x, {.6}}]
+
+(* The drag captures an initially unbound orbit. The fixed crossing time is a regression reference. *)
+Table[VerificationTest[
+	Module[{sol = OsculatingInspiral[Join[unboundParameters[1.1],
+			<|"\[Psi]r" -> N[2 Pi - ArcCos[(80/500 - 1)/(11/10)]],
+				"Force" -> ForceModel["GasDrag", "Coefficient" -> 10^-4]|>],
+			IntegrationLimit -> 4000,
+			AccuracyGoal -> 10, PrecisionGoal -> 10, InterpolationOrder -> All]},
+		Head[sol] === OsculatingInspiralFunction &&
+			sol["StopReason"] === "IntegrationLimit" &&
+			sol["e"][0] > 1 && sol["e"][4000.] < 1 &&
+			sol["\[CapitalPhi]r"][{0., 1000.}] === {Indeterminate, Indeterminate} &&
+			NumericQ[sol["\[CapitalPhi]r"][4000.]] &&
+			Abs[sol["e"][2155.27630315965] - 1] < 10^-8],
+	True, TestID -> "Hyperbolic capture through e=1: " <> mode],
+	{mode, {"Standard"}}]
+
+
+(* The cutoff follows the requested precision; it does not alter e or freeze
+   the initial orbit type. The capture tests above check that Phi_r reappears. *)
+VerificationTest[
+	With[{cutoff = OsculatingOrbitalElements`Private`radialAngleTolerance,
+		unavailable = OsculatingOrbitalElements`Private`radialAngleUnavailableQ},
+		Table[With[{tol = cutoff[<|"WorkingPrecision" -> pair[[1]], "AccuracyGoal" -> pair[[2]], "PrecisionGoal" -> pair[[2]]|>]},
+			{unavailable[1, 1, tol], unavailable[1 - tol/2, 1 - tol/2, tol],
+			 unavailable[1 - 100 tol, 1 - 100 tol, tol],
+			 unavailable[1 - 100 tol, 1, tol]}],
+		{pair, {{MachinePrecision, 10}, {40, 22}}}]],
+	ConstantArray[{True, True, False, True}, 2],
+	TestID -> "Radial angle cutoff follows integration and working precision"
+]
+
+
+VerificationTest[
+	With[{unavailable = OsculatingOrbitalElements`Private`radialAngleUnavailableQ},
+		{unavailable[1. - 10^-9, 1. - 10^-11, 10^-21],
+		 unavailable[N[1 - 10^-9, 40], N[1 - 10^-11, 40], 10^-21]}],
+	{True, False}, TestID -> "The angle cutoff respects actual output precision"
+]

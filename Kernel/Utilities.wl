@@ -17,7 +17,7 @@
 
 
 (* ::Text:: *)
-(*p at the separatrix, from KerrGeoSeparatrix. That only evaluates the polar and equatorial cases at exact x = 0 and \[PlusMinus]1, so x is clamped to [-1, 1] and replaced by the exact value within 10^-12 of them, which moves p_sep far less than any stopping buffer.*)
+(*p at the separatrix for bound orbits, from KerrGeoSeparatrix. That only evaluates the polar and equatorial cases at exact x = 0 and \[PlusMinus]1, so x is clamped to [-1, 1] and replaced by the exact value within 10^-12 of them, which moves p_sep far less than any stopping buffer.*)
 
 
 SeparatrixP[a_?NumericQ, e_?NumericQ, x_?NumericQ] := With[{xc = Clip[x, {-1, 1}]}, Quiet[Which[
@@ -25,6 +25,55 @@ SeparatrixP[a_?NumericQ, e_?NumericQ, x_?NumericQ] := With[{xc = Clip[x, {-1, 1}
 	1 - Abs[xc] < 10^-12, KerrGeoSeparatrix[a, e, Sign[xc]],
 	Abs[xc] < 10^-12, KerrGeoSeparatrix[a, e, 0],
 	True, KerrGeoSeparatrix[a, e, xc]]]];
+
+
+(* The buffer tests the outer-pericentre branch at pb = p - buffer. On that
+   branch B = pb^3 - (1+e)(3-e) K pb + 4 a^2 Q (1+e) is positive; B=0 is the
+   separatrix. Recompute the constants at pb, so the buffer is still a distance
+   in p. No root of KerrGeoSeparatrix is needed, including across e=1.
+   Dividing by En^2 keeps the margin finite at the boundary of timelike
+   scattering data. For unbound orbits the buffer also excludes that boundary.
+   All entries of Min must be positive: exterior pericentre, real timelike
+   energy, positive L/x, real polar motion, and the outer radial turning point. *)
+RadialBufferMargin[a_?NumericQ, p_?NumericQ, e_?NumericQ, x_?NumericQ, buffer_?NumericQ] := Quiet[Check[Module[
+  {pb = p - buffer, xc = Clip[x, {-1, 1}], horizon, En, \[ScriptL], energyScale,
+   angularScale, polarScale, QOverE2, KOverE2, radial, margins},
+  If[!TrueQ[pb > 0], Return[-1]];
+  (* Exact Schwarzschild boundary, including the e=3 meeting point. *)
+  If[TrueQ[a == 0], Return[1 - Max[3 + e^2, 6 + 2 e]/pb]];
+  horizon = 1 - (1 + e) (1 + Sqrt[1 - a^2])/pb;
+  If[!TrueQ[horizon > 0], Return[horizon]];
+  {En, \[ScriptL]} = regularConstants[a, pb, e^2, xc];
+  energyScale = 1/En^2;
+  angularScale = \[ScriptL]/En;
+  polarScale = angularScale^2 + a^2 (energyScale - 1);
+  QOverE2 = (1 - xc^2) polarScale;
+  KOverE2 = QOverE2 + (xc angularScale - a)^2;
+  radial = energyScale - (1 + e) (3 - e) KOverE2/pb^2 + 4 a^2 QOverE2 (1 + e)/pb^3;
+  margins = {horizon, energyScale, angularScale/(1 + Abs[angularScale]),
+    polarScale/(1 + Abs[angularScale]^2), radial};
+  If[VectorQ[margins, realQ], Min[margins], -1]
+], -1]];
+
+
+(* Phi_r needs a resolved bound radial orbit. Leave one decimal digit above
+   the integration goals. The angle conversion subtracts radial roots of size
+   1/(1-En^2), amplifying energy roundoff by 1/(1-En^2)^2; its cutoff is therefore
+   at least Sqrt[100 10^-precision]. This is a conservative output cutoff, not
+   an estimate of global error. Automatic goals use half the working precision. *)
+radialAngleTolerance[settings_Association] := Module[{precision, goals},
+  precision = Replace[settings["WorkingPrecision"], (Automatic | MachinePrecision) -> $MachinePrecision];
+  goals = Replace[Lookup[settings, {"AccuracyGoal", "PrecisionGoal"}], Automatic -> precision/2, {1}];
+  10^(-Min[Min[goals] - 1, (precision - 2)/2])
+];
+
+(* Output precision can be lower than WorkingPrecision when the inputs are
+   machine numbers; use the less precise of e^2 and En for the roundoff cutoff. *)
+radialAngleUnavailableQ[e2_, En_, tolerance_] := Module[{precision, cutoff},
+  precision = Min[Precision[e2], Precision[En]] /. MachinePrecision -> $MachinePrecision;
+  cutoff = Max[tolerance, 10^(-(precision - 2)/2)];
+  TrueQ[e2 >= 1 - cutoff] || TrueQ[En^2 >= 1 - cutoff]
+];
 
 
 (* ::Subsubsection::Closed:: *)
@@ -47,37 +96,32 @@ memoLast[f_Symbol, cache_Symbol, key_, value_] := With[{k = key, v = value},
 
 
 (* ::Text:: *)
-(*RegularEnergy and RegularLOverX: the energy and \[ScriptL] = L/x of the geodesic with spin a and elements p, e^2 and x, from which L = x \[ScriptL] and Q = (1 - x^2)(a^2 (1 - En^2) + \[ScriptL]^2). They need no special cases at e = 0 or x = 0. They follow Schmidt's construction, as KerrGeodesics does, with two changes:*)
-(*- L = x \[ScriptL], which turns x^2 times Schmidt's h(r) into r^2 - 2 r + a^2 zm;*)
-(*- the conditions at the turning points r1 and r2 are replaced by their mean and divided difference, which do not cancel as r1 and r2 meet at e = 0.*)
-
-
+(* RegularEnergy and RegularLOverX give {En, ell=L/x} from polynomial
+   turning-point equations. This evaluation uses no p/(1-e), so e=1 is included without
+   a special branch; e=0 and x=0 remain regular. L=x ell and
+   Q=(1-x^2)(a^2(1-En^2)+ell^2). The last-value cache below is shared by both. *)
 regularConstants[a_, p_, e2_, x_] := Module[
-	{e, r1, r2, zm, means, differences, rows, f, d, h, r, det, \[Kappa], \[Rho], \[Epsilon], \[Eta], \[Sigma], En2},
-	e = Sqrt[e2];
-	r1 = p/(1 - e);
-	r2 = p/(1 + e);
-	zm = 1 - x^2;
-	(* For a polynomial with coefficients c, lowest power first: c . means is the mean of its values at r1 and r2, and
-	   c . differences their divided difference *)
-	means = {2, r1 + r2, r1^2 + r2^2, r1^3 + r2^3, r1^4 + r2^4}/2;
-	differences = {0, 1, r1 + r2, r1^2 + r1 r2 + r2^2, r1^3 + r1^2 r2 + r1 r2^2 + r2^3};
-	rows[c_] := {c . means, c . differences};
-	f = rows[{a^4 zm, 2 a^2 x^2, a^2 (1 + zm), 0, 1}];
-	d = rows[{a^4 zm, -2 a^2 zm, a^2 (1 + zm), -2, 1}];
-	h = rows[{a^2 zm, -2, 1, 0, 0}];
-	(* Schmidt's g(r) = 2 a r, with the factor 2 a taken out so that a = 0 needs no special case *)
-	r = rows[{0, 1, 0, 0, 0}];
-	det[{u1_, u2_}, {v1_, v2_}] := u1 v2 - v1 u2;
-	\[Kappa] = det[d, h];
-	\[Rho] = det[f, h];
-	\[Epsilon] = det[d, r];
-	\[Eta] = det[f, r];
-	\[Sigma] = det[r, h];
-	En2 = (\[Kappa] \[Rho] + 8 a^2 x^2 \[Epsilon] \[Sigma] -
-		4 Abs[a] x Sqrt[\[Sigma] (4 a^2 \[Sigma] \[Epsilon]^2 x^2 + \[Rho] \[Epsilon] \[Kappa] - \[Eta] \[Kappa]^2)])/
-		(\[Rho]^2 + 16 a^2 x^2 \[Eta] \[Sigma]);
-	{Sqrt[En2], Sqrt[(\[Epsilon] - \[Eta] En2)/\[Sigma]]}
+  {a2 = a^2, p2 = p^2, zm = 1 - x^2, c1 = 1 + e2,
+   c3 = 1 + 3 e2, c4 = 3 + e2, c6 = 1 + 6 e2 + e2^2,
+   a4, p3, p4, f0, f1, g0, g1, h0, h1, d0, d1,
+   qa, qb, qc, discriminant, y, En},
+  a4 = a2^2; p3 = p p2; p4 = p2^2;
+  (* Polynomial turning-point coefficients at zm=1-x^2. *)
+  f0 = p4 + a2 (1 + zm) p2 c1 + 2 a2 x^2 p c3 + a4 zm c6;
+  f1 = 2 a2 (1 + zm) p2 + 2 a2 x^2 p c4 + 4 a4 zm c1;
+  g0 = 2 a p x c3; g1 = 2 a p x c4;
+  h0 = p2 c1 - 2 p c3 + a2 zm c6;
+  h1 = 2 p2 - 2 p c4 + 4 a2 zm c1;
+  d0 = p4 - 2 p3 + a2 (1 + zm) p2 c1 - 2 a2 zm p c3 + a4 zm c6;
+  d1 = -2 p3 + 2 a2 (1 + zm) p2 - 2 a2 zm p c4 + 4 a4 zm c1;
+  qa = d0 h1 - d1 h0;
+  qb = 2 (d0 g1 - d1 g0);
+  qc = d1 f0 - d0 f1;
+  discriminant = Sqrt[qb^2 - 4 qa qc];
+  (* The same positive root, avoiding cancellation in its numerator. *)
+  y = If[qb >= 0, -2 qc/(qb + discriminant), (-qb + discriminant)/(2 qa)];
+  En = Sqrt[d0/(f0 - 2 g0 y - h0 y^2)];
+  {En, y En}
 ];
 
 regularConstantsCache = None;
@@ -153,7 +197,7 @@ OrthogonalTimeComponent[g_Association, {ar_, a\[Theta]_, a\[Phi]_}] :=
 
 
 (* ::Text:: *)
-(*The geometry at numeric elements p, e, x and phases \[Psi]r, \[Psi]\[Theta], for force models that need the velocity, with "d\[Psi]rd\[Lambda]" added. It holds at e = 0 and x = 0, \[PlusMinus]1.*)
+(*The geometry at numeric elements p, e, x and phases \[Psi]r, \[Psi]\[Theta], for force models that need the velocity, with "d\[Psi]rd\[Lambda]" added. It holds at e = 0 and x = 0, \[PlusMinus]1, away from the BL axis.*)
 
 
 NumericOrbitGeometry[a_?NumericQ, p_?NumericQ, e_?NumericQ, x_?NumericQ, \[Psi]r_?NumericQ, \[Psi]\[Theta]_?NumericQ] := Module[

@@ -26,7 +26,7 @@ $inspiralParameterRanges = {
 	{"a", realQ[#] && 0 <= # < 1 &, "a real number with 0 \[LessEqual] a < 1"},
 	{"\[Epsilon]", realQ[#] && # > 0 &, "a positive real number"},
 	{"p", realQ[#] && # > 0 &, "a positive real number"},
-	{"e", realQ[#] && 0 <= # < 1 &, "a real number with 0 \[LessEqual] e < 1"},
+	{"e", realQ[#] && 0 <= # &, "a nonnegative real number"},
 	{"x", realQ[#] && -1 <= # <= 1 &, "a real number with -1 \[LessEqual] x \[LessEqual] 1"},
 	{"\[Psi]r", realQ, "a real number"},
 	{"\[Psi]\[Theta]", realQ, "a real number"},
@@ -34,7 +34,25 @@ $inspiralParameterRanges = {
 
 
 (* ::Text:: *)
-(*The parameters with the defaults filled in, in a fixed order, or $Failed with a message. Whether the orbit is bound is checked by the solver, which knows the separatrix buffer.*)
+(*The parameters with the defaults filled in, in a fixed order, or $Failed with a message. The solver checks the separatrix buffer.*)
+
+
+(* For e >= 1, require real timelike constants and an exterior scattering pericentre.
+   The polynomial below equals p (1+e)^2 R'(rp)/(2e), with rp = p/(1+e).
+   In Schwarzschild these conditions give p > Max[3+e^2, 6+2e]. *)
+scatteringInitialDataQ[a_, p_, e_, x_] := Quiet[Check[Module[
+    {En, \[ScriptL], L, Q, K, rp},
+    If[TrueQ[a == 0], Return[TrueQ[p > Max[3 + e^2, 6 + 2 e]]]];
+    {En, \[ScriptL]} = regularConstants[a, p, e^2, x];
+    If[!VectorQ[{En, \[ScriptL]}, realQ] || !TrueQ[En > 0 && \[ScriptL] > 0 &&
+        \[ScriptL]^2 + a^2 (1 - En^2) > 0], Return[False]];
+    L = x \[ScriptL];
+    Q = (1 - x^2) (\[ScriptL]^2 + a^2 (1 - En^2));
+    K = Q + (L - a En)^2;
+    rp = p/(1 + e);
+    TrueQ[rp > 1 + Sqrt[1 - a^2] &&
+        p^3 - (1 + e) (3 - e) K p + 4 a^2 Q (1 + e) > 0]
+], False]];
 
 
 InspiralParameters[params_Association] := Module[{parameters, unknown, missing, bad},
@@ -47,6 +65,16 @@ InspiralParameters[params_Association] := Module[{parameters, unknown, missing, 
 	parameters = Join[$inspiralParameterDefaults, parameters];
 	bad = SelectFirst[$inspiralParameterRanges, !TrueQ[#[[2]][parameters[#[[1]]]]] &];
 	If[!MissingQ[bad], Message[OsculatingInspiral::range, bad[[1]], parameters[bad[[1]]], bad[[3]]]; Return[$Failed]];
+	(* Unbound initial data are supported here for local forces. Orbit-averaged
+	   fluxes retain their bound-orbit restriction. Start at a finite positive radius. *)
+	If[TrueQ[parameters["e"] >= 1] && !MemberQ[{None, {}}, parameters["Flux"]],
+		Message[OsculatingInspiral::range, "e", parameters["e"], "less than 1 when using orbit-averaged fluxes"]; Return[$Failed]];
+	If[!TrueQ[1 + parameters["e"] Cos[parameters["\[Psi]r"]] > 0],
+		Message[OsculatingInspiral::range, "\[Psi]r", parameters["\[Psi]r"], "a phase with 1 + e Cos[psi_r] > 0"]; Return[$Failed]];
+	If[TrueQ[parameters["e"] >= 1] &&
+		!scatteringInitialDataQ[Sequence @@ Lookup[parameters, {"a", "p", "e", "x"}]],
+		Message[OsculatingInspiral::range, "e", parameters["e"],
+			"an eccentricity admitting real timelike constants and an exterior scattering pericentre at the given a, p, x"]; Return[$Failed]];
 	If[TrueQ[parameters["x"] == 0], Message[OsculatingInspiral::polar]; Return[$Failed]];
 	KeyTake[parameters, $inspiralParameterKeys]
 ];
@@ -172,7 +200,7 @@ IntegrateSystem[system_Association, s_, limit_, settings_Association] := Module[
 
 (* ::Text:: *)
 (*A solver is a builder and a force resolver.*)
-(*The builder takes the mass ratio, the spin, the initial values, a list of drivers and the settings "Mino", "pMin" and "SeparatrixBuffer". It returns a system (above) with "Variable", the independent variable, and "Outputs", which makes the result from NDSolve's solution; or $Failed with a message.*)
+(*The builder takes the mass ratio, the spin, the initial values, a list of drivers and the settings "Mino", "pMin", "SeparatrixBuffer", "WorkingPrecision", "AccuracyGoal" and "PrecisionGoal". It returns a system (above) with "Variable", the independent variable, and "Outputs", which makes the result from NDSolve's solution; or $Failed with a message.*)
 (*The force resolver turns the force into a list of drivers, or $Failed with a message. A force driver is <|"Type" -> "Force", "Function" -> f|>, where f takes the orbit's state (the elements and phases, and the keys of KerrOrbitGeometry) and returns {a_t, a_r, a_\[Theta], a_\[Phi]}. A flux driver has "Type" -> "Flux", and only the regular solver takes them.*)
 (*RunSolver reads the options, resolves the force, and builds and integrates the system. It returns the outputs with "limit" and "StopReason". Its optional settings are "Force" (when not given as an option, as in OsculatingInspiral), "MessageHead" (KerrOsculatingOrbitalElements by default) and "ReportStops" (All by default).*)
 
@@ -187,7 +215,9 @@ RunSolver[function_, buildSystem_, forceDrivers_, \[Eta]_, a_, initial_List, {op
 	drivers = forceDrivers[If[KeyExistsQ[settings, "Force"], settings["Force"], option["Force"]]];
 	If[FailureQ[drivers], Return[$Failed]];
 	system = buildSystem[\[Eta], a, initial, drivers,
-		<|"Mino" -> minoQ, "pMin" -> option["pMin"], "SeparatrixBuffer" -> option["SeparatrixBuffer"]|>];
+		<|"Mino" -> minoQ, "pMin" -> option["pMin"], "SeparatrixBuffer" -> option["SeparatrixBuffer"],
+			"WorkingPrecision" -> option[WorkingPrecision], "AccuracyGoal" -> option[AccuracyGoal],
+			"PrecisionGoal" -> option[PrecisionGoal]|>];
 	If[FailureQ[system], Return[$Failed]];
 	integration = IntegrateSystem[system, system["Variable"], IntegrationLimitValue[option["IntegrationLimit"], minoQ],
 		<|"Function" -> function, "MessageHead" -> head,

@@ -58,7 +58,7 @@ MessageName[OsculatingInspiral, "eqforce"] = "The force has a nonzero \[Theta] c
 
 MessageName[OsculatingInspiral, "eqflux"] = "The flux changes x at the rate `1` on an equatorial orbit. Equatorial orbits (x = \[PlusMinus]1) are integrated with x held fixed, so they need a flux that does not change x."
 
-MessageName[OsculatingInspiral, "sep"] = "The initial orbit must lie outside the separatrix by more than the separatrix buffer, `1`: p = `2`, and the separatrix is at p = `3`."
+MessageName[OsculatingInspiral, "sep"] = "The initial p = `2` must remain on the physical outer-pericentre branch after subtracting the separatrix buffer, `1`."
 
 MessageName[OsculatingInspiral, "param"] = "Invalid value `1` for Parametrisation. Use \"CoordinateTime\" or \"Mino\"."
 

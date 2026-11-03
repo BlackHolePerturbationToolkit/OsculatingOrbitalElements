@@ -45,7 +45,7 @@ Table[
 		$Failed, {OsculatingInspiral::range},
 		TestID -> "Out of range: " <> ToString[change, InputForm]
 	],
-	{change, {"a" -> 1, "a" -> -0.1, "\[Epsilon]" -> 0, "p" -> -1, "e" -> 1, "x" -> 1.5, "\[Psi]r" -> I, "x" -> "a"}}]
+	{change, {"a" -> 1, "a" -> -0.1, "\[Epsilon]" -> 0, "p" -> -1, "e" -> -0.1, "x" -> 1.5, "\[Psi]r" -> I, "x" -> "a"}}]
 
 VerificationTest[
 	OsculatingInspiral[Append[params, "x" -> 0]]
@@ -99,6 +99,31 @@ VerificationTest[
 	TestID -> "Alternative spellings of epsilon and phi"
 ]
 
+
+Table[VerificationTest[
+	OsculatingInspiral[Join[<|"a" -> .9, "\[Epsilon]" -> 10^-4, "p" -> 80., "e" -> e, "x" -> .6, "Force" -> None|>, <|"Flux" -> "Peters"|>]],
+	$Failed, {OsculatingInspiral::range},
+	TestID -> "Unbound orbit-averaged flux rejected: e=" <> ToString[e]],
+	{e, {1., 1.1}}]
+
+Table[VerificationTest[
+	OsculatingInspiral[Join[<|"a" -> .9, "\[Epsilon]" -> 10^-4, "p" -> 80., "e" -> e, "x" -> .6, "Force" -> None|>, <|"\[Psi]r" -> Pi|>]],
+	$Failed, {OsculatingInspiral::range},
+	TestID -> "Infinite or negative initial radius rejected: e=" <> ToString[e]],
+	{e, {1, 11/10}}]
+
+(* The eccentricity bound depends on the other elements, rather than a fixed e cutoff. *)
+Table[VerificationTest[
+    Module[{cases, accepted},
+        cases = {{0, 20, 4, .6}, {0, 19, 4, .6}, {0, 18, 4, .6},
+            {0, 10, 1.9, .6}, {0, 10, 2, .6}, {0, 10, 2.1, .6},
+            {.9, 100, 4, .6}, {.9, 100, 4, -.6}, {.9, 100, 12, .6}, {.9, 10, 2, -.6}};
+        accepted = (AssociationQ[Quiet[OsculatingOrbitalElements`Private`InspiralParameters[
+            Join[params, AssociationThread[{"a", "p", "e", "x"}, #]]], OsculatingInspiral::range]] &) /@ cases;
+        accepted],
+    {True, False, False, True, False, False, True, True, False, False},
+    TestID -> "Scattering initial-data domain: " <> mode],
+    {mode, {"Standard"}}]
 
 (* ::Section:: *)
 (* The inspiral object *)
@@ -388,3 +413,12 @@ VerificationTest[
 	0, SameTest -> withinTolerance[10^-4],
 	TestID -> "A near-polar inspiral (x = 0.01): the direction to the particle agrees with REG"
 ]
+
+
+Table[VerificationTest[
+	OsculatingInspiral[<|"a" -> .9, "p" -> orbit[[1]], "e" -> 2., "x" -> orbit[[2]],
+		"\[Epsilon]" -> 10^-4, "Force" -> None|>,
+		SeparatrixBuffer -> .01, IntegrationLimit -> 1],
+	$Failed, {OsculatingInspiral::sep},
+	TestID -> "Unbound initial orbit inside the buffer: " <> mode <> ", x=" <> ToString[orbit[[2]]]],
+	{mode, {"Standard"}}, {orbit, {{5.795, .6}, {11.5285, -.6}}}]

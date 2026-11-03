@@ -46,7 +46,7 @@ regularSystem[\[Epsilon]_, a_, {p0_, e0_, x0_, \[Psi]r0_, \[Psi]\[Theta]0_, \[Ph
     e2, En, \[ScriptL], L, Q, K, w, r, Z, P, geometry, \[CapitalSigma], \[CapitalDelta], flux,
     state, at, ar, a\[Theta], a\[Phi], rates, F, Dp, Ap, Bp, Hp, CAlpha, JAlpha,
     dpd\[Lambda], d\[Alpha]d\[Lambda], d\[Beta]d\[Lambda], dxd\[Lambda], d\[Psi]\[Theta]d\[Lambda],
-    dtd\[Lambda], toS, minimumP, pMinQ, deltaPSep, initialPSep
+    dtd\[Lambda], toS, minimumP, pMinQ, deltaPSep, angleTolerance
   },
 
   minoQ = settings["Mino"];
@@ -154,23 +154,23 @@ regularSystem[\[Epsilon]_, a_, {p0_, e0_, x0_, \[Psi]r0_, \[Psi]\[Theta]0_, \[Ph
   pMinQ = NumericQ[minimumP];
   deltaPSep = If[NumericQ[settings["SeparatrixBuffer"]], settings["SeparatrixBuffer"], \[Epsilon]];
   (* Otherwise the integration starts inside the buffer, and never meets the stopping condition *)
-  initialPSep = SeparatrixP[a, e0, x0];
-  If[!TrueQ[p0 > initialPSep + deltaPSep],
-    Message[OsculatingInspiral::sep, deltaPSep, p0, initialPSep];
+  If[!TrueQ[RadialBufferMargin[a, p0, e0, x0, deltaPSep] > 0],
+    Message[OsculatingInspiral::sep, deltaPSep, p0];
     Return[$Failed]];
   (* Events are located to 8 digits: near the separatrix the solver's own goals can be more than the Runge-Kutta
      interpolation within a step supports (NDSolve::evcvmit). *)
   events = With[{u = s, location = "LocationMethod" -> {"Brent", AccuracyGoal -> 8, PrecisionGoal -> 8}}, {
     If[pMinQ, stopEvent[p[u] - minimumP == 0, "pMin", location], Nothing],
-    stopEvent[p[u] - SeparatrixP[a, Sqrt[\[Alpha]p[u]^2 + \[Beta]p[u]^2], x[u]] - deltaPSep == 0, "SeparatrixBuffer", location]
+    stopEvent[RadialBufferMargin[a, p[u], Sqrt[\[Alpha]p[u]^2 + \[Beta]p[u]^2], x[u], deltaPSep] == 0, "SeparatrixBuffer", location]
   }] /. equatorialRules;
 
   (* The result from NDSolve's solution. In coordinate time t is the independent variable; on an equatorial orbit x is
      constant and \[Psi]\[Theta] is None. *)
+  angleTolerance = radialAngleTolerance[settings];
   outputs[rules_] := regularOutputs[a, Join[
     {p, \[Alpha]p, \[Beta]p} /. rules,
     If[equatorialQ, {Function[{u}, Evaluate[N[Sign[x0]]], {Listable}], None}, {x, \[Psi]\[Theta]} /. rules],
-    {\[Phi] /. rules, If[minoQ, t /. rules, Function[{u}, u, {Listable}]]}], \[Psi]r0];
+    {\[Phi] /. rules, If[minoQ, t /. rules, Function[{u}, u, {Listable}]]}], \[Psi]r0, angleTolerance];
 
   <|"Variable" -> s, "Unknowns" -> unknowns, "Equations" -> Join[initialConditions, EoM], "Events" -> events,
     "Method" -> {"ExplicitRungeKutta", "DifferenceOrder" -> 8, "EquationSimplification" -> "Solve",
@@ -187,10 +187,10 @@ phaseAngle[\[Alpha]_?NumericQ, \[Beta]_?NumericQ] := If[TrueQ[\[Alpha] == 0 && \
 
 
 (* ::Text:: *)
-(*The solver's outputs, each a listable function of the time variable, from the solutions for p, \[Alpha]p, \[Beta]p, x, \[Psi]\[Theta] (None on an equatorial orbit), \[Phi] and t, and the initial \[Psi]r0. The phases accumulate, as \[Phi] does: \[Psi]\[Theta] as integrated, and \[Psi]r with its turns counted (continuousRadialPhase). The frequencies and action angles come from OrbitalAngles.wl. \[Psi]r and \[CapitalPhi]r are Missing at e = 0, and \[Psi]\[Theta] and \[CapitalPhi]\[Theta] on an equatorial orbit.*)
+(*The solver's outputs, each a listable function of the time variable, from the solutions for p, \[Alpha]p, \[Beta]p, x, \[Psi]\[Theta] (None on an equatorial orbit), \[Phi] and t, and the initial \[Psi]r0. The phases accumulate, as \[Phi] does: \[Psi]\[Theta] as integrated, and \[Psi]r with its turns counted (continuousRadialPhase). The frequencies and action angles come from OrbitalAngles.wl. \[Psi]r and \[CapitalPhi]r are Missing at e = 0, and \[Psi]\[Theta] and \[CapitalPhi]\[Theta] on an equatorial orbit. \[CapitalPhi]r is Indeterminate at e >= 1 and within the numerical tolerance of the parabolic boundary.*)
 
 
-regularOutputs[a_, {p_, \[Alpha]p_, \[Beta]p_, x_, \[Psi]\[Theta]_, \[Phi]_, t_}, \[Psi]r0_] := Module[
+regularOutputs[a_, {p_, \[Alpha]p_, \[Beta]p_, x_, \[Psi]\[Theta]_, \[Phi]_, t_}, \[Psi]r0_, angleTolerance_] := Module[
   {equatorialQ, undefined, circular, e2, e, r, \[Theta], \[Psi]r, En, \[ScriptL], L, Q, K, \[Psi]\[Theta]Angle, angle, frequency},
   equatorialQ = \[Psi]\[Theta] === None;
   undefined[reason_] := Function[{u}, Missing[reason], {Listable}];
@@ -219,7 +219,10 @@ regularOutputs[a_, {p_, \[Alpha]p_, \[Beta]p_, x_, \[Psi]\[Theta]_, \[Phi]_, t_}
     "En" -> En, "L" -> L, "Q" -> Q, "K" -> K,
     "\[Alpha]p" -> \[Alpha]p, "\[Beta]p" -> \[Beta]p,
     "\[CapitalOmega]r" -> frequency[1], "\[CapitalOmega]\[Theta]" -> frequency[2], "\[CapitalOmega]\[Phi]" -> frequency[3],
-    "\[CapitalPhi]r" -> Function[{u}, If[circular[u], Missing["UndefinedAtZeroEccentricity"], angle[1][u]], {Listable}],
+    "\[CapitalPhi]r" -> Function[{u}, Which[
+      radialAngleUnavailableQ[e2[u], En[u], angleTolerance], Indeterminate,
+      circular[u], Missing["UndefinedAtZeroEccentricity"],
+      True, angle[1][u]], {Listable}],
     "\[CapitalPhi]\[Theta]" -> If[equatorialQ, undefined["UndefinedForEquatorialOrbit"], angle[2]],
     "\[CapitalPhi]\[Phi]" -> angle[3]
   |>

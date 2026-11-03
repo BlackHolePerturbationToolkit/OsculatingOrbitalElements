@@ -131,3 +131,21 @@ VerificationTest[
 	{0, 0, 0, 0}, SameTest -> withinTolerance[10^-10],
 	TestID -> "OsculatingInspiral with Force -> None keeps the constants of motion"
 ]
+
+
+(* ::Section:: *)
+(* Unbound geodesics *)
+
+Table[VerificationTest[
+	Module[{sol = OsculatingInspiral[<|"a" -> .9, "\[Epsilon]" -> 10^-4,
+			"p" -> orbit[[1]], "e" -> orbit[[2]], "x" -> orbit[[3]], "Force" -> None|>,
+			SeparatrixBuffer -> .01, IntegrationLimit -> 1000,
+			AccuracyGoal -> 10, PrecisionGoal -> 10, InterpolationOrder -> All],
+			samples = Subdivide[0., 1000., 50]},
+		Head[sol] === OsculatingInspiralFunction &&
+			sol["StopReason"] === "IntegrationLimit" &&
+			Max[Abs[sol["e"][samples] - orbit[[2]]]] < 10^-9 &&
+			sol["\[CapitalPhi]r"][samples] === ConstantArray[Indeterminate, Length[samples]]],
+	True, TestID -> "Unbound geodesic and radial angle: " <> mode <> ", {p,e,x}=" <> ToString[orbit]],
+	{mode, {"Standard"}},
+	{orbit, {{80., 1., .6}, {6., 2., .6}, {12., 2., -.6}, {80., 4., .6}}}]
