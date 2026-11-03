@@ -5,6 +5,9 @@ special cases: the same equations handle circular, equatorial and polar orbits, 
 them. Parts of it (the polar unit vector, the regular constants of motion, and the regular rate of $x$) do not seem to
 be in the literature.
 
+**HKLambda update.** `AngularVariables -> "HKLambda"` uses $(h,k,\Lambda)$ with the radial REG variables and supports polar and equatorial motion with the built-in forces; Standard remains the default.
+The status below describes Standard and the earlier polar formulation.
+
 **Status.** `OsculatingInspiral` uses the radial variables (§2), the regular constants of motion (§4) and the regular
 rate of $x$ (§5). For the polar motion it integrates $x$ and $\psi_\theta$, as the earlier solvers did, and treats
 equatorial orbits as a special case: $x$ is held at exactly $\pm 1$, the polar equations are dropped, $\theta = \pi/2$,

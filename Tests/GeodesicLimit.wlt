@@ -112,8 +112,8 @@ VerificationTest[
 (* ::Section:: *)
 (* OsculatingInspiral with no force *)
 
-geodesicInspiral[orbit_] := OsculatingInspiral[<|"a" -> orbit[[1]], "\[Epsilon]" -> 10^-5, "p" -> orbit[[2]], "e" -> orbit[[3]],
-	"x" -> orbit[[4]], "Force" -> None|>, IntegrationLimit -> 1000];
+geodesicInspiral[orbit_, opts___] := OsculatingInspiral[<|"a" -> orbit[[1]], "\[Epsilon]" -> 10^-5, "p" -> orbit[[2]], "e" -> orbit[[3]],
+	"x" -> orbit[[4]], "Force" -> None|>, opts, IntegrationLimit -> 1000];
 
 Table[
 	VerificationTest[
@@ -124,22 +124,24 @@ Table[
 	],
 	{orbit, {{0.9, 9, 0.5, -0.4}, {0.5, 10, 0, 0.8}, {0.5, 10, 0.3, 1}, {0, 10, 0.3, 1}, {0.9, 10, 0.2, 0.05}}}]
 
-VerificationTest[
-	insp = geodesicInspiral[{0.9, 9, 0.5, -0.4}];
-	{insp["En"][1000.] - insp["En"][0], insp["L"][1000.] - insp["L"][0], insp["Q"][1000.] - insp["Q"][0], insp["p"][1000.] - 9}
-	,
-	{0, 0, 0, 0}, SameTest -> withinTolerance[10^-10],
-	TestID -> "OsculatingInspiral with Force -> None keeps the constants of motion"
-]
+Table[
+	VerificationTest[
+		insp = geodesicInspiral[{0.9, 9, 0.5, -0.4}, AngularVariables -> mode];
+		{insp["En"][1000.] - insp["En"][0], insp["L"][1000.] - insp["L"][0], insp["Q"][1000.] - insp["Q"][0], insp["p"][1000.] - 9}
+		,
+		{0, 0, 0, 0}, SameTest -> withinTolerance[10^-10],
+		TestID -> "OsculatingInspiral with Force -> None keeps the constants of motion: " <> mode
+	],
+	{mode, {"Standard", "HKLambda"}}]
 
 
 (* ::Section:: *)
-(* Unbound geodesics *)
+(* Unbound geodesics in both angular modes *)
 
 Table[VerificationTest[
 	Module[{sol = OsculatingInspiral[<|"a" -> .9, "\[Epsilon]" -> 10^-4,
 			"p" -> orbit[[1]], "e" -> orbit[[2]], "x" -> orbit[[3]], "Force" -> None|>,
-			SeparatrixBuffer -> .01, IntegrationLimit -> 1000,
+			AngularVariables -> mode, SeparatrixBuffer -> .01, IntegrationLimit -> 1000,
 			AccuracyGoal -> 10, PrecisionGoal -> 10, InterpolationOrder -> All],
 			samples = Subdivide[0., 1000., 50]},
 		Head[sol] === OsculatingInspiralFunction &&
@@ -147,5 +149,5 @@ Table[VerificationTest[
 			Max[Abs[sol["e"][samples] - orbit[[2]]]] < 10^-9 &&
 			sol["\[CapitalPhi]r"][samples] === ConstantArray[Indeterminate, Length[samples]]],
 	True, TestID -> "Unbound geodesic and radial angle: " <> mode <> ", {p,e,x}=" <> ToString[orbit]],
-	{mode, {"Standard"}},
+	{mode, {"Standard", "HKLambda"}},
 	{orbit, {{80., 1., .6}, {6., 2., .6}, {12., 2., -.6}, {80., 4., .6}}}]

@@ -6,7 +6,7 @@
 VerificationTest[
 	Sort[$publicSymbolsAfterLoading]
 	,
-	Sort[{"Force", "FluxModel", "ForceModel", "ForceUpDown", "GenericKerrpexBL", "GenericKerrREGBL", "IntegrationLimit", "KerrEMCons", "KerrGasDrag",
+	Sort[{"AngularVariables", "AngularChart", "Force", "FluxModel", "ForceModel", "ForceUpDown", "GenericKerrpexBL", "GenericKerrREGBL", "IntegrationLimit", "KerrEMCons", "KerrGasDrag",
 		"KerrGasDragVec", "KerrOsculatingOrbitalElements", "OsculatingInspiral", "OsculatingInspiralFunction", "Parametrisation", "pMin", "SchwarzFastGSF",
 		"SchwarzGasDrag", "SchwarzOsculatingOrbitalElements", "SchwarzOsculatingOrbitalElementsTP", "SeparatrixBuffer",
 		"TimeMonitor"}]

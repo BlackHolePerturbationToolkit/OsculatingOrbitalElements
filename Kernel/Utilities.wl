@@ -96,8 +96,9 @@ memoLast[f_Symbol, cache_Symbol, key_, value_] := With[{k = key, v = value},
 
 
 (* ::Text:: *)
-(* RegularEnergy and RegularLOverX give {En, ell=L/x} from polynomial
-   turning-point equations. This evaluation uses no p/(1-e), so e=1 is included without
+(* RegularEnergy and RegularLOverX give {En, ell=L/x} from the same polynomial
+   turning-point equations as HKLambda. At the polar turning point nz2=1-x^2,
+   Hz=x and j=ell. This evaluation uses no p/(1-e), so e=1 is included without
    a special branch; e=0 and x=0 remain regular. L=x ell and
    Q=(1-x^2)(a^2(1-En^2)+ell^2). The last-value cache below is shared by both. *)
 regularConstants[a_, p_, e2_, x_] := Module[
@@ -106,7 +107,7 @@ regularConstants[a_, p_, e2_, x_] := Module[
    a4, p3, p4, f0, f1, g0, g1, h0, h1, d0, d1,
    qa, qb, qc, discriminant, y, En},
   a4 = a2^2; p3 = p p2; p4 = p2^2;
-  (* Polynomial turning-point coefficients at zm=1-x^2. *)
+  (* Polynomial turning-point coefficients at nz2=1-x^2 and Hz=x. *)
   f0 = p4 + a2 (1 + zm) p2 c1 + 2 a2 x^2 p c3 + a4 zm c6;
   f1 = 2 a2 (1 + zm) p2 + 2 a2 x^2 p c4 + 4 a4 zm c1;
   g0 = 2 a p x c3; g1 = 2 a p x c4;

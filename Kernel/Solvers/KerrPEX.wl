@@ -35,7 +35,7 @@ polarPhaseRate[g_Association, {an_, A1_, A2_, A3_}] := Module[{a, \[Psi]\[Theta]
 
 (* ::Text:: *)
 (*It integrates p and the eccentricity components \[Alpha]p = e Sin[\[Psi]r], \[Beta]p = e Cos[\[Psi]r] with the REG radial equations, which are regular for circular orbits; x, with a rate regular at x = 0 (RegularXRate), so an inspiral can pass from prograde to retrograde; \[Psi]\[Theta]; and \[Phi]. The initial values are {p0, e0, x0, \[Psi]r0, \[Psi]\[Theta]0, \[Phi]0}.*)
-(*Equatorial orbits (x0 = \[PlusMinus]1) are a special case, as in the legacy solvers: x is held at exactly \[PlusMinus]1, the polar equations are dropped and \[Theta] = \[Pi]/2. So the force must have no \[Theta] component in the plane, and a flux must not change x; both are checked at the start. A regular polar formulation without this restriction is on hold (Legacy/RegularPolar.wl).*)
+(*Equatorial orbits (x0 = \[PlusMinus]1) are a special case, as in the legacy solvers: x is held at exactly \[PlusMinus]1, the polar equations are dropped and \[Theta] = \[Pi]/2. So the force must have no \[Theta] component in the plane, and a flux must not change x; both are checked at the start. For local forces, HKLambda removes this restriction (KerrHKL.wl).*)
 (*The method is an 8th-order explicit Runge-Kutta method, with goals 12 by default. Near the axis d\[Phi]/d\[Lambda] ~ L/Sin[\[Theta]]^2, so an orbit with small |x| swings \[Phi] by nearly \[Pi] in a time ~ |x|; NDSolve's default multistep method can step over the swing, while this resolves it down to |x| = 0.001. Its stiffness test only stops after 100 stability-limited steps in a row, rather than 3 in 5, which falsely stopped long Mino-time runs; the steps are the same.*)
 
 

@@ -51,15 +51,17 @@ VerificationTest[
 	OsculatingInspiral[Append[params, "x" -> 0]]
 	,
 	$Failed, {OsculatingInspiral::polar},
-	TestID -> "Orbits starting exactly polar are rejected"
+	TestID -> "Standard rejects exactly polar initial orbits"
 ]
 
-VerificationTest[
-	OsculatingInspiral[Append[params, "p" -> 4]]
-	,
-	$Failed, {OsculatingInspiral::sep},
-	TestID -> "Orbits inside the separatrix are rejected"
-]
+Table[
+	VerificationTest[
+		OsculatingInspiral[Append[params, "p" -> 4], AngularVariables -> mode]
+		,
+		$Failed, {OsculatingInspiral::sep},
+		TestID -> "Orbits inside the separatrix are rejected: " <> mode
+	],
+	{mode, {"Standard", "HKLambda"}}]
 
 VerificationTest[
 	OsculatingInspiral[params, SeparatrixBuffer -> 6]
@@ -100,6 +102,16 @@ VerificationTest[
 ]
 
 
+VerificationTest[
+	OsculatingInspiral[params, AngularVariables -> "Invalid"],
+	$Failed, {OsculatingInspiral::angular}, TestID -> "HKL angular option validation"];
+
+
+VerificationTest[
+	OsculatingInspiral[<|params, "Flux" -> "Peters"|>, AngularVariables -> "HKLambda"],
+	$Failed, {OsculatingInspiral::hklflux}, TestID -> "HKL explicitly rejects unimplemented flux terms"];
+
+
 Table[VerificationTest[
 	OsculatingInspiral[Join[<|"a" -> .9, "\[Epsilon]" -> 10^-4, "p" -> 80., "e" -> e, "x" -> .6, "Force" -> None|>, <|"Flux" -> "Peters"|>]],
 	$Failed, {OsculatingInspiral::range},
@@ -119,11 +131,11 @@ Table[VerificationTest[
             {0, 10, 1.9, .6}, {0, 10, 2, .6}, {0, 10, 2.1, .6},
             {.9, 100, 4, .6}, {.9, 100, 4, -.6}, {.9, 100, 12, .6}, {.9, 10, 2, -.6}};
         accepted = (AssociationQ[Quiet[OsculatingOrbitalElements`Private`InspiralParameters[
-            Join[params, AssociationThread[{"a", "p", "e", "x"}, #]]], OsculatingInspiral::range]] &) /@ cases;
+            Join[params, AssociationThread[{"a", "p", "e", "x"}, #]], mode], OsculatingInspiral::range]] &) /@ cases;
         accepted],
     {True, False, False, True, False, False, True, True, False, False},
     TestID -> "Scattering initial-data domain: " <> mode],
-    {mode, {"Standard"}}]
+    {mode, {"Standard", "HKLambda"}}]
 
 (* ::Section:: *)
 (* The inspiral object *)
@@ -215,6 +227,21 @@ VerificationTest[
 	TestID -> "psi_r agrees with alpha_p = e sin psi_r and beta_p = e cos psi_r"
 ]
 
+(* Near a return to e = 0 the radial phase can turn rapidly between integration steps. *)
+VerificationTest[
+	Module[{parameters, sol, reference, times = N[Subdivide[1, 300, 100]]},
+		parameters = <|params, "e" -> 0., "x" -> 1, "\[Psi]r" -> .3, "\[Psi]\[Theta]" -> .4, "\[Phi]" -> 7.|>;
+		sol = OsculatingInspiral[parameters, AngularVariables -> "HKLambda",
+			IntegrationLimit -> 300, InterpolationOrder -> All];
+		reference = OsculatingInspiral[parameters, AngularVariables -> "HKLambda",
+			IntegrationLimit -> 300, InterpolationOrder -> All, MaxStepSize -> .5];
+		{sol["e"][0], sol["\[Psi]r"][0], sol["\[Psi]\[Theta]"][0], sol["AngularChart"],
+			Max[Abs[(sol["\[Psi]r"] /@ times) - (reference["\[Psi]r"] /@ times)]]}],
+	{0., Missing["UndefinedAtZeroEccentricity"], Missing["UndefinedForEquatorialOrbit"], 1, 0},
+	SameTest -> (Most[#1] === Most[#2] && withinTolerance[10^-7][Last[#1], Last[#2]] &),
+	TestID -> "HKL radial phase keeps whole turns near circular motion"];
+
+
 VerificationTest[
 	(* In Mino time the geodesic's radial and polar motions are periodic, so each phase gains exactly 2 pi per period *)
 	insp = OsculatingInspiral[<|"a" -> 0.9, "\[Epsilon]" -> 10^-3, "p" -> 10, "e" -> 0.3, "x" -> 0.8, "\[Psi]r" -> 1, "\[Psi]\[Theta]" -> 2,
@@ -251,25 +278,29 @@ VerificationTest[
 	TestID -> "An inspiral stops epsilon outside the separatrix, with no message"
 ]
 
-VerificationTest[
-	insp = OsculatingInspiral[<|"a" -> 0.9, "\[Epsilon]" -> 10^-3, "p" -> 12, "e" -> 0.3, "x" -> 0.5, "Force" -> drag[10^-3]|>,
-		SeparatrixBuffer -> 0.5];
-	end = insp["Domain"][[2]];
-	{insp["StopReason"], insp["p"][end] - KerrGeoSeparatrix[0.9, insp["e"][end], insp["x"][end]]}
-	,
-	{"SeparatrixBuffer", 0.5},
-	SameTest -> (#1[[1]] === #2[[1]] && withinTolerance[10^-8][#1[[2]], #2[[2]]] &),
-	TestID -> "SeparatrixBuffer"
-]
+Table[
+	VerificationTest[
+		insp = OsculatingInspiral[<|"a" -> 0.9, "\[Epsilon]" -> 10^-3, "p" -> 12, "e" -> 0.3, "x" -> 0.5, "Force" -> drag[10^-3]|>,
+			AngularVariables -> mode, SeparatrixBuffer -> 0.5];
+		end = insp["Domain"][[2]];
+		{insp["StopReason"], insp["p"][end] - KerrGeoSeparatrix[0.9, insp["e"][end], insp["x"][end]]}
+		,
+		{"SeparatrixBuffer", 0.5},
+		SameTest -> (#1[[1]] === #2[[1]] && withinTolerance[10^-8][#1[[2]], #2[[2]]] &),
+		TestID -> "SeparatrixBuffer: " <> mode
+	],
+	{mode, {"Standard", "HKLambda"}}]
 
-VerificationTest[
-	insp = OsculatingInspiral[<|"a" -> 0.9, "\[Epsilon]" -> 10^-3, "p" -> 12, "e" -> 0.3, "x" -> 0.5, "Force" -> drag[10^-3]|>, pMin -> 11];
-	{insp["StopReason"], insp["p"][insp["Domain"][[2]]]}
-	,
-	{"pMin", 11},
-	SameTest -> (#1[[1]] === #2[[1]] && withinTolerance[10^-8][#1[[2]], #2[[2]]] &),
-	TestID -> "pMin"
-]
+Table[
+	VerificationTest[
+		insp = OsculatingInspiral[<|"a" -> 0.9, "\[Epsilon]" -> 10^-3, "p" -> 12, "e" -> 0.3, "x" -> 0.5, "Force" -> drag[10^-3]|>, AngularVariables -> mode, pMin -> 11];
+		{insp["StopReason"], insp["p"][insp["Domain"][[2]]]}
+		,
+		{"pMin", 11},
+		SameTest -> (#1[[1]] === #2[[1]] && withinTolerance[10^-8][#1[[2]], #2[[2]]] &),
+		TestID -> "pMin: " <> mode
+	],
+	{mode, {"Standard", "HKLambda"}}]
 
 VerificationTest[
 	OsculatingInspiral[params, IntegrationLimit -> 5000, MaxSteps -> 20]["StopReason"]
@@ -279,8 +310,8 @@ VerificationTest[
 ]
 
 VerificationTest[
-	mino = OsculatingInspiral[params, Parametrisation -> "Mino", IntegrationLimit -> 20];
-	coordinate = OsculatingInspiral[params, IntegrationLimit -> 2500];
+	mino = OsculatingInspiral[params, Parametrisation -> "Mino", IntegrationLimit -> 20, InterpolationOrder -> All];
+	coordinate = OsculatingInspiral[params, IntegrationLimit -> 2500, InterpolationOrder -> All];
 	{mino["Parametrisation"], mino["Domain"],
 		Max[Table[With[{t = mino["t"][l]}, Abs[{mino["p"][l], mino["r"][l], mino["\[Phi]"][l]} -
 			{coordinate["p"][t], coordinate["r"][t], coordinate["\[Phi]"][t]}]], {l, 2., 20., 2.}]]}
@@ -288,6 +319,19 @@ VerificationTest[
 	{"Mino", {0, 20.}, 0},
 	SameTest -> (Most[#1] === Most[#2] && withinTolerance[10^-5][Last[#1], Last[#2]] &),
 	TestID -> "Mino time gives the same inspiral as coordinate time"
+]
+
+VerificationTest[
+	(* Reuse the coordinate-time solution above for the HKL comparison. *)
+	hklMino = OsculatingInspiral[params, AngularVariables -> "HKLambda", Parametrisation -> "Mino",
+		IntegrationLimit -> 20, InterpolationOrder -> All];
+	{hklMino["StopReason"], Max[Table[With[{t = hklMino["t"][l]},
+		With[{theta = coordinate["\[Theta]"][t], phi = coordinate["\[Phi]"][t]},
+			Norm[hklMino["Direction"][l] - {Sin[theta] Cos[phi], Sin[theta] Sin[phi], Cos[theta]}]]], {l, 2., 20., 2.}]]}
+	,
+	{"IntegrationLimit", 0},
+	SameTest -> (#1[[1]] === #2[[1]] && withinTolerance[10^-8][#1[[2]], #2[[2]]] &),
+	TestID -> "HKL Mino time agrees with the shared coordinate-time reference"
 ]
 
 VerificationTest[
@@ -303,7 +347,7 @@ VerificationTest[
 
 
 (* ::Section:: *)
-(* Equatorial orbits: x is held at exactly +-1, so the orbit stays in the plane *)
+(* Equatorial orbits: Standard holds x at +-1; HKLambda can leave the plane *)
 
 VerificationTest[
 	Table[With[{equatorial = OsculatingInspiral[<|params, "x" -> x0|>, IntegrationLimit -> 1000]},
@@ -313,15 +357,24 @@ VerificationTest[
 	,
 	{{"IntegrationLimit", {1., 1.}, N[Pi/2], Missing["UndefinedForEquatorialOrbit"], 0., N[Pi/2]},
 		{"IntegrationLimit", {-1., -1.}, N[Pi/2], Missing["UndefinedForEquatorialOrbit"], 0., N[Pi/2]}},
-	TestID -> "An equatorial orbit stays in the plane: x is +-1, theta is Pi/2, psi_theta is undefined and Q is 0"
+	TestID -> "Standard keeps an equatorial orbit in the plane: x is +-1, theta is Pi/2, psi_theta is undefined and Q is 0"
 ]
 
 VerificationTest[
 	OsculatingInspiral[<|params, "x" -> 1, "Force" -> ForceModel[Function[{a, p, e, x, \[Psi]r, \[Psi]\[Theta], \[Phi], t}, {0, 1, 0}]]|>]
 	,
 	$Failed, {OsculatingInspiral::eqforce},
-	TestID -> "On an equatorial orbit, a force with a theta component in the plane is rejected"
+	TestID -> "Standard rejects an equatorial force with a theta component in the plane"
 ]
+
+VerificationTest[
+	Module[{force, parameters, sol},
+		force = ForceModel[Function[{a, p, e, x, pr, pt, phi, t}, {0, t/1000, 0}]];
+		parameters = <|params, "e" -> .1, "x" -> 1, "\[Psi]r" -> .3, "\[Psi]\[Theta]" -> .4, "\[Phi]" -> .7, "\[Epsilon]" -> .001, "Force" -> force|>;
+		sol = OsculatingInspiral[parameters, AngularVariables -> "HKLambda", IntegrationLimit -> 100];
+		{sol["StopReason"], Abs[sol["Direction"][100.][[3]]] > 10^-5, sol["x"][100.] < 1}],
+	{"IntegrationLimit", True, True}, TestID -> "HKL leaves the equator under a time-dependent polar force"];
+
 
 VerificationTest[
 	(* F_theta = cos(theta), which is zero in the plane: the orbit is a geodesic there *)
@@ -331,7 +384,7 @@ VerificationTest[
 	,
 	{"IntegrationLimit", 10, 0.2, 1.},
 	SameTest -> (#1[[{1, 4}]] === #2[[{1, 4}]] && withinTolerance[10^-9][#1[[2 ;; 3]], #2[[2 ;; 3]]] &),
-	TestID -> "On an equatorial orbit, a force whose theta component vanishes in the plane is accepted"
+	TestID -> "Standard accepts an equatorial force whose theta component vanishes in the plane"
 ]
 
 VerificationTest[
@@ -339,7 +392,7 @@ VerificationTest[
 		"Flux" -> FluxModel[Function[{a, p, e, x}, {0, 0, -10^-3}]]|>]
 	,
 	$Failed, {OsculatingInspiral::eqflux},
-	TestID -> "On an equatorial orbit, a flux that changes x is rejected"
+	TestID -> "Standard rejects an equatorial flux that changes x"
 ]
 
 VerificationTest[
@@ -415,10 +468,28 @@ VerificationTest[
 ]
 
 
+(* ::Section:: *)
+(* A public force callback driving an inspiral through x = 0 *)
+
+VerificationTest[
+	Module[{force, parameters, standard, hkl, times},
+		force = ForceModel[Function[{a, p, e, x, pr, pt, phi, t}, {0, 0, -2 (1 - (1 - x^2) Cos[pt]^2)}]];
+		parameters = <|"a" -> .9, "\[Epsilon]" -> .001, "p" -> 20, "e" -> .1, "x" -> .05,
+			"\[Psi]\[Theta]" -> .4, "Force" -> force|>;
+		standard = OsculatingInspiral[parameters, IntegrationLimit -> 1500, InterpolationOrder -> All];
+		hkl = OsculatingInspiral[parameters, AngularVariables -> "HKLambda", IntegrationLimit -> 1500, InterpolationOrder -> All];
+		times = N[Subdivide[0, 1500, 60]];
+		{hkl["StopReason"], hkl["x"][1500.] < 0,
+			Max[Table[Abs[standard[key][u] - hkl[key][u]], {key, {"p", "e", "x", "r"}}, {u, times}]] < 10^-6 &&
+			Max[Table[With[{theta = standard["\[Theta]"][u], phi = standard["\[Phi]"][u]},
+				Norm[hkl["Direction"][u] - {Sin[theta] Cos[phi], Sin[theta] Sin[phi], Cos[theta]}]], {u, times}]] < 10^-6}],
+	{"IntegrationLimit", True, True}, TestID -> "HKL passes through x=0 under a custom torque"];
+
+
 Table[VerificationTest[
 	OsculatingInspiral[<|"a" -> .9, "p" -> orbit[[1]], "e" -> 2., "x" -> orbit[[2]],
-		"\[Epsilon]" -> 10^-4, "Force" -> None|>,
+		"\[Epsilon]" -> 10^-4, "Force" -> None|>, AngularVariables -> mode,
 		SeparatrixBuffer -> .01, IntegrationLimit -> 1],
 	$Failed, {OsculatingInspiral::sep},
 	TestID -> "Unbound initial orbit inside the buffer: " <> mode <> ", x=" <> ToString[orbit[[2]]]],
-	{mode, {"Standard"}}, {orbit, {{5.795, .6}, {11.5285, -.6}}}]
+	{mode, {"Standard", "HKLambda"}}, {orbit, {{5.795, .6}, {11.5285, -.6}}}]

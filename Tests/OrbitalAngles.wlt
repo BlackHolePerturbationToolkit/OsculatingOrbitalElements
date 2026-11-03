@@ -123,23 +123,23 @@ VerificationTest[
 unboundParameters[e_] := <|"a" -> .9, "\[Epsilon]" -> 10^-4,
 	"p" -> 80., "e" -> e, "x" -> .6, "Force" -> None|>;
 
-(* The radial action angle is unavailable near and beyond e=1.
-   Both scalar and listable outputs obey this rule. *)
+(* The radial action angle is unavailable near and beyond e=1, including at the
+	 polar limit in HKLambda. Both scalar and listable outputs obey this rule. *)
 Table[VerificationTest[
 	Module[{sol = OsculatingInspiral[Join[unboundParameters[e], <|"x" -> x|>],
-			IntegrationLimit -> 1]},
+			AngularVariables -> mode, IntegrationLimit -> 1]},
 		{sol["\[CapitalPhi]r"][0.], sol["\[CapitalPhi]r"][{0.}]}],
 	{Indeterminate, {Indeterminate}},
 	TestID -> "Parabolic boundary and unbound radial angle: " <> mode <> ", e=" <> ToString[e] <> ", x=" <> ToString[x]],
-	{mode, {"Standard"}}, {e, {1. - 10^-9, 1., 1.1}},
-	{x, {.6}}]
+	{mode, {"Standard", "HKLambda"}}, {e, {1. - 10^-9, 1., 1.1}},
+	{x, If[mode === "HKLambda", {.6, 0., 1.}, {.6}]}]
 
 (* The drag captures an initially unbound orbit. The fixed crossing time is a regression reference. *)
 Table[VerificationTest[
 	Module[{sol = OsculatingInspiral[Join[unboundParameters[1.1],
 			<|"\[Psi]r" -> N[2 Pi - ArcCos[(80/500 - 1)/(11/10)]],
 				"Force" -> ForceModel["GasDrag", "Coefficient" -> 10^-4]|>],
-			IntegrationLimit -> 4000,
+			AngularVariables -> mode, IntegrationLimit -> 4000,
 			AccuracyGoal -> 10, PrecisionGoal -> 10, InterpolationOrder -> All]},
 		Head[sol] === OsculatingInspiralFunction &&
 			sol["StopReason"] === "IntegrationLimit" &&
@@ -148,7 +148,7 @@ Table[VerificationTest[
 			NumericQ[sol["\[CapitalPhi]r"][4000.]] &&
 			Abs[sol["e"][2155.27630315965] - 1] < 10^-8],
 	True, TestID -> "Hyperbolic capture through e=1: " <> mode],
-	{mode, {"Standard"}}]
+	{mode, {"Standard", "HKLambda"}}]
 
 
 (* The cutoff follows the requested precision; it does not alter e or freeze

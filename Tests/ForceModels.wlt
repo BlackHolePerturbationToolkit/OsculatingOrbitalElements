@@ -143,6 +143,27 @@ VerificationTest[
 ]
 
 
+(* Pointwise force agreement, independently transforming the original BL force.
+	 The compared angular combination is not the fourth BL component. *)
+Table[
+	VerificationTest[
+		Max[Table[Module[{a, state, g, blForce, regular, expected, chart, model, driver},
+			a = If[name === "FastGSF", 0, 0.5];
+			chart = If[x < 0, -1, 1];
+			model = If[name === "GasDrag", ForceModel[name, "Coefficient" -> 10^-5], ForceModel[name]];
+			state = N[OsculatingOrbitalElements`Private`hklInitialState[SetPrecision[a, 50],
+				SetPrecision[{10, e, x, .3, .4, .7}, 50], chart]];
+			g = OsculatingOrbitalElements`Private`hklGeometry[a, state, chart, 0];
+			blForce = model[a, 10, e, x, .3, .4, .7, 0];
+			expected = {blForce[[1]], blForce[[2]], blForce[[4]],
+				-g["Hz"] blForce[[3]]/Sqrt[g["sin2"]] - g["mz"] blForce[[4]]/g["sin2"]};
+			driver = OsculatingOrbitalElements`Private`hklForceModelDriver[model];
+			regular = driver["Function"][g];
+			Max[Abs[(regular - expected)/(1 + Abs[expected])]]],
+			{e, {0., .1}}, {x, {-.999999, -.6, -10^-6, 10^-6, .6, .999999}}]] < 10^-10,
+		True, TestID -> "HKL force equals its BL model: " <> name],
+	{name, {"GasDrag", "EMConservative", "FastGSF"}}];
+
 (* ::Section:: *)
 (* In an inspiral *)
 
@@ -194,18 +215,25 @@ VerificationTest[
 ]
 
 VerificationTest[
-	(* Two forces against their sum written as one force, with InterpolationOrder -> All as above *)
-	pair = OsculatingInspiral[<|"a" -> 0, "\[Epsilon]" -> 10^-3, "p" -> 10, "e" -> 0.1, "x" -> 1,
-		"Force" -> {"FastGSF", ForceModel["GasDrag", "Coefficient" -> 10^-4]}|>, IntegrationLimit -> 1000, InterpolationOrder -> All];
+	(* All three forces against their sum written as one callback. Both angular modes use the same reference. *)
+	combinedParameters = <|"a" -> 0, "\[Epsilon]" -> 10^-5, "p" -> 10, "e" -> 0.1, "x" -> -0.6,
+		"Force" -> {"FastGSF", ForceModel["GasDrag", "Coefficient" -> 10^-5], "EMConservative"}|>;
+	combined = OsculatingInspiral[combinedParameters, IntegrationLimit -> 500, InterpolationOrder -> All];
+	hkl = OsculatingInspiral[combinedParameters, AngularVariables -> "HKLambda", IntegrationLimit -> 500, InterpolationOrder -> All];
 	sum = ForceModel[Function[{a, p, e, x, \[Psi]r, \[Psi]\[Theta], \[Phi], t},
-		10^-3 Rest[ForceModel["FastGSF"][a, p, e, x, \[Psi]r, \[Psi]\[Theta], \[Phi], t]] +
-		10^-4 Rest[ForceModel["GasDrag", "Coefficient" -> 1][a, p, e, x, \[Psi]r, \[Psi]\[Theta], \[Phi], t]]], "ScalesWithMassRatio" -> False];
-	single = OsculatingInspiral[<|"a" -> 0, "\[Epsilon]" -> 10^-3, "p" -> 10, "e" -> 0.1, "x" -> 1, "Force" -> sum|>, IntegrationLimit -> 1000,
+		10^-5 Rest[ForceModel["FastGSF"][a, p, e, x, \[Psi]r, \[Psi]\[Theta], \[Phi], t]] +
+		10^-5 Rest[ForceModel["GasDrag", "Coefficient" -> 1][a, p, e, x, \[Psi]r, \[Psi]\[Theta], \[Phi], t]] +
+		10^-5 Rest[ForceModel["EMConservative"][a, p, e, x, \[Psi]r, \[Psi]\[Theta], \[Phi], t]]], "ScalesWithMassRatio" -> False];
+	single = OsculatingInspiral[<|combinedParameters, "Force" -> sum|>, IntegrationLimit -> 500,
 		InterpolationOrder -> All];
-	{#["Name"] & /@ pair["Force"], maxDifference[pair, single, {"p", "e", "r", "\[Phi]"}, Range[100., 1000., 100.]]}
+	If[AllTrue[{combined, single, hkl}, #["StopReason"] === "IntegrationLimit" &],
+		{#["Name"] & /@ combined["Force"], maxDifference[combined, single, {"p", "e", "r", "\[Phi]"}, Range[50., 500., 50.]],
+		maxDifference[hkl, combined, {"p", "e", "x", "r", "\[Phi]"}, Range[50., 500., 50.]]},
+		#["StopReason"] & /@ {combined, single, hkl}]
 	,
-	{{"FastGSF", "GasDrag"}, {0, 0, 0, 0}},
-	SameTest -> (#1[[1]] === #2[[1]] && withinTolerance[10^-6][#1[[2]], #2[[2]]] &),
+	{{"FastGSF", "GasDrag", "EMConservative"}, {0, 0, 0, 0}, {0, 0, 0, 0, 0}},
+	SameTest -> (#1[[1]] === #2[[1]] && withinTolerance[10^-6][#1[[2]], #2[[2]]] &&
+		withinTolerance[10^-7][#1[[3]], #2[[3]]] &),
 	TestID -> "Several forces add"
 ]
 
@@ -303,3 +331,41 @@ VerificationTest[
 	{0., True, True},
 	TestID -> "A force that depends on t, in Mino time"
 ]
+
+
+(* ::Section:: *)
+(* A callback depending on both time and azimuth, including unwrapped phases *)
+
+VerificationTest[
+	Module[{force, parameters, standard, hkl, times},
+		force = ForceModel[Function[{a, p, e, x, pr, pt, phi, t},
+			{.001 Cos[phi] Cos[t/300], .002 Sin[phi], -.003 Sin[pt]^2}]];
+		parameters = <|"a" -> .5, "\[Epsilon]" -> .001, "p" -> 10, "e" -> .1, "x" -> .6,
+			"\[Psi]r" -> 5, "\[Psi]\[Theta]" -> 8, "\[Phi]" -> 7, "Force" -> force|>;
+		standard = OsculatingInspiral[parameters, IntegrationLimit -> 1000, InterpolationOrder -> All];
+		hkl = OsculatingInspiral[parameters, AngularVariables -> "HKLambda", IntegrationLimit -> 1000, InterpolationOrder -> All];
+		times = N[Subdivide[0, 1000, 50]];
+		Max[Table[Abs[standard[key][u] - hkl[key][u]], {key, {"p", "e", "x", "r", "\[Phi]", "\[Psi]\[Theta]"}}, {u, times}]] < 10^-7],
+	True, TestID -> "HKL time and azimuth dependent custom force, with unwrapped output phases"];
+
+
+(* ::Section:: *)
+(* Conservative electromagnetic invariants *)
+
+(* For the stationary axisymmetric electromagnetic potential the canonical
+	 E - epsilon A_t and L + epsilon A_phi are conserved, independently of a REG comparison. *)
+Table[
+	VerificationTest[
+		Module[{epsilon = 10^-4, a = 1/2, sol, conserved, samples, error},
+			sol = OsculatingInspiral[<|"a" -> a, "\[Epsilon]" -> epsilon, "p" -> 10, "e" -> 1/10,
+				"x" -> x, "\[Psi]r" -> 1/3, "\[Psi]\[Theta]" -> 0, "Force" -> "EMConservative"|>,
+				AngularVariables -> "HKLambda", IntegrationLimit -> 1000, InterpolationOrder -> All];
+			conserved[u_] := With[{r = sol["r"][u], z = sol["Direction"][u][[3]]},
+				With[{sigma = r^2 + a^2 z^2},
+					{sol["En"][u] - epsilon (-a + a r (1 + z^2)/sigma),
+					 sol["L"][u] + epsilon (1 - z^2) ((r^2 + a^2)/2 - a^2 r (1 + z^2)/sigma)}]];
+			samples = N[Subdivide[0, 1000, 50]];
+			error = Max[Abs[(conserved[#] - conserved[0]) & /@ samples]];
+			sol["StopReason"] === "IntegrationLimit" && error < 10^-9],
+		True, TestID -> "HKL conservative canonical energy and momentum: x=" <> ToString[x]],
+	{x, {-1, 0, 3/5, 1}}];

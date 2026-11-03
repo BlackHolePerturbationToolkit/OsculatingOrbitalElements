@@ -55,7 +55,7 @@ scatteringInitialDataQ[a_, p_, e_, x_] := Quiet[Check[Module[
 ], False]];
 
 
-InspiralParameters[params_Association] := Module[{parameters, unknown, missing, bad},
+InspiralParameters[params_Association, angular_:"Standard"] := Module[{parameters, unknown, missing, bad},
 	parameters = KeyMap[Replace[$inspiralParameterAliases], params];
 	unknown = Complement[Keys[parameters], $inspiralParameterKeys];
 	If[unknown =!= {}, Message[OsculatingInspiral::unknown, unknown, $inspiralParameterKeys]; Return[$Failed]];
@@ -75,30 +75,42 @@ InspiralParameters[params_Association] := Module[{parameters, unknown, missing, 
 		!scatteringInitialDataQ[Sequence @@ Lookup[parameters, {"a", "p", "e", "x"}]],
 		Message[OsculatingInspiral::range, "e", parameters["e"],
 			"an eccentricity admitting real timelike constants and an exterior scattering pericentre at the given a, p, x"]; Return[$Failed]];
-	If[TrueQ[parameters["x"] == 0], Message[OsculatingInspiral::polar]; Return[$Failed]];
+	If[angular === "Standard" && TrueQ[parameters["x"] == 0], Message[OsculatingInspiral::polar]; Return[$Failed]];
 	KeyTake[parameters, $inspiralParameterKeys]
 ];
 
 
 (* ::Text:: *)
-(*The entry point, using the regular solver (regularSystem in Solvers/KerrPEX.wl). Normal stops are recorded in \"StopReason\"; only an early stop by NDSolve gives a message.*)
+(*The entry point selects regularSystem (Standard) or hklSystem (HKLambda).
+  Both use the same radial REG equations and integration runner.
+  Normal stops are recorded in \"StopReason\"; only an early stop by NDSolve gives a message.*)
 
 
-OsculatingInspiral[params_Association, opts:OptionsPattern[{OsculatingInspiral, NDSolve}]] := Module[{parameters, forces, fluxes, result},
-	parameters = InspiralParameters[params];
+OsculatingInspiral[params_Association, opts:OptionsPattern[{OsculatingInspiral, NDSolve}]] := Module[{parameters, forces, fluxes, result, angular, chart, builder, driver},
+	angular = OptionValue[AngularVariables];
+	chart = OptionValue[AngularChart];
+	If[!MemberQ[{"Standard", "HKLambda"}, angular], Message[OsculatingInspiral::angular, angular]; Return[$Failed]];
+	If[!MemberQ[{Automatic, -1, 1}, chart], Message[OsculatingInspiral::chart, chart]; Return[$Failed]];
+	parameters = InspiralParameters[params, angular];
 	If[FailureQ[parameters], Return[$Failed]];
 	(* The forces and fluxes as lists of models, each checked at the initial orbit *)
 	forces = inspiralForceModels[parameters["Force"]];
 	If[FailureQ[forces], Return[$Failed]];
-	forces = checkForceModels[forces, Append[Lookup[parameters, {"a", "p", "e", "x", "\[Psi]r", "\[Psi]\[Theta]", "\[Phi]"}], 0]];
+	forces = If[angular === "HKLambda",
+		checkModelValidity[forces, Lookup[parameters, {"a", "p", "e", "x"}]]; forces,
+		checkForceModels[forces, Append[Lookup[parameters, {"a", "p", "e", "x", "\[Psi]r", "\[Psi]\[Theta]", "\[Phi]"}], 0]]];
 	If[FailureQ[forces], Return[$Failed]];
 	fluxes = inspiralFluxModels[parameters["Flux"]];
 	If[FailureQ[fluxes], Return[$Failed]];
+	If[angular === "HKLambda" && fluxes =!= {}, Message[OsculatingInspiral::hklflux]; Return[$Failed]];
 	fluxes = checkFluxModels[fluxes, Lookup[parameters, {"a", "p", "e", "x"}]];
 	If[FailureQ[fluxes], Return[$Failed]];
-	result = RunSolver[OsculatingInspiral, regularSystem, Join[forceModelDriver /@ #["Forces"], fluxModelDriver /@ #["Fluxes"]] &,
+	builder = If[angular === "HKLambda", hklSystem, regularSystem];
+	driver = If[angular === "HKLambda", hklForceModelDriver, forceModelDriver];
+	result = RunSolver[OsculatingInspiral, builder, Join[driver /@ #["Forces"], fluxModelDriver /@ #["Fluxes"]] &,
 		parameters["\[Epsilon]"], parameters["a"], Lookup[parameters, {"p", "e", "x", "\[Psi]r", "\[Psi]\[Theta]", "\[Phi]"}], {opts},
-		<|"Force" -> <|"Forces" -> forces, "Fluxes" -> fluxes|>, "MessageHead" -> OsculatingInspiral, "ReportStops" -> {"Other"}|>];
+		<|"Force" -> <|"Forces" -> forces, "Fluxes" -> fluxes|>, "MessageHead" -> OsculatingInspiral, "ReportStops" -> {"Other"},
+			"SystemSettings" -> <|"AngularChart" -> chart|>|>];
 	If[FailureQ[result], Return[$Failed]];
 	OsculatingInspiralFunction[Join[KeyDrop[result, "limit"], <|
 		"Domain" -> {0, result["limit"]},
@@ -154,7 +166,7 @@ MonitorQ[option_] := MatchQ[option, True | "True"] && $FrontEnd =!= Null;
 (*A system to integrate is an Association with:*)
 (*"Unknowns": the unknown functions; where the integration ended is read from the first;*)
 (*"Equations": the equations and initial conditions;*)
-(*"Events": the stopping conditions, each stopEvent[condition, reason] or stopEvent[condition, reason, WhenEvent options], with reason "Separatrix", "SeparatrixBuffer" or "pMin". Like WhenEvent, stopEvent holds its condition;*)
+(*"Events": the stopping conditions, each stopEvent[condition, reason] or stopEvent[condition, reason, WhenEvent options], with reason "Separatrix", "SeparatrixBuffer", "pMin" or "AngularChartBoundary". Like WhenEvent, stopEvent holds its condition;*)
 (*"Method": NDSolve's Method for the system, or Automatic.*)
 
 
@@ -200,8 +212,8 @@ IntegrateSystem[system_Association, s_, limit_, settings_Association] := Module[
 
 (* ::Text:: *)
 (*A solver is a builder and a force resolver.*)
-(*The builder takes the mass ratio, the spin, the initial values, a list of drivers and the settings "Mino", "pMin", "SeparatrixBuffer", "WorkingPrecision", "AccuracyGoal" and "PrecisionGoal". It returns a system (above) with "Variable", the independent variable, and "Outputs", which makes the result from NDSolve's solution; or $Failed with a message.*)
-(*The force resolver turns the force into a list of drivers, or $Failed with a message. A force driver is <|"Type" -> "Force", "Function" -> f|>, where f takes the orbit's state (the elements and phases, and the keys of KerrOrbitGeometry) and returns {a_t, a_r, a_\[Theta], a_\[Phi]}. A flux driver has "Type" -> "Flux", and only the regular solver takes them.*)
+(*The builder takes the mass ratio, the spin, the initial values, a list of drivers and the settings "Mino", "pMin", "SeparatrixBuffer", "WorkingPrecision", "AccuracyGoal" and "PrecisionGoal", plus optional "SystemSettings" (AngularChart for HKLambda). It returns a system (above) with "Variable", the independent variable, and "Outputs", which makes the result from NDSolve's solution; or $Failed with a message.*)
+(*The force resolver turns the force into a list of drivers, or $Failed with a message. A force driver is <|"Type" -> "Force", "Function" -> f|>, where f takes the orbit's state and returns covariant force components: {a_t, a_r, a_theta, a_phi} for Standard, or {a_t, a_r, a_phi, AH} for HKLambda (see Solvers/KerrHKL.wl). A flux driver has "Type" -> "Flux", and only the Standard solver takes them.*)
 (*RunSolver reads the options, resolves the force, and builds and integrates the system. It returns the outputs with "limit" and "StopReason". Its optional settings are "Force" (when not given as an option, as in OsculatingInspiral), "MessageHead" (KerrOsculatingOrbitalElements by default) and "ReportStops" (All by default).*)
 
 
@@ -215,9 +227,9 @@ RunSolver[function_, buildSystem_, forceDrivers_, \[Eta]_, a_, initial_List, {op
 	drivers = forceDrivers[If[KeyExistsQ[settings, "Force"], settings["Force"], option["Force"]]];
 	If[FailureQ[drivers], Return[$Failed]];
 	system = buildSystem[\[Eta], a, initial, drivers,
-		<|"Mino" -> minoQ, "pMin" -> option["pMin"], "SeparatrixBuffer" -> option["SeparatrixBuffer"],
+		Join[<|"Mino" -> minoQ, "pMin" -> option["pMin"], "SeparatrixBuffer" -> option["SeparatrixBuffer"],
 			"WorkingPrecision" -> option[WorkingPrecision], "AccuracyGoal" -> option[AccuracyGoal],
-			"PrecisionGoal" -> option[PrecisionGoal]|>];
+			"PrecisionGoal" -> option[PrecisionGoal]|>, Lookup[settings, "SystemSettings", <||>]]];
 	If[FailureQ[system], Return[$Failed]];
 	integration = IntegrateSystem[system, system["Variable"], IntegrationLimitValue[option["IntegrationLimit"], minoQ],
 		<|"Function" -> function, "MessageHead" -> head,
@@ -231,7 +243,9 @@ RunSolver[function_, buildSystem_, forceDrivers_, \[Eta]_, a_, initial_List, {op
 
 
 (* ::Text:: *)
-(*At the orbit's state, the sum of the force drivers' {a_t, a_r, a_\[Theta], a_\[Phi]}, and of the flux drivers' rates of the regular solver's {p, \[Alpha]p, \[Beta]p, x} with respect to t (see fluxVariableRates). Each is multiplied by the mass ratio \[Eta] unless its driver has "ScalesWithMassRatio" -> False.*)
+(*At the orbit's state, sum the force vectors in the chosen solver's component order,
+  or the flux rates of Standard's {p, alpha_p, beta_p, x} with respect to t (see fluxVariableRates).
+  Each is multiplied by the mass ratio eta unless its driver has "ScalesWithMassRatio" -> False.*)
 
 
 driverTotal[type_String, drivers_List, state_Association, \[Eta]_] := With[{selected = Cases[drivers, KeyValuePattern["Type" -> type]]},
