@@ -166,15 +166,48 @@ BoyerLindquistAngle[i_Integer, args__?NumericQ] := BoyerLindquistAngles[args][[i
 
 
 (* ::Text:: *)
-(*\[Alpha]p and \[Beta]p give \[Psi]r only up to whole turns. The turns are counted at the solver's steps, where \[Psi]r changes by much less than \[Pi] per step, starting from \[Psi]r0, and interpolated linearly; between steps \[Psi]r is the value nearest that interpolation. The result is a listable function of the time variable.*)
+(*\[Alpha]p and \[Beta]p give \[Psi]r only up to whole turns. The turns are counted from samples at the solver's steps and interpolated linearly; between samples \[Psi]r is the value nearest that interpolation. The result is a listable function of the time variable.*)
+
+
+(* ::Text:: *)
+(*Near e = 0, \[Psi]r can turn by nearly \[Pi] within a step. A step that changes \[Psi]r by more than \[Pi]/2 is halved, up to 50 times, until every change is smaller. A change that stays larger, or that spans a sample within round-off of e = 0, is taken in the sense in which \[Psi]r turns, the sign of \[Beta]p \[Alpha]p' - \[Alpha]p \[Beta]p'. Samples within round-off of e = 0 have no direction and are skipped.*)
+
+
+(* ::Text:: *)
+(*The count starts from \[Psi]r0. If e = 0 at the start, where \[Psi]r0 is undefined, it starts from the first resolved phase, taken in [-3\[Pi]/4, 5\[Pi]/4). A circular orbit becomes eccentric at \[Psi]r = 0 or \[Pi] under a tangential force and at \[PlusMinus]\[Pi]/2 under a radial one, so this keeps all four starts away from the branch cut.*)
 
 
 wrapAngle[d_] := d - 2 \[Pi] Round[d/(2 \[Pi])];
 
-continuousRadialPhase[\[Alpha]p_, \[Beta]p_, \[Psi]r0_] := Module[{grid, phases, turns, reference},
+continuousRadialPhase[\[Alpha]p_, \[Beta]p_, \[Psi]r0_] := Module[
+	{grid, floor, d\[Alpha]p, d\[Beta]p, resolvedQ, phase, sense, turn, refine, \[Alpha]s, \[Beta]s, resolved, points, start, pieces, knots, reference},
 	grid = Flatten[\[Alpha]p["Grid"]];
-	phases = MapThread[phaseAngle, {\[Alpha]p[grid], \[Beta]p[grid]}];
-	turns = FoldList[#1 + wrapAngle[#2[[2]] - #2[[1]]] &, \[Psi]r0 + wrapAngle[First[phases] - \[Psi]r0], Partition[phases, 2, 1]];
-	reference = Interpolation[Transpose[{grid, turns}], InterpolationOrder -> 1];
+	floor = 10^(2 - Replace[Precision[Last[grid]], MachinePrecision -> $MachinePrecision]);
+	{d\[Alpha]p, d\[Beta]p} = Derivative[1] /@ {\[Alpha]p, \[Beta]p};
+	resolvedQ[u_] := \[Alpha]p[u]^2 + \[Beta]p[u]^2 > floor^2;
+	phase[u_] := ArcTan[\[Beta]p[u], \[Alpha]p[u]];
+	(* The sign of d\[Psi]r/du *)
+	sense[u_] := Sign[\[Beta]p[u] d\[Alpha]p[u] - \[Alpha]p[u] d\[Beta]p[u]];
+	(* The change d, or d \[PlusMinus] 2\[Pi] if that turns in the sense s instead *)
+	turn[d_, s_] := Which[s > 0 && d < 0, d + 2 \[Pi], s < 0 && d > 0, d - 2 \[Pi], True, d];
+	(* The changes from {u1, \[Psi]1} to {u2, \[Psi]2}, each with the time at which its piece ends *)
+	refine[{u1_, \[Psi]1_}, {u2_, \[Psi]2_}, depth_] := With[{d = wrapAngle[\[Psi]2 - \[Psi]1], um = (u1 + u2)/2},
+		Which[
+			Abs[d] <= \[Pi]/2, {{u2, d}},
+			depth == 0 || !(u1 < um < u2) || !resolvedQ[um], {{u2, turn[d, Sign[sense[u1] + sense[u2]]]}},
+			True, With[{middle = {um, phase[um]}}, Join[refine[{u1, \[Psi]1}, middle, depth - 1], refine[middle, {u2, \[Psi]2}, depth - 1]]]]];
+
+	{\[Alpha]s, \[Beta]s} = {\[Alpha]p[grid], \[Beta]p[grid]};
+	resolved = Thread[\[Alpha]s^2 + \[Beta]s^2 > floor^2];
+	(* e stays at 0 *)
+	If[FreeQ[resolved, True], Return[Function[{u}, \[Psi]r0 + wrapAngle[phaseAngle[\[Alpha]p[u], \[Beta]p[u]] - \[Psi]r0], {Listable}]]];
+	points = Transpose[{Pick[grid, resolved], MapThread[ArcTan, Pick[#, resolved] & /@ {\[Beta]s, \[Alpha]s}]}];
+	start = If[First[resolved], \[Psi]r0 + wrapAngle[points[[1, 2]] - \[Psi]r0], Mod[points[[1, 2]], 2 \[Pi], -3 \[Pi]/4]];
+	pieces = Join @@ MapThread[refine[#1, #2, 50] &, {Most[points], Rest[points]}];
+	knots = Transpose[{Prepend[pieces[[All, 1]], points[[1, 1]]], FoldList[Plus, start, pieces[[All, 2]]]}];
+	(* Before the first resolved sample and after the last, the count is constant *)
+	If[knots[[1, 1]] > First[grid], PrependTo[knots, {First[grid], start}]];
+	If[knots[[-1, 1]] < Last[grid], AppendTo[knots, {Last[grid], knots[[-1, 2]]}]];
+	reference = Interpolation[knots, InterpolationOrder -> 1];
 	Function[{u}, reference[u] + wrapAngle[phaseAngle[\[Alpha]p[u], \[Beta]p[u]] - reference[u]], {Listable}]
 ];

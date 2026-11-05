@@ -11,8 +11,8 @@ The OsculatingOrbitalElements package computes inspirals in Kerr spacetime with 
   Built in are Peters' leading-order gravitational-wave fluxes, and the orbit average of any force.
 
 Forces and fluxes can be combined, and several of each add. The equations are regular for circular orbits, and an
-inspiral can pass from prograde to retrograde. Equatorial orbits are a special case: they stay in the plane, so a force
-must have no θ component there. Schwarzschild is the case a = 0.
+inspiral can pass from prograde to retrograde. In the default angular mode, equatorial orbits stay in the plane, so a
+force must have no θ component there. Schwarzschild is the case a = 0.
 
 The package is part of the [Black Hole Perturbation Toolkit](https://bhptoolkit.org/).
 
@@ -74,6 +74,8 @@ inspiral["Properties"]                 (* everything that can be queried *)
 The parameters are the spin `"a"`, the small mass ratio `"\[Epsilon]"`, the initial elements `"p"`, `"e"` and `"x"`
 (x = cos ι), optionally the initial phases `"\[Psi]r"`, `"\[Psi]\[Theta]"` and `"\[Phi]"`, and a `"Force"`, a `"Flux"`, or
 both. The integration stops just outside the separatrix, unless `IntegrationLimit` or `pMin` stops it first.
+For unbound local-force orbits, the buffer also excludes the boundary of real timelike pericentre data.
+`"Φr"` is `Indeterminate` for unbound orbits and within numerical tolerance of the parabolic boundary.
 
 Besides the position and the elements, the inspiral gives, as functions of time, the osculating geodesic's energy,
 angular momentum and Carter constant (`"En"`, `"L"`, `"Q"`), its Boyer-Lindquist frequencies (`"Ωr"`, `"Ωθ"`, `"Ωφ"`,
@@ -91,6 +93,12 @@ OsculatingInspiral[<|"a" -> 0.9, "\[Epsilon]" -> 10^-5, "p" -> 10, "e" -> 0.2, "
 
 The built-in forces are `"GasDrag"`, `"EMConservative"` and `"FastGSF"` (Schwarzschild).
 
+`AngularVariables -> "HKLambda"` replaces `(x, ψθ, φ)` with `(h, k, Λ)`; `"Standard"` remains the default.
+HKLambda supports all three built-in forces at `x = 0` and `x = ±1`; fluxes require Standard. Custom BL forces
+must be periodic in their angular arguments and are supported away from the axis. `AngularChart -> Automatic`
+chooses a fixed chart; integration stops at its boundary. Use `"Direction"` for trajectories through the axis,
+where BL azimuth is undefined. BL frequencies and action angles are unavailable at the polar limit.
+
 A flux changes only the slowly varying elements; the phases advance at their geodesic rates. `"Peters"` is the
 leading-order gravitational-wave flux, and `FluxModel[force]` is the orbit average of a force:
 
@@ -106,11 +114,9 @@ of points in each phase (16 by default).
 Documentation
 -------------
 The documentation is in the Wolfram Documentation Center: search for OsculatingInspiral, or open the guide page
-`paclet:OsculatingOrbitalElements/guide/OsculatingOrbitalElements`. It has a reference page for each public symbol and a
-tutorial.
+`paclet:OsculatingOrbitalElements/guide/OsculatingOrbitalElements`. It has reference pages and a tutorial.
 
-`Notes/RegularFormulation.md` describes the variables and equations, and why they were chosen. Its regular polar
-formulation, which would let a force lift an equatorial orbit out of the plane, is on hold.
+`Notes/RegularFormulation.md` describes the Standard equations and an earlier regular polar formulation.
 
 The earlier functions
 ---------------------
@@ -142,7 +148,7 @@ Run the test suite from the repository folder with
 wolframscript -file Tests/AllTests.wls
 ```
 
-It takes about six minutes and exits with status 1 if any test fails. To run only some test files, add their names,
+It exits with status 1 if any test fails. To run only some test files, add their names,
 for example `wolframscript -file Tests/AllTests.wls FluxModels Regression`.
 
 Changelog

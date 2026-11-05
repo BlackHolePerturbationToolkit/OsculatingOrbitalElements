@@ -130,30 +130,36 @@ VerificationTest[
    between steps is up to 10 times less accurate: 2 10^-5 in phi here), against REG at tight goals. GasDrag with
    Coefficient k is the earlier solvers' KerrGasDrag with eta = k. *)
 
-regularVsREG[a_, p_, e_, x_] := Module[{regular, reg},
-	regular = OsculatingInspiral[<|"a" -> a, "\[Epsilon]" -> 10^-5, "p" -> p, "e" -> e, "x" -> x, "Force" -> ForceModel["GasDrag", "Coefficient" -> 10^-5]|>, IntegrationLimit -> 5000,
-		InterpolationOrder -> All];
+(* The rows are Standard and HKLambda. Keep the long Standard regression, and compare HKL
+   on the first 300 M of the same REG reference, which is integrated only once. *)
+regularVsREG[a_, p_, e_, x_] := Module[{regular, reg, samples},
 	reg = quietStops@GenericKerrREGBL[10^-5, a, p, e, x, 0, 0, IntegrationLimit -> 5000, AccuracyGoal -> 13, PrecisionGoal -> 13];
-	maxDifference[regular, reg, {"p", "e", "x", "r", "\[Phi]"}, kerrSamples]];
+	Table[
+		samples = If[mode === "Standard", kerrSamples, Range[10., 300., 10.]];
+		regular = OsculatingInspiral[<|"a" -> a, "\[Epsilon]" -> 10^-5, "p" -> p, "e" -> e, "x" -> x,
+			"Force" -> ForceModel["GasDrag", "Coefficient" -> 10^-5]|>, AngularVariables -> mode,
+			IntegrationLimit -> Last[samples], InterpolationOrder -> All];
+		maxDifference[regular, reg, {"p", "e", "x", "r", "\[Phi]"}, samples],
+		{mode, {"Standard", "HKLambda"}}]];
 
 VerificationTest[
 	regularVsREG[0.5, 10, 0.2, 0.8]
 	,
-	{0, 0, 0, 0, 0}, SameTest -> withinTolerance[{10^-9, 10^-6, 10^-11, 10^-5, 10^-5}],
+	ConstantArray[0, {2, 5}], SameTest -> (And @@ MapThread[withinTolerance[{10^-9, 10^-6, 10^-11, 10^-5, 10^-5}], {#1, #2}] &),
 	TestID -> "Kerr: the regular solver agrees with REG"
 ]
 
 VerificationTest[
 	regularVsREG[0.9, 8, 0, 0.6]
 	,
-	{0, 0, 0, 0, 0}, SameTest -> withinTolerance[{10^-9, 10^-8, 10^-11, 10^-7, 10^-4}],
+	ConstantArray[0, {2, 5}], SameTest -> (And @@ MapThread[withinTolerance[{10^-9, 10^-8, 10^-11, 10^-7, 10^-4}], {#1, #2}] &),
 	TestID -> "Kerr, e0 = 0: the regular solver agrees with REG"
 ]
 
 VerificationTest[
 	regularVsREG[0.5, 10, 0.2, 1]
 	,
-	{0, 0, 0, 0, 0}, SameTest -> withinTolerance[{10^-8, 10^-5, 0, 10^-4, 10^-5}],
+	ConstantArray[0, {2, 5}], SameTest -> (And @@ MapThread[withinTolerance[{10^-8, 10^-5, 0, 10^-4, 10^-5}], {#1, #2}] &),
 	TestID -> "Kerr, x0 = 1: the regular solver agrees with REG"
 ]
 
@@ -165,3 +171,27 @@ VerificationTest[
 	{0, 0, 0, 0}, SameTest -> withinTolerance[10^-4],
 	TestID -> "a = 0, x = 1: the regular solver agrees with SchwarzOsculatingOrbitalElementsTP"
 ]
+
+
+(* ::Section:: *)
+(* Agreement of the angular modes for the other built-in forces *)
+
+(* The other two built-in forces: compare the scalar elements and the physical direction.
+	 Gas drag, circular and equatorial cases are covered by the shared REG references above. *)
+Table[
+	VerificationTest[
+		Module[{parameters, standard, hkl, times = N[Subdivide[0, 300, 30]], scalarError, directionError},
+			parameters = <|"a" -> If[orbit[[1]] === "FastGSF", 0, .5], "\[Epsilon]" -> 10^-5,
+				"p" -> 10, "e" -> .1, "x" -> orbit[[2]], "\[Psi]r" -> .3, "\[Psi]\[Theta]" -> .4,
+				"\[Phi]" -> .7, "Force" -> ForceModel[orbit[[1]]]|>;
+			standard = OsculatingInspiral[parameters, IntegrationLimit -> 300, InterpolationOrder -> All];
+			hkl = OsculatingInspiral[parameters, AngularVariables -> "HKLambda",
+				IntegrationLimit -> 300, InterpolationOrder -> All];
+			If[!MatchQ[{standard, hkl}, {_OsculatingInspiralFunction, _OsculatingInspiralFunction}], Return[False]];
+			scalarError = Max[Table[Abs[hkl[key][u] - standard[key][u]]/(1 + Abs[standard[key][u]]),
+				{key, {"p", "e", "x", "r", "En", "L", "Q", "\[Alpha]p", "\[Beta]p"}}, {u, times}]];
+			directionError = Max[Norm[hkl["Direction"][#] - With[{theta = standard["\[Theta]"][#], phi = standard["\[Phi]"][#]}, {Sin[theta] Cos[phi], Sin[theta] Sin[phi], Cos[theta]}]] & /@ times];
+			hkl["StopReason"] === "IntegrationLimit" && standard["StopReason"] === "IntegrationLimit" &&
+				scalarError < 10^-8 && directionError < 10^-8],
+		True, TestID -> "HKL trajectory: " <> orbit[[1]] <> ", x=" <> ToString[orbit[[2]]]],
+	{orbit, {{"EMConservative", -.6}, {"FastGSF", .6}}}];

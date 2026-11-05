@@ -95,7 +95,7 @@ Table[
 
 
 (* ::Section:: *)
-(* SeparatrixP: KerrGeoSeparatrix, safe for the values of x and e that an inspiral reaches *)
+(* SeparatrixP: bound-orbit references from KerrGeoSeparatrix, including angular endpoints *)
 
 VerificationTest[
 	With[{sep = OsculatingOrbitalElements`Private`SeparatrixP},
@@ -106,4 +106,26 @@ VerificationTest[
 		KerrGeoSeparatrix[0.5, 0.2, 0], Quiet[KerrGeoSeparatrix[0.5, 0., 0.8]], 6.4},
 	SameTest -> withinTolerance[10^-10],
 	TestID -> "SeparatrixP at x = 1., 0. and -1., near and beyond 1, at e = 0, and at a = 0"
+]
+
+
+(* The buffer is measured in p, with constants recomputed at p-buffer.
+   The unbound reference roots solve R(rp)=R'(rp)=0 on the physical branch. *)
+VerificationTest[
+	With[{margin = OsculatingOrbitalElements`Private`RadialBufferMargin},
+		Table[With[{x = case[[1]], sep = case[[2]]},
+			{margin[.9, sep + .009, 2., x, .01] < 0,
+			 Abs[margin[.9, sep + .01, 2., x, .01]] < 10^-12,
+			 margin[.9, sep + .011, 2., x, .01] > 0}],
+		{case, {{.6, 5.794903781216474}, {-.6, 11.528367997958072}, {0., 8.475591161659913}}}]],
+	ConstantArray[{True, True, True}, 3],
+	TestID -> "Unbound buffer: physical prograde, retrograde and polar separatrices"
+]
+
+VerificationTest[
+	With[{margin = OsculatingOrbitalElements`Private`RadialBufferMargin},
+		And @@ Flatten[Table[
+			TrueQ[margin[0., p, e, .6, .01] > 0] === TrueQ[p - .01 > Max[3 + e^2, 6 + 2 e]],
+			{e, {0., .5, 1., 2., 3., 4., 10.}}, {p, {5., 8., 10.005, 10.02, 19.005, 19.02, 120.}}]]],
+	True, TestID -> "Schwarzschild buffer also excludes non-timelike scattering data"
 ]

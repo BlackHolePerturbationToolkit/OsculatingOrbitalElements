@@ -27,11 +27,11 @@ MessageName[OsculatingInspiral, "usage"] =
 "OsculatingInspiral[params] integrates the osculating geodesic equations for an inspiral in Kerr spacetime and returns an OsculatingInspiralFunction. params is an Association with the keys:
 \"a\": the spin, 0 \[LessEqual] a < 1 (a = 0 is Schwarzschild);
 \"\[Epsilon]\": the small mass ratio, which multiplies the forces and fluxes that scale with it;
-\"p\", \"e\", \"x\": the initial semi-latus rectum, eccentricity and inclination x = cos \[Iota], with x \[NotEqual] 0. An equatorial orbit, x = \[PlusMinus]1, stays in the plane, so its force must have no \[Theta] component there and its flux must not change x;
+\"p\", \"e\", \"x\": the initial semi-latus rectum, eccentricity and inclination x = cos \[Iota], with -1 <= x <= 1. The default Standard angular mode excludes x = 0 and holds equatorial orbits in the plane; HKLambda allows polar initial orbits and forces that lift an orbit out of the equator;
 \"Force\": a ForceModel, the name of a built-in model (\"GasDrag\", \"EMConservative\" or \"FastGSF\"), a list of these, which add, or None;
 \"Flux\": a FluxModel, the name of a built-in model (\"Peters\"), a list of these, or None. A flux changes only the slowly varying elements, at its orbit-averaged rates with respect to t. Give a force, a flux or both; with neither the orbit is a geodesic;
 \"\[Psi]r\", \"\[Psi]\[Theta]\", \"\[Phi]\" (optional, default 0): the initial Darwin and Hughes phases and azimuth.
-The options are Parametrisation, IntegrationLimit, SeparatrixBuffer, pMin, TimeMonitor, AccuracyGoal, PrecisionGoal, and any option of NDSolve. The default method, an 8th-order explicit Runge-Kutta method with goals 12, resolves the rapid swings of \[Phi] as near-polar orbits pass close to the poles; looser settings, or another Method, may not."
+The options are AngularVariables, AngularChart, Parametrisation, IntegrationLimit, SeparatrixBuffer, pMin, TimeMonitor, AccuracyGoal, PrecisionGoal, and any option of NDSolve. The default method, an 8th-order explicit Runge-Kutta method with goals 12, resolves the rapid swings of \[Phi] as near-polar orbits pass close to the poles; looser settings, or another Method, may not."
 
 MessageName[OsculatingInspiralFunction, "usage"] =
 "OsculatingInspiralFunction[assoc] represents an inspiral computed by OsculatingInspiral. inspiral[t] gives {t, r, \[Theta], \[Phi]} at time t: coordinate time, or Mino time with Parametrisation -> \"Mino\". inspiral[\"prop\"] gives a property, and inspiral[\"Properties\"] lists them. Quantities that change along the inspiral are functions of time, for example inspiral[\"p\"][t]: the position, the elements and phases, and the osculating geodesic's constants of motion (\"En\", \"L\", \"Q\", \"K\"), Boyer-Lindquist frequencies (\"\[CapitalOmega]r\", \"\[CapitalOmega]\[Theta]\", \"\[CapitalOmega]\[Phi]\") and action angles (\"\[CapitalPhi]r\", \"\[CapitalPhi]\[Theta]\", \"\[CapitalPhi]\[Phi]\"). \"Domain\" is the range of time, and \"StopReason\" why the integration stopped."
@@ -58,7 +58,7 @@ MessageName[OsculatingInspiral, "eqforce"] = "The force has a nonzero \[Theta] c
 
 MessageName[OsculatingInspiral, "eqflux"] = "The flux changes x at the rate `1` on an equatorial orbit. Equatorial orbits (x = \[PlusMinus]1) are integrated with x held fixed, so they need a flux that does not change x."
 
-MessageName[OsculatingInspiral, "sep"] = "The initial orbit must lie outside the separatrix by more than the separatrix buffer, `1`: p = `2`, and the separatrix is at p = `3`."
+MessageName[OsculatingInspiral, "sep"] = "The initial p = `2` must remain on the physical outer-pericentre branch after subtracting the separatrix buffer, `1`."
 
 MessageName[OsculatingInspiral, "param"] = "Invalid value `1` for Parametrisation. Use \"CoordinateTime\" or \"Mino\"."
 
@@ -113,6 +113,16 @@ MessageName[FluxModel, "range"] = "Warning: the flux model `1` is valid for `2`,
 
 MessageName[FluxModel, "prop"] = "\"`1`\" is not a property of the flux model. The properties are `2`."
 
+MessageName[AngularVariables, "usage"] = "AngularVariables is an option for OsculatingInspiral: \"Standard\" (the default) integrates x, psi_theta and phi; \"HKLambda\" integrates h, k and Lambda instead. Both share the radial REG equations. HKLambda supports the three built-in forces, including exactly polar and equatorial initial orbits. Fluxes currently require \"Standard\".";
+
+MessageName[AngularChart, "usage"] = "AngularChart is an option for OsculatingInspiral with AngularVariables -> \"HKLambda\". Automatic chooses +1 or -1 from the initial inclination. The chosen stereographic chart is fixed during the solve; integration stops with \"StopReason\" -> \"AngularChartBoundary\" when h^2+k^2 reaches 100. An explicit chart must be +1 or -1.";
+
+MessageName[OsculatingInspiral, "angular"] = "Invalid AngularVariables `1`. Use \"Standard\" or \"HKLambda\".";
+MessageName[OsculatingInspiral, "chart"] = "AngularChart `1` must be Automatic, +1 or -1, and must contain the initial angular-momentum direction within h^2+k^2 < 100.";
+MessageName[OsculatingInspiral, "hklflux"] = "The HKLambda mode currently supports local forces only. Use AngularVariables -> \"Standard\" for FluxModel drivers.";
+MessageName[OsculatingInspiral, "hklaxis"] = "The custom BL force cannot be evaluated on the rotation axis. The built-in forces have regular HKLambda expressions; a custom BL force is supported away from the axis.";
+MessageName[OsculatingInspiral, "hklinitial"] = "The initial HKLambda geometry or force does not give finite real rates.";
+
 MessageName[Parametrisation, "usage"] = "Parametrisation is an option for OsculatingInspiral, KerrOsculatingOrbitalElements, GenericKerrpexBL and GenericKerrREGBL which specifies the time variable: \"CoordinateTime\" (the default) for Boyer-Lindquist coordinate time t, or \"Mino\" for Mino time \[Lambda]."
 
 MessageName[pMin, "usage"] = "pMin is an option for OsculatingInspiral, GenericKerrpexBL and GenericKerrREGBL which stops the integration when p falls to the given value. The default, None, does not."
@@ -134,7 +144,7 @@ Options[ForceModel] = {"Name" -> "Custom", "Description" -> None, "Parameters" -
 Options[FluxModel] = {"Name" -> "Custom", "Description" -> None, "Parameters" -> <||>, "Rates" -> {"p", "e", "x"},
 	"ScalesWithMassRatio" -> True, "ValidityCondition" -> (True &), "ValidityDescription" -> None, "Citation" -> None};
 
-Options[OsculatingInspiral] = {Parametrisation -> "CoordinateTime", IntegrationLimit -> Automatic, SeparatrixBuffer -> Automatic, pMin -> None, TimeMonitor -> False, AccuracyGoal -> 12, PrecisionGoal -> 12};
+Options[OsculatingInspiral] = {AngularVariables -> "Standard", AngularChart -> Automatic, Parametrisation -> "CoordinateTime", IntegrationLimit -> Automatic, SeparatrixBuffer -> Automatic, pMin -> None, TimeMonitor -> False, AccuracyGoal -> 12, PrecisionGoal -> 12};
 SyntaxInformation[OsculatingInspiral] = {"ArgumentsPattern" -> {_, OptionsPattern[]}, "OptionNames" -> ToString /@ Union[Keys[Options[OsculatingInspiral]], Keys[Options[NDSolve]]]};
 
 (* ::Subsection:: *)
@@ -273,6 +283,7 @@ Get[FileNameJoin[{$packageDirectory, "ForceModels", "FastGSF.wl"}]];
 Get[FileNameJoin[{$packageDirectory, "FluxModels", "FluxModel.wl"}]];
 Get[FileNameJoin[{$packageDirectory, "FluxModels", "PostNewtonian.wl"}]];
 Get[FileNameJoin[{$packageDirectory, "Solvers", "KerrPEX.wl"}]];
+Get[FileNameJoin[{$packageDirectory, "Solvers", "KerrHKL.wl"}]];
 Get[FileNameJoin[{$packageDirectory, "InspiralObject.wl"}]];
 Get[FileNameJoin[{$packageDirectory, "Interface.wl"}]];
 
