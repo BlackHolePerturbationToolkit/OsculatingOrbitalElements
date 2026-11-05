@@ -510,7 +510,7 @@ Implementation:
 
 - [x] `Kernel/OrbitalAngles.wl`: the Mino phases qr and qθ from ψr and ψθ, and the oscillating parts Δt and Δφ, in the Fujita–Hikida form of the paper's notebook, with the regular constants (so the polar parts stay finite at a = 0: zp = √(β + ℓ²)). Then Φr = qr + Ωr Δt, Φθ = qθ + Ωθ Δt, Φφ = φ − Δφ + Ωφ Δt. qr's elliptic modulus uses (r − r2)/(r1 − r2) = sin²(ψr/2)(1 − e)/(1 + e cos ψr), which does not cancel at small e. Δt and Δφ are evaluated at the phases mod 2π, as they are periodic. No special case is needed at e = 0 or x = ±1; x = 0 is excluded, as before.
 - [x] Frequencies from `KerrGeoFrequencies`. Its context, `` KerrGeodesics`OrbitalFrequencies` ``, was added to the header's `BeginPackage`; without it the name became a private symbol.
-- [x] ψr is only known mod 2π from (αp, βp), so its turns are counted at the solver's steps, where it changes by much less than π, starting from the initial ψr0 as given, and interpolated linearly; between steps ψr is the value nearest that. ψθ and φ are integrated, so already continuous.
+- [x] ψr is only known mod 2π from (αp, βp), so its turns are counted at the solver's steps, where it changes by much less than π, starting from the initial ψr0 as given, and interpolated linearly; between steps ψr is the value nearest that. ψθ and φ are integrated, so already continuous. (Near e = 0, see "ψr's turns near e = 0" below.)
 - [x] Missing where undefined: Φr at e = 0, Φθ on an equatorial orbit. The other angles do not depend on the undefined phase there.
 - [x] The components only evaluate for numeric times, so `NIntegrate` and `Plot` work (a symbolic time first gave the spin, from `Part` of an unevaluated call).
 
@@ -552,3 +552,17 @@ From the `dev` branch (453222d by oleksii-yanchyshen-bit, in `GenericKerrREGBL` 
 - [x] About 1.4 times faster to evaluate the radial rates, and whole inspirals 5–10% faster.
 - [x] Regression outputs changed by at most 7×10⁻¹³ (relative) in the forced OsculatingInspiral cases, and not at all elsewhere; `ReferenceOutputs.wl` regenerated.
 - [x] One test failed: rotating a non-axisymmetric force and the orbit together compared two solutions between their steps with the default interpolation, where they differ by its error (φ by 6.7×10⁻⁶ before, 1.1×10⁻⁵ after, against a tolerance of 10⁻⁵). It now uses `InterpolationOrder -> All`, as the other comparisons between steps do, and the two agree to 10⁻¹² with either form. There are 240 tests.
+
+### After the HKLambda branch: ψr's turns near e = 0
+
+One HKLambda test failed: from a circular equatorial start under gas drag, ψr differed by 2π between the default steps and `MaxStepSize -> 0.5`.
+
+- Cause: with e0 = 0 the count was seeded from the direction of (αp, βp) at t = 0, which is round-off (10⁻²² in HKLambda, exactly 0 in Standard), while the orbit leaves e = 0 at ψr = π, on the branch cut. Separately, under weaker drag (10⁻⁷ and less) the return close to e = 0 after one radial period turned ψr by nearly π between samples, and both solvers could lose a turn.
+- [x] Both solvers now count the turns in the same way, each with its own code (`continuousRadialPhase` in `OrbitalAngles.wl`, `hklRadialPhase` in `Solvers/KerrHKL.wl`), so the solvers stay independent:
+  - samples within round-off of e = 0 (e ≤ 10^(2 − precision)) are skipped;
+  - if e = 0 at the start, the first resolved phase is taken in [−3π/4, 5π/4), which keeps the directions in which a circular orbit becomes eccentric (0 and π under a tangential force, ±π/2 under a radial one) away from the cut;
+  - an interval over which ψr changes by more than π/2 is halved, up to 50 times, until every change is smaller;
+  - a change that stays larger, or that spans a sample at e = 0, takes the sense of rotation, the sign of βp αp′ − αp βp′.
+- [x] Circular start under gas drag 10⁻⁵ to 10⁻⁸, to t = 300, in both solvers: the default steps, `MaxStepSize -> 0.5` and a brute-force count at 400 samples per step agree on the turns (ψr(300) = 9.6456 to 9.6472), and differ by at most 3.5×10⁻⁷, the integration error. ψr0 no longer matters at e0 = 0. The failing test's difference is now 1.0×10⁻⁸, against a tolerance of 10⁻⁷.
+- [x] Where nothing is skipped or refined the count is unchanged: the regression outputs are bit-identical.
+- Open: a force that returns the orbit exactly to e = 0. A purely radial force from a circular start returns once per radial period, to within 10⁻¹⁴ to 10⁻²³, below the solution's accuracy, so numerical error decides the side of the passage, and ψr can differ by 2π between step sizes. `EMConservative` from a circular equatorial start also returns (to within 10⁻¹⁴ to 10⁻¹⁹), but passed on the same side in every run tried. Taking such a passage as +π (ψr advancing through π, the outer turning point the orbit has returned to) fixes the first passage, but a second can come out just above round-off in one run, so it would need a threshold tied to the solution's accuracy.

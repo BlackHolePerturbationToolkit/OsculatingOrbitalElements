@@ -418,14 +418,58 @@ hklGeometry[a_, {p_, \[Alpha]p_, \[Beta]p_, h_, k_, \[CapitalLambda]_}, chart_, 
 
 
 (* Recover continuous phases from their cosine/sine pairs by counting turns
-   on the solution grid. The interpolated reference fixes the branch at each time.
-   Precomputed samples allow the radial interpolants to be evaluated on the whole grid. *)
-hklContinuousPhase[pair_, grid_, initial_, sampledPhases_:Automatic] := Module[{phases, increments, turns, reference},
-  phases = If[sampledPhases === Automatic, (phaseAngle @@ Reverse[pair[#]]) & /@ grid, sampledPhases];
+   on the solution grid. The interpolated reference fixes the branch at each time. *)
+hklContinuousPhase[pair_, grid_, initial_] := Module[{phases, increments, turns, reference},
+  phases = (phaseAngle @@ Reverse[pair[#]]) & /@ grid;
   increments = wrapAngle /@ Differences[phases];
   turns = FoldList[Plus, initial + wrapAngle[First[phases] - initial], increments];
   reference = Interpolation[Transpose[{grid, turns}], InterpolationOrder -> 1];
   Function[{u}, reference[u] + wrapAngle[(phaseAngle @@ Reverse[pair[u]]) - reference[u]], {Listable}]
+];
+
+
+(* The radial phase, counted as above but robust near e = 0, where it can turn
+   by nearly pi between samples:
+   - Samples within roundoff of e = 0 have no direction and are skipped.
+   - An interval over which the phase changes by more than pi/2 is halved, up to
+     50 times, until every change is smaller. A change that stays larger, or that
+     spans a sample at e = 0, is taken in the sense in which the phase turns,
+     the sign of beta alpha' - alpha beta'.
+   - If e = 0 at the start, psi_r0 is undefined, and the first resolved phase is
+     taken in [-3pi/4, 5pi/4). A circular orbit becomes eccentric at psi_r = 0 or
+     pi under a tangential force and at +-pi/2 under a radial one, so all four
+     starts lie away from the branch cut. *)
+hklRadialPhase[\[Alpha]p_, \[Beta]p_, grid_, \[Psi]r0_] := Module[
+  {floor, d\[Alpha]p, d\[Beta]p, resolvedQ, phase, sense, turn, refine, \[Alpha]s, \[Beta]s, resolved, points, start,
+   pieces, knots, reference},
+  floor = 10^(2 - Replace[Precision[Last[grid]], MachinePrecision -> $MachinePrecision]);
+  {d\[Alpha]p, d\[Beta]p} = Derivative[1] /@ {\[Alpha]p, \[Beta]p};
+  resolvedQ[u_] := \[Alpha]p[u]^2 + \[Beta]p[u]^2 > floor^2;
+  phase[u_] := ArcTan[\[Beta]p[u], \[Alpha]p[u]];
+  sense[u_] := Sign[\[Beta]p[u] d\[Alpha]p[u] - \[Alpha]p[u] d\[Beta]p[u]];
+  (* d, or d +- 2pi if that turns in the sense s instead *)
+  turn[d_, s_] := Which[s > 0 && d < 0, d + 2 \[Pi], s < 0 && d > 0, d - 2 \[Pi], True, d];
+  (* The changes from {u1, psi1} to {u2, psi2}, each with the time at which its piece ends *)
+  refine[{u1_, \[Psi]1_}, {u2_, \[Psi]2_}, depth_] := With[{d = wrapAngle[\[Psi]2 - \[Psi]1], um = (u1 + u2)/2},
+    Which[
+      Abs[d] <= \[Pi]/2, {{u2, d}},
+      depth == 0 || !(u1 < um < u2) || !resolvedQ[um], {{u2, turn[d, Sign[sense[u1] + sense[u2]]]}},
+      True, With[{middle = {um, phase[um]}},
+        Join[refine[{u1, \[Psi]1}, middle, depth - 1], refine[middle, {u2, \[Psi]2}, depth - 1]]]]];
+
+  {\[Alpha]s, \[Beta]s} = {\[Alpha]p[grid], \[Beta]p[grid]};
+  resolved = Thread[\[Alpha]s^2 + \[Beta]s^2 > floor^2];
+  If[FreeQ[resolved, True],
+    Return[Function[{u}, \[Psi]r0 + wrapAngle[phaseAngle[\[Alpha]p[u], \[Beta]p[u]] - \[Psi]r0], {Listable}]]];
+  points = Transpose[{Pick[grid, resolved], MapThread[ArcTan, Pick[#, resolved] & /@ {\[Beta]s, \[Alpha]s}]}];
+  start = If[First[resolved], \[Psi]r0 + wrapAngle[points[[1, 2]] - \[Psi]r0], Mod[points[[1, 2]], 2 \[Pi], -3 \[Pi]/4]];
+  pieces = Join @@ MapThread[refine[#1, #2, 50] &, {Most[points], Rest[points]}];
+  knots = Transpose[{Prepend[pieces[[All, 1]], points[[1, 1]]], FoldList[Plus, start, pieces[[All, 2]]]}];
+  (* Constant before the first resolved sample and after the last *)
+  If[knots[[1, 1]] > First[grid], PrependTo[knots, {First[grid], start}]];
+  If[knots[[-1, 1]] < Last[grid], AppendTo[knots, {Last[grid], knots[[-1, 2]]}]];
+  reference = Interpolation[knots, InterpolationOrder -> 1];
+  Function[{u}, reference[u] + wrapAngle[phaseAngle[\[Alpha]p[u], \[Beta]p[u]] - reference[u]], {Listable}]
 ];
 
 
@@ -448,7 +492,7 @@ hklAzimuth[chart_, {h_, k_, \[CapitalLambda]_}, grid_, denseGrid_, \[Phi]0_] := 
 
 hklOutputs[a_, chart_, {p0_, e0_, x0_, \[Psi]r0_, \[Psi]\[Theta]0_, \[Phi]0_},
     {p_, \[Alpha]p_, \[Beta]p_, h_, k_, \[CapitalLambda]_, t_}, angleTolerance_] := Module[
-  {geometry, cache = None, property, grid, denseGrid, radialPhases, \[Psi]r, \[Psi]\[Theta], \[Phi]Continuous,
+  {geometry, cache = None, property, grid, denseGrid, \[Psi]r, \[Psi]\[Theta], \[Phi]Continuous,
    circular, equatorial, onAxis, polar, angle, frequency, e, \[Theta], \[Phi]},
 
   (* All properties at one time share the same reconstructed geometry. *)
@@ -469,8 +513,7 @@ hklOutputs[a_, chart_, {p0_, e0_, x0_, \[Psi]r0_, \[Psi]\[Theta]0_, \[Phi]0_},
      only the output sampling, not NDSolve's integration grid. *)
   grid = Flatten[p["Grid"]];
   denseGrid = DeleteDuplicates[Flatten[Subdivide[#[[1]], #[[2]], 4] & /@ Partition[grid, 2, 1]]];
-  radialPhases = MapThread[phaseAngle, {\[Alpha]p[denseGrid], \[Beta]p[denseGrid]}];
-  \[Psi]r = hklContinuousPhase[Function[u, {\[Beta]p[u], \[Alpha]p[u]}], denseGrid, \[Psi]r0, radialPhases];
+  \[Psi]r = hklRadialPhase[\[Alpha]p, \[Beta]p, denseGrid, \[Psi]r0];
   \[Psi]\[Theta] = hklContinuousPhase[Function[u, {geometry[u]["nz"], geometry[u]["\[Alpha]\[Theta]"]}], denseGrid, \[Psi]\[Theta]0];
   \[Phi]Continuous = hklAzimuth[chart, {h, k, \[CapitalLambda]}, grid, denseGrid, \[Phi]0];
   \[Theta] = Function[{u}, ArcCos[Clip[geometry[u]["nz"], {-1, 1}]], {Listable}];
